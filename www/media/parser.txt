@@ -1,0 +1,29 @@
+import HTMLParser
+
+class NHLPlayParser(HTMLParser.HTMLParser):
+        def __init__(self):
+                HTMLParser.HTMLParser.__init__(self)
+		self.plays = []
+		self.play_data = []
+		self.table_count = 0
+		self.rec = 0
+
+        def handle_starttag(self, tag, attributes):
+		if tag == "tr":
+			for name,value in attributes:
+				if name == "class" and value == "evenColor":
+					self.recording = 1
+
+		if tag == "table" and self.rec:
+			self.table_count += 1
+
+        def handle_data(self, data):
+		
+
+        def handle_endtag(self, tag):
+		if tag == "table" and self.rec:
+			self.table_count -= 1
+
+		if tag == "tr" and self.rec:
+			self.plays.append(self.play_data)
+			self.play_data = []

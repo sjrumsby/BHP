@@ -1,0 +1,234 @@
+.primary {
+	margin: 0px auto;
+	width: 900px;
+	font-size: 13px;
+}
+
+.primary h1 {
+	font-size:20px;
+	margin-top:10px;
+	font-weight:bold;
+	color:#071027;
+}
+
+.primary p {
+	margin-left: 50px auto;
+	margin-right: 50px auto;
+	text-align: left;
+}
+
+.primary ul {
+	text-align: left;
+}
+
+.primary a {
+	color: #000;
+}
+
+.primary a:hover {
+	color: #777;
+	text-decoration: underline;
+}
+
+.fix {
+	top: 0;
+	left: 0;
+	position: fixed;
+	z-index: 9999;
+}
+
+.prim_fix {
+	margin-top: 70px;
+}
+
+.match_player_names p {
+	padding-left: 12px;
+}
+
+table.sortable {
+	margin: 0px auto;
+	white-space: nowrap;
+	border-spacing: 0;
+	border: 1px solid #000;
+	border-collapse: collapse;
+}
+
+table.sortable th, table.sortable td {
+	text-align: left;
+	padding-left: 1px;
+	padding-right: 1px;
+	margin-right: 0px;
+	line-height:25px;
+	border-style: solid;
+	border-color: #444;
+}
+
+table.sortable th {
+	border-width: 0px 1px 1px 1px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	background-color: #ccc;
+}
+table.sortable td {
+	border-width: 0px 1px 0px 1px;
+}
+
+table.sortable tr.odd td {
+	background-color: #ddd;
+}
+
+table.sortable tr.even td {
+	background-color: #fff;
+}
+
+table.rankings {
+        margin: 0px auto;
+        border-spacing: 0;
+        border: 1px solid #000;
+        border-collapse: collapse;
+}
+
+table.rankings th, table.rankings td {
+        text-align: left;
+        padding-left: 1px;
+        padding-right: 1px;
+        margin-right: 0px;
+        line-height:25px;
+        border-style: solid;
+        border-color: #444;
+}
+
+table.rankings th {
+        border-width: 0px 1px 1px 1px;
+        padding-left: 2px;
+        padding-right: 2px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        background-color: #ccc;
+}
+table.rankings td {
+        border-width: 0px 1px 0px 1px;
+}
+
+table.rankings tr.odd td {
+        background-color: #ddd;
+}
+
+table.rankings tr.even td {
+        background-color: #fff;
+}
+
+ul.to-do-list li {
+	list-style-type: circle; 
+	margin-left: 25px;
+}
+
+.draft_container {
+	width: 100%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.trade_div {
+        width: 50%;
+        display: inline-block;
+        vertical-align: top;
+}
+
+.trade_own_div, .trade_other_div {
+        width: 50%;
+        display: inline-block;
+	float: left;
+        vertical-align: top;
+}
+
+.draft_info_container {
+        display: inline-block;
+        vertical-align: top;
+	width: 25%;
+	float: left;
+}
+
+.top_player_container {
+        display: inline-block;
+        vertical-align: top;
+	width: 25%;
+	float: right;
+}
+
+.current_team {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+        float: left;
+}
+
+.current_team p {
+	text-align: center;
+}
+
+.current_team ol li {
+	list-style: decimal;
+	text-align: center;
+}
+
+.forwards {
+	display: inline-block;
+	width: 100%;
+}
+
+.left_wing {
+        display: inline-block;
+        vertical-align: top;
+        width: 33%;
+        float: left;
+}
+
+.center {
+        display: inline-block;
+        vertical-align: top;
+        width: 33%;
+        float: left;
+}
+
+.right_wing {
+        display: inline-block;
+        vertical-align: top;
+        width: 33%;
+        float: left;
+}
+
+.l_defense {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+        float: left;
+}
+
+.r_defense {
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+        float: left;
+}
+
+.goalie {
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        float: left;
+}
+
+
+.draft_container ol {
+	text-align: left;
+	padding-left: 10px;
+	list-style-type: decimal;
+}
+
+.player_draft_status ul {
+	margin: 0;
+	padding: 10px;
+}

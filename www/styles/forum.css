@@ -1,0 +1,104 @@
+h1.forum_heading {
+	margin-top: 10px;
+	line-height: 50px;
+}
+
+.forum_list_head {
+	font: bold 12px Ubuntubeta,Ubuntu,Bitstream Vera Sans,DejaVu Sans,Tahoma,sans-serif;
+	margin: 0px;
+	width: 100%;
+	border: 0px solid;
+	background: none repeat scroll 0% 0% rgb(247, 246, 245);
+	color: rgb(0, 0, 0);
+	float: left;
+	display: block;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+	box-shadow: -2px 2px 2px rgb(255, 255, 255);
+	position: relative;
+}
+
+.forum_list_head span.forum_info, .forum_list_head span.forum_stats, .forum_list_head span.thread_last_post {
+	display: block;
+	float: left;
+	clear: right;
+	padding:2px 0px;
+}
+
+.forum_list_head span.forum_info {
+	text-align: left;
+        min-width: 350px;
+        width:62%;
+	padding-left: 10px;
+}
+
+.forum_list_head span.forum_stats {
+	text-align: center;
+        width: 12%
+}
+
+.forum_list_head span.forum_last_post {
+	width: 23%;
+        text-align: left;
+        padding-left: 2%;
+}
+
+ol#threads {
+	    border-top: 1px solid rgb(194, 194, 194);
+}
+
+.forum_list .forums {
+	display: block;
+	clear: both;
+}
+
+.forums_bit {
+    width: 100%;
+    display: block;
+    clear: both;
+    color: rgb(0, 0, 0);
+    float: left;
+    position: relative;
+    box-shadow: -2px 2px 2px rgb(255, 255, 255);
+    padding: 0px;
+}
+
+.forums_bit .forum_info {
+	width: 62%;
+	min-width: 350px;
+	text-align: left;
+}
+
+.forums_bit .forum_stats {
+	width: 12%;
+	font-size: 12px;
+	text-align: right;
+	padding: 6px 0px;
+}
+
+.forums_bit .forum_stats li {
+	text-align: right;
+	margin-right: 20px;
+}
+
+.forums_bit .forum_last_post {
+	width: 23%;
+	padding: 6.74px 0px 6.74px 2%;
+	float: left;
+	clear: right;
+	display: block;
+	height: 29.52px;
+	font-size: 11px;
+}
+
+.forums_bit .forum_info, .forums_bit .forum_stats, .forums_bit .forum_last_post {
+	float: left;
+	clear: right;
+	display: inline-block;
+}
+
+.forums_bit .forum_title {
+	margin-top: 3px;
+}
+
+
