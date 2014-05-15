@@ -68,9 +68,11 @@
                                                 <div class="dropdownContain">
                                                         <div class="dropOut">
                                                                 <div class="triangle"></div>
+								{% for t in print_teams %}
 								<ul class="subMenu">
-									<li><a href="nowhere">{% print_teams %}</a></li>
+									<li><a href="nowhere">{{ teams }}</a></li>
 								</ul>
+								{% endfor %}
                                                         </div>
                                                 </div>
                                         </li>

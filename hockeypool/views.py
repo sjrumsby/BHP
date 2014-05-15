@@ -19,6 +19,8 @@ def standings_sort(data):
         return sorted(data, key = lambda x: (x['wins'], x['categories'], x['points']['fantasy_points']), reverse=True)
 
 def index(request):
+        teams = Player.objects.all().values_list("name", flat=True)
+	logger.info(teams)
         posts = Post.objects.all().order_by("id")
         posts = posts.reverse()[:5]
 	mainFrame = { 'posts' : posts }
