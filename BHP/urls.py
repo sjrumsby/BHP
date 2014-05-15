@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 	url(r'^forum/', include('forum.urls')),
 	url(r'^draft/', include('draft.urls')),
 	url(r'^match/', include('match.urls')),
-	url(r'^waivers/' include('waivers.urls')),
+	url(r'^waivers/', include('waivers.urls')),
 	url(r'^trades/', include('trades.urls')),
 	url(r'^rankings/', include('rankings.urls')),
 
