@@ -1,15 +1,10 @@
-import json
-from re import sub
-from django.http import HttpResponse, HttpResponseRedirect
-import datetime, time
-from django.utils.timezone import utc
-from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 
 from hockeypool.models import *
-from draft.models import *
+from trades.models import *
 import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def index(request):
@@ -26,7 +21,7 @@ def index(request):
                 t_out = 0
         all_trades = Trade.objects.filter(state=1)
         context = {'t_in' : t_in, 't_out' : t_out, 'in_trades' : in_trades, 'out_trades' : out_trades, 'page_name' : 'Trades', 'all_trades' : all_trades}
-        return render(request, 'hockeypool/trades.html', context)
+        return render(request, 'trades/index.html', context)
 
 @login_required
 def trade_cancel(request, trade_id):
@@ -53,7 +48,7 @@ def trade_cancel(request, trade_id):
                 errors = 1
                 error = "Trade with id: %s does not exist" % trade_id
         context = {'page_name' : 'Cancel Trade', 'error' : error, 'errors' : errors }
-        return render(request, 'hockeypool/trade_cancel.html', context)
+        return render(request, 'trades/cancel.html', context)
 
 
 @login_required
@@ -91,6 +86,6 @@ def trade_accept(request, trade_id):
                 errors = 1
                 error = "Trade with id: %s does not exist" % trade_id
         context = {'page_name' : 'Cancel Trade', 'error' : error, 'errors' : errors }
-        return render(request, 'hockeypool/trade_accept.html', context)
+        return render(request, 'trades/accept.html', context)
 
 

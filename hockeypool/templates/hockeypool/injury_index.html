@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %} {{ page_name }}{% endblock %}
+
+{% block primary %} Bring out yer dead.
+<table class="sortable" id="injury_table">
+        <tr>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Description</th>
+        </tr>
+        {% for i in injuries %}
+        <tr>
+                <td><a href="/skater/{{i.skater.nhl_id}}">{{i.skater.name}}</a></td>
+                <td>{{i.skater.hockey_team}}</td>
+                <td>{{i.date}}</td>
+                <td>{{i.status}}</td>
+                <td>{{i.description}}</td>
+        </tr>
+        {% endfor %}
+</table>
+{% endblock %}
+

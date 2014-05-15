@@ -1,15 +1,11 @@
-import json
-from re import sub
-from django.http import HttpResponse, HttpResponseRedirect
-import datetime, time
 from django.contrib.auth.decorators import login_required
-from django.utils.timezone import utc
-from django.core.cache import cache
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 
 from hockeypool.models import *
-from draft.models import *
+from waivers.models import *
+
 import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def index(request):
@@ -42,7 +38,7 @@ def index(request):
         player_waivers = Waiver.objects.filter(skater_id__in = skater_ids).filter(state__lte=2)
         pickups = Waiver_Pickup.objects.filter(state=0)
         context = { 'page_name' : 'Waivers', 'team' : team, 'all_waivers' : all_waivers, 'player_waivers' : player_waivers, 'error' : error, 'error_msg' : error_msg, 'action' : action, 'pickups' : pickups }
-        return render(request, 'hockeypool/waivers.html', context)
+        return render(request, 'waivers/index.html', context)
 
 @login_required
 def waiver_cancel(request, waiver_id):
@@ -68,7 +64,7 @@ def waiver_cancel(request, waiver_id):
                 error = 1
                 error_msg = "Could not find waiver with id: %s" % waiver_id
         context = { 'page_name' : "Waiver Cancel", 'error' : error, 'msg' : error_msg }
-        return render(request, 'hockeypool/waiver_cancel.html', context)
+        return render(request, 'waivers/cancel.html', context)
 
 @login_required
 def waiver_add(request):
@@ -104,5 +100,5 @@ def waiver_add(request):
                 error = 1
                 error_msg = "You didn't POST any data... quit fucking with my shit"
         context = { 'page_name' : "Waiver Add", 'error' : error, 'msg' : error_msg }
-        return render(request, 'hockeypool/waiver_add.html', context)
+        return render(request, 'waivers/add.html', context)
 

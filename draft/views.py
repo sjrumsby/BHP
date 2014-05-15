@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, loader
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
@@ -24,7 +24,7 @@ def index(request):
                         if request.user.id == x.player.id:
                                 player_status = x.status
                 context = {'page_name' : "Draft", 'status' : 0, 'message' : "Not all players ready to start draft", 'statuses' : status, 'player_status' : player_status}
-                return render(request, 'hockeypool/draft_index.html', context)
+                return render(request, 'draft/index.html', context)
         else:
                 null_count = Draft_Pick.objects.filter(pick__isnull=True).count()
                 draft_picks = Draft_Pick.objects.all().order_by("id")
@@ -89,7 +89,7 @@ def index(request):
                 else:
                         over = 1
                         context = {'page_name' : "Draft", 'over' : over}
-                return render(request, 'hockeypool/draft_index.html', context)
+                return render(request, 'draft/index.html', context)
 
 @login_required
 def draft_round(request, draft_round):
@@ -103,5 +103,5 @@ def draft_round(request, draft_round):
                 for x in picks:
                         pick_order.append(x.get_pick())
                 context = {'page_name' : "Draft Round", 'round' : draft_round, "errors" : 0, "order" : pick_order}
-                return render(request, 'hockeypool/draft_round.html', context)
+                return render(request, 'draft/draft_round.html', context)
 

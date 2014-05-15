@@ -1,10 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, loader
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
-from datetime import datetime
 
 from forum.models import *
 from hockeypool.models import *

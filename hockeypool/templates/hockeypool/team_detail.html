@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %} {{ page_name }}{% endblock %}
+
+{% block primary %}
+
+<p>Detailed listing for team: {{team_id}}</p>
+<table id="team_table" class="sortable">
+        <thead>
+                <tr>
+                        <th>Name</th>
+                        <th>P</th>
+                        <th>T</th>
+                        <th>P</th>
+                        <th>FP</th>
+                        <th>G</th>
+                        <th>A</th>
+                        <th>+/-</th>
+                        <th>OS</th>
+                        <th>TG</th>
+                        <th>Goalie</th>
+                        <th>SO</th>
+                </tr>
+        </thead>
+        <tbody>
+{% for t in team %}
+        <tr>
+                <td><a href="/skater/{{t.skater.nhl_id}}">{{t.skater.name}}</a></td>
+                <td>{{t.skater.position}}</td>
+                <td>{{t.skater.hockey_team}}</td>
+                <td>{{t.skater.games}}</td>
+                <td>{{t.category_points.fantasy_points}}</td>
+                <td>{{t.category_points.goals}}</td>
+                <td>{{t.category_points.assists}}</td>
+                <td>{{t.category_points.plus_minus}}</td>
+                <td>{{t.category_points.offensive_special}}</td>
+                <td>{{t.category_points.true_grit}}</td>
+                <td>{{t.category_points.goalie}}</td>
+                <td>{{t.category_points.shootout}}</td>
+        </tr>
+{% endfor %}
+</table>
+{% endblock %}

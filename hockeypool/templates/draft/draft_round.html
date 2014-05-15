@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{page_name}}{% endblock %}
+
+{% block primary %}
+
+{% if errors == 1 %}
+        <h1>Errors</h1>
+        <p>{{message}}</p>
+{% else %}
+
+        <p>The following players were picked in week: {{round}}
+                <ul>{% for l in order %}<li>{{l}}</li>{% endfor %}</ul>
+        </p>
+{% endif %}
+{% endblock %}
+

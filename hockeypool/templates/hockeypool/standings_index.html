@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} {{ page_name }}{% endblock %}
+
+{% block primary %}
+
+<table class="sortable" id="standings_table">
+        <tr>
+                <th>Team</th>
+                <th>Conference</th>
+                <th>Wins</th>
+                <th>Loss</th>
+                <th>Streak</th>
+                <th>Categories</th>
+                <th>Fantasy</th>
+                <th>Goals</th>
+                <th>Assists</th>
+                <th>+/-</th>
+                <th>Specialty</th>
+                <th>True Grit</th>
+                <th>Goalie</th>
+                <th>Shootout</th>
+        </tr>
+{% for p in p_data %}
+        <tr>
+                <td>{{p.name}}</td>
+                <td>{{p.conference}}</td>
+                <td>{{p.wins}}</td>
+                <td>{{p.loss}}</td>
+                <td>{{p.streak}}</td>
+                <td>{{p.categories}}</td>
+                <td>{{p.points.fantasy_points}}</td>
+                <td>{{p.points.goals}}</td>
+                <td>{{p.points.assists}}</td>
+                <td>{{p.points.plus_minus}}</td>
+                <td>{{p.points.offensive_special}}</td>
+                <td>{{p.points.true_grit}}</td>
+                <td>{{p.points.goalie}}</td>
+                <td>{{p.points.shootout}}</td>
+        </tr>
+{% endfor %}
+</table>
+<p>Tie Break Procedure (not yet finalized):
+<ol>
+        <li>1: Greater number of weekly wins</li>
+        <li>2: Greater number of total category wins</li>
+        <li>3: Head to head record</li>
+        <li>4: Total fantasy points</li>
+        <li>5: Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
+</ol>
+</p>
+
+{% endblock %}
+

@@ -1,14 +1,11 @@
-import json
-from re import sub
-from django.http import HttpResponse, HttpResponseRedirect
-import datetime, time
-from django.utils.timezone import utc
-from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 from hockeypool.models import *
-from draft.models import *
+from rankings.models import *
+
 import logging
+logger = logging.getLogger(__name__)
 
 @login_required
 def index(request):
@@ -31,7 +28,7 @@ def index(request):
                 ranks.append(tmp_dict)
 
         context = {'page_name' : 'Rankings', 'ranks' : ranks}
-        return render(request, 'hockeypool/rankings.html', context)
+        return render(request, 'rankings/index.html', context)
 
 @login_required
 def rankings_week(request, rankings_week):
@@ -56,5 +53,4 @@ def rankings_week(request, rankings_week):
 
         context = {'page_name' : 'Rankings', 'ranks' : ranks}
 
-        return render(request, 'hockeypool/rankings_week.html', context)
-
+        return render(request, 'rankings/rankings_week.html', context)

@@ -1,19 +1,19 @@
-import json
-from re import sub
 from django.http import HttpResponse, HttpResponseRedirect
-import datetime, time
-from django.utils.timezone import utc
-from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.db.models import Q
 
 from hockeypool.models import *
 from draft.models import *
+from match.models import *
+from trades.models import *
+from waivers.models import *
+
 import logging
 logger = logging.getLogger(__name__)
-
 
 def standings_sort(data):
         return sorted(data, key = lambda x: (x['wins'], x['categories'], x['points']['fantasy_points']), reverse=True)
@@ -88,7 +88,7 @@ def freeagents_index(request):
 def injury_index(request):
         injuries = Injury.objects.all()
         context = {'page_name' : 'Injuries', 'injuries' : injuries}
-        return render(request, 'hockeypool/injuries.html', context)
+        return render(request, 'hockeypool/injury_index.html', context)
 
 @login_required
 def injury_detail(request, skater_id):
@@ -198,7 +198,7 @@ def standings_index(request):
                 standings_data.append(player_data)
         s_data = standings_sort(standings_data)
         context = {'page_name' : 'Standings', 'p_data' : s_data}
-        return render(request, 'hockeypool/standings.html', context)
+        return render(request, 'hockeypool/standings_index.html', context)
 
 @login_required
 def standings_west(request):
@@ -272,7 +272,7 @@ def standings_east(request):
 @login_required
 def team_index(request):
         context = {'page_name' : 'Team'}
-        return render(request, 'hockeypool/team.html', context)
+        return render(request, 'hockeypool/team_index.html', context)
 
 @login_required
 def team_detail(request, team_id):

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block primary %}
+        <div id="success_banner">
+        {% if errors == 0 %}
+                <h1>Success</h1>
+                <p>Trade accepted successfully</p>
+        {% else %}
+                <h1>Error</h1>
+                <p>Your query returned the following error:
+                        <ul>{{error}}</ul>
+                </p>
+        {% endif %}
+{% endblock %}
+

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block primary %}
+<h1 class="forum_heading">General Forums</h1>
+<link rel="stylesheet" type="text/css" href="/forum.css" />
+<div id="forum_div" class="forum_div">
+        <div id="forum_list" class="forum_list">
+                <div class="forum_list_head">
+                        <span class="forum_info">Title/Author</span>
+                        <span class="forum_stats">Thread/Posts</span>
+                        <span class="forum_last_post">Last Post By</span>
+                </div>
+                <ol id="forums" class="forums">
+
+{% for f in forum_general %}
+                        <li id="forums_bit" class="forums_bit">
+                                <div class="forum_info">
+                                        <div class="inner">
+                                                <h3 class="forum_title"><a href="/forum/{{f.id}}/">{{f.title}}</a></h3>
+                                                <div class="forum_meta">
+                                                        <span class="forum_description">{{f.description}}</span>
+                                                </div>
+                                        </div>
+                                </div>
+                                <ul class="forum_stats">
+                                        <li>Thread: {{f.get_threads}}</li>
+                                        <li>Posts: {{f.get_posts}}</li>
+                                </ul>
+                                <dl class="forum_last_post">
+                                        <dd>Last Poster: {{f.get_last_poster}}</dd>
+                                        <dd>Time: {{f.get_last_poster_time}}</dd>
+                                </dl>
+                        </li>
+{% endfor %}
+                </ol>
+        </div>
+</div>
+<h1 class="forum_heading">Matchups</h1>
+<div id="forum_div" class="forum_div">
+        <div id="forum_list" class="forum_list">
+                <div class="forum_list_head">
+                        <span class="forum_info">Title/Author</span>
+                        <span class="forum_stats">Thread/Posts</span>
+                        <span class="forum_last_post">Last Post By</span>
+                </div>
+                <ol id="forums" class="forums">
+
+{% for f in forum_matches %}
+                        <li id="forums_bit" class="forums_bit">
+                                <div class="forum_info">
+                                        <div class="inner">
+                                                <h3 class="forum_title"><a href="/forum/{{f.id}}/">{{f.title}}</a></h3>
+                                                <div class="forum_meta">
+                                                        <span class="forum_description">{{f.description}}</span>
+                                                </div>
+                                        </div>
+                                </div>
+                                <ul class="forum_stats">
+                                        <li>Thread: {{f.get_threads}}</li>
+                                        <li>Posts: {{f.get_posts}}</li>
+                                </ul>
+                                <dl class="forum_last_post">
+                                        <dd>Last Poster: {{f.get_last_poster}}</dd>
+                                        <dd>Last Post Time: {{f.get_last_poster_time}}</dd>
+                                </dl>
+                        </li>
+{% endfor %}
+                </ol>
+        </div>
+</div>
+<h1 class="forum_heading">Suggestions</h1>
+        <div id="forum_list" class="forum_list">
+                <div class="forum_list_head">
+                        <span class="forum_info">Title/Author</span>
+                        <span class="forum_stats">Thread/Posts</span>
+                        <span class="forum_last_post">Last Post By</span>
+                </div>
+                <ol id="forums" class="forums">
+
+{% for f in forum_features %}
+                        <li id="forums_bit" class="forums_bit">
+                                <div class="forum_info">
+                                        <div class="inner">
+                                                <h3 class="forum_title"><a href="/forum/{{f.id}}/">{{f.title}}</a></h3>
+                                                <div class="forum_meta">
+                                                        <span class="forum_description">{{f.description}}</span>
+                                                </div>
+                                        </div>
+                                </div>
+                                <ul class="forum_stats">
+                                        <li>Thread: {{f.get_threads}}</li>
+                                        <li>Posts: {{f.get_posts}}</li>
+                                </ul>
+                                <dl class="forum_last_post">
+                                        <dd>Last Poster: {{f.get_last_poster}}</dd>
+                                        <dd>Last Post Time: {{f.get_last_poster_time}}</dd>
+                                </dl>
+                        </li>
+{% endfor %}
+                </ol>
+        </div>
+</div>
+{% endblock %}
+

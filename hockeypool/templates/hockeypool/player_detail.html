@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %} {{ page_name }}{% endblock %}
+
+{% block primary %}
+<div class="contentText">
+        {% if error == "Success" %}
+                {% if skater.position != 'G' %}
+                <table class="sortable" id="player_stats_table">
+                        <tr>
+                                <th>Name</th>
+                                <th>Team</th>
+                                <th>Pos</th>
+                                <th>GP</th>
+                                <th>G</th>
+                                <th>A</th>
+                                <th>P</th>
+                                <th>+/-</th>
+                                <th>PPG</th>
+                                <th>PPA</th>
+                                <th>SHG</th>
+                                <th>SHA</th>
+                                <th>GWG</th>
+                                <th>PSG</th>
+                                <th>PIM</th>
+                                <th>H</th>
+                                <th>S</th>
+                                <th>B</th>
+                                <th>Gy</th>
+                                <th>Ty</th>
+                                <th>FOW</th>
+                                <th>FOL</th>
+                                <th>F</th>
+                                <th>SOG</th>
+                                <th>SOM</th>
+                                <th>FP</th>
+                        </tr>
+                        <tr>
+                                <td>{{skater.name}}</td>
+                                <td>{{skater.hockey_team}}</td>
+                                <td>{{skater.position}}</td>
+                                <td>{{skater.games}}</td>
+                                <td>{{skater.goals}}</td>
+                                <td>{{skater.assists}}</td>
+                                <td>{{skater.points}}</td>
+                                <td>{{skater.plus_minus}}</td>
+                                <td>{{skater.ppg}}</td>
+                                <td>{{skater.ppa}}</td>
+                                <td>{{skater.shg}}</td>
+                                <td>{{skater.sha}}</td>
+                                <td>{{skater.gwg}}</td>
+                                <td>{{skater.psg}}</td>
+                                <td>{{skater.pims}}</td>
+                                <td>{{skater.hits}}</td>
+                                <td>{{skater.shots}}</td>
+                                <td>{{skater.blocks}}</td>
+                                <td>{{skater.giveaways}}</td>
+                                <td>{{skater.takeaways}}</td>
+                                <td>{{skater.faceoff_win}}</td>
+                                <td>{{skater.faceoff_loss}}</td>
+                                <td>{{skater.fights}}</td>
+                                <td>{{skater.shootout_made}}</td>
+                                <td>{{skater.shootout_fail}}</td>
+                                <td>{{skater.fantasy_points}}</td>
+                        </tr>
+                </table>
+                {% else %}
+                <table class="sortable" id="player_stats_table">
+                        <tr>
+                                <th>Name</th>
+                                <th>Team</th>
+                                <th>Pos</th>
+                                <th>GP</th>
+                                <th>G</th>
+                                <th>A</th>
+                                <th>P</th>
+                                <th>W</th>
+                                <th>OTL</th>
+                                <th>SO</th>
+                                <th>S</th>
+                                <th>GA</th>
+                                <th>PSS</th>
+                                <th>PSGA</th>
+                                <th>SOS</th>
+                                <th>SOGA</th>
+                                <th>FP</th>
+                        </tr>
+                        <tr>
+                                <td>{{skater.name}}</td>
+                                <td>{{skater.hockey_team}}</td>
+                                <td>{{skater.position}}</td>
+                                <td>{{skater.games}}</td>
+                                <td>{{skater.goals}}</td>
+                                <td>{{skater.assists}}</td>
+                                <td>{{skater.points}}</td>
+                                <td>{{skater.wins}}</td>
+                                <td>{{skater.otloss}}</td>
+                                <td>{{skater.shutouts}}</td>
+                                <td>{{skater.saves}}</td>
+                                <td>{{skater.goals_against}}</td>
+                                <td>{{skater.penshot_save}}</td>
+                                <td>{{skater.penshot_ga}}</td>
+                                <td>{{skater.shootout_save}}</td>
+                                <td>{{skater.shootout_ga}}</td>
+                                <td>{{skater.fantasy_points}}</td>
+                        </tr>
+                </table>
+                {% endif %}
+        {% else %}
+                        <p>{{error}}</p>
+        {% endif %}
+</div>
+{% endblock %}
+
