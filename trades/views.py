@@ -1,3 +1,16 @@
+import json
+from re import sub
+from django.http import HttpResponse, HttpResponseRedirect
+import datetime, time
+from django.utils.timezone import utc
+from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, render_to_response
+
+from hockeypool.models import *
+from draft.models import *
+import logging
+
 @login_required
 def index(request):
         in_trades = Trade.objects.filter(player2__id = request.user.id)

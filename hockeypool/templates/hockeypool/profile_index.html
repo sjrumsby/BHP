@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}{{page_name}}{% endblock %}
+
+{% block primary %}
+<p>Use the below form to change profile information, as it becomes available</p>
+<form action="" method="POST">
+<p>Team Name: <input id="change_team_name" name="change_team_name" value="{{team_name}}" /></p>
+<input type="submit" value="Submit" />
+</form>
+<p>Use this form to change your password</p>
+<form action="" method="POST">
+<p>Old password: <input id="old_pass" name="old_pass" type="password"/></p>
+<p>New Password: <input id="password1" name="password1" type="password" /></p>
+<p>Confirm: <input id="password2" name="password2" type="password" /></p>
+<input type="submit" value="Submit" />
+{% endblock %}
+

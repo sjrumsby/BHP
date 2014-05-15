@@ -1,4 +1,5 @@
 from django.db import models
+from hockeypool.models import *
 
 class Trade(models.Model):
         player1         = models.ForeignKey(Player, related_name="player1")

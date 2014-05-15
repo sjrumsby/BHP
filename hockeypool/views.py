@@ -1,12 +1,29 @@
-from django.shortcuts import render
-from models import *
+import json
+from re import sub
+from django.http import HttpResponse, HttpResponseRedirect
+import datetime, time
+from django.utils.timezone import utc
+from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, render_to_response
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+from hockeypool.models import *
+from draft.models import *
+import logging
+logger = logging.getLogger(__name__)
+
+
+def standings_sort(data):
+        return sorted(data, key = lambda x: (x['wins'], x['categories'], x['points']['fantasy_points']), reverse=True)
 
 def index(request):
         posts = Post.objects.all().order_by("id")
         posts = posts.reverse()[:5]
 	mainFrame = { 'posts' : posts }
 	sideFrame = {}
-        context = {'page_name' : 'Home', 'main' : mainFrame, 'side' : sideFrame}
+        context = {'page_name' : 'Home', 'mainFrame' : mainFrame, 'sideFrame' : sideFrame}
         return render(request, 'hockeypool/index.html', context)
 
 def freeagents_index(request):
@@ -27,7 +44,7 @@ def freeagents_index(request):
 
         if position == 'F':
                 if Team.objects.all().count() == 0:
-                        s = Skater.objects.select_related().exclude(position = "G").exclude(id__in = Draft_Pick.objects.filter(pick_isnull=False).values_list('skater_id', flat=True)).order_by("-%s" % sortby)
+                        s = Skater.objects.select_related().exclude(position = "G").exclude(id__in = Draft_Pick.objects.filter(pick__isnull=False).values_list('pick_id', flat=True)).order_by("-%s" % sortby)
                 else:
                         if only_freeagents == "0":
                                 s = Skater.objects.select_related().exclude(position = "G").exclude(id__in = Team.objects.all().values_list('skater_id', flat=True)).order_by("-%s" % sortby)

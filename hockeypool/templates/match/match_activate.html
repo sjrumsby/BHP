@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %} {{ page_name }}{% endblock %}
+{% block primary %}
+<script type="text/javascript">
+        function activate_roster() {
+                var ids = ""
+                $('#activate_table input').each(function () {
+                        if(this.checked){
+                                ids += ($(this).attr("value")) + ",";
+                        }
+                });
+                var postData = { "ids" : ids };
+                $.post("/ajax/activateRoster", postData, function(data, status) {
+                        var success_html;
+                        if (data.error == 1) {
+                                success_html = "<h1>Error</h1><p>Activations not processed with the following errors:<ul>";
+                                for(var i = 0; i < data.message.length; i++){
+                                        success_html += "<li>" + data.message[i] + "</li>";
+                                }
+                                success_html += "</ul></p>";
+                        } else if (data.error == 2) {
+                                success_html = "<h1>Warning</h1><p>Activations processed, but with the following warnings:<ul>";
+                                for(var i = 0; i < data.message.length; i++){
+                                        success_html += "<li>" + data.message[i] + "</li>";
+                                }
+                                success_html += "</ul></p>";
+                        } else if (data.error == 0) {
+                                success_html = "<h1>Success</h1><p>All activations successfully processed</p>";
+                        } else {
+                                success_html = "<h1>Shady shit just happened</h1><p>Ain't nobody know why, but you're shit didn't go through. Call Ghostbusters</p>";
+                        }
+                        $("#success_div").html(success_html);
+                });
+        }
+</script>
+<div id="success_div"></div>
+<table class="sortable" id="activate_table" name="activate_table">
+        <tr>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>T</th>
+                <th>Pos</th>
+                <th>T</th>
+                <th>GP</th>
+                <th>FP</th>
+                <th>G</th>
+                <th>A</th>
+                <th>+/-</th>
+                <th>OS</th>
+                <th>TG</th>
+                <th>Goalie</th>
+                <th>SO</th>
+                <th>Num Games</th>
+                <th>Active</th>
+        </tr>
+{% for t in team %}
+        <tr>
+                <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.name}}</a></td>
+                <td>{{t.skater.skater.position}}</td>
+                <td>{{t.skater.skater.hockey_team}}</td>
+                <td>{{t.skater.skater.games}}</td>
+                <td>{{ t.category_points.fantasy_points|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.goals|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.assists|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.plus_minus|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.offensive_special|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.true_grit|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.goalie|default_if_none:"0"}}</td>
+                <td>{{ t.category_points.shootout|default_if_none:"0"}}</td>
+                <td>{{t.num_games}}</td>
+                {% if t.check == 1 %}
+                        <td><input id="activate_{{t.skater.skater.nhl_id}}" name="activate_{{t.skater.skater.nhl_id}}" type="checkbox" checked="checked" value="{{t.skater.skater.nhl_id}}"></td>
+                {% else %}
+                        <td><input id="activate_{{t.skater.skater.nhl_id}}" name="activate_{{t.skater.skater.nhl_id}}" type="checkbox" value="{{t.skater.skater.nhl_id}}"></td>
+                {% endif %}
+        </tr>
+{% endfor %}
+</table>
+
+<button id="activate_button" name="activate_button" value="Activate" onclick="activate_roster()">Activate</button>
+{% endblock %}
+

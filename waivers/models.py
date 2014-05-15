@@ -1,4 +1,5 @@
 from django.db import models
+from hockeypool.models import *
 
 class Waiver(models.Model):
         skater          = models.ForeignKey(Skater)

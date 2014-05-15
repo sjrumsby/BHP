@@ -1,8 +1,20 @@
-from django.shortcuts import render
+import json
+from re import sub
+from django.http import HttpResponse, HttpResponseRedirect
+import datetime, time
+from django.utils.timezone import utc
+from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, render_to_response
+
+from hockeypool.models import *
+from match.models import *
+from draft.models import *
+import logging
 
 @login_required
-def match_index(request):
-        current_time = datetime.now()
+def index(request):
+        current_time = datetime.datetime.now()
         formed_date = "%s-%s-%s" % (current_time.year, str(current_time.month).zfill(2), str(current_time.day).zfill(2))
         pool = Pool.objects.get(pk=1)
         week = pool.current_week
@@ -68,11 +80,11 @@ def match_index(request):
                 context = {'page_name' : 'Schedule', 'state' : 1, 'matches' : match_data}
         else:
                 context = {'page_name' : 'Schedule', 'state' : 0 }
-        return render(request, 'hockeypool/match.html', context)
+        return render(request, 'match/match.html', context)
 
 @login_required
 def match_detail(request, match_id):
-        current_time = datetime.now()
+        current_time = datetime.datetime.now()
         formed_date = "%s-%s-%s" % (current_time.year, str(current_time.month).zfill(2), str(current_time.day).zfill(2))
         match = Match.objects.select_related().filter(id = match_id)
         game_ids = []
@@ -263,12 +275,12 @@ def match_detail(request, match_id):
 
 
         context = {'page_name' : 'Match: %s' % match_id, 'match' : m_info }
-        return render(request, 'hockeypool/match_detail.html', context)
+        return render(request, 'match/match_detail.html', context)
 
 @login_required
 def match_week(request, match_week):
         week = match_week
-        current_time = datetime.now()
+        current_time = datetime.datetime.now()
         formed_date = "%s-%s-%s" % (current_time.year, str(current_time.month).zfill(2), str(current_time.day).zfill(2))
 
         match = Match.objects.select_related().filter(week__number = week)
@@ -332,7 +344,7 @@ def match_week(request, match_week):
                 context = {'page_name' : 'Schedule', 'state' : 1, 'matches' : match_data}
         else:
                 context = {'page_name' : 'Schedule', 'state' : 0 }
-        return render(request, 'hockeypool/match_week.html', context)
+        return render(request, 'match/match_week.html', context)
 
 @login_required
 def match_activate(request):
@@ -341,7 +353,7 @@ def match_activate(request):
         team_array = []
         pool = Pool.objects.get(pk=1)
         for t in team:
-                date = datetime.now()
+                date = datetime.datetime.now()
                 formed_date = "%s-%s-%s" % (date.year, str(date.month).zfill(2), str(date.day).zfill(2))
                 current_week = pool.current_week
                 next_week = current_week.number + 1
@@ -357,5 +369,5 @@ def match_activate(request):
                 tmp_arr['num_games'] = Game.objects.filter(date__in=Week_Dates.objects.filter(week__number=next_week).values_list('date', flat="True")).filter(Q(home_team=t.skater.hockey_team)|Q(away_team=t.skater.hockey_team)).count()
                 team_array.append(tmp_arr)
         context = {'page_name' : 'Activate', 'team' : team_array}
-        return render(request, 'hockeypool/match_activate.html', context)
+        return render(request, 'match/match_activate.html', context)
 

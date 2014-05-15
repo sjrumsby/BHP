@@ -1,4 +1,5 @@
 from django.db import models
+from hockeypool.models import *
 
 class Power_Rank(models.Model):
         week            = models.IntegerField(max_length=2)
