@@ -84,6 +84,13 @@ class Team_Point(models.Model):
         point           = models.ForeignKey(Point)
         player          = models.ForeignKey(Player)
 
+class Game(models.Model):
+        date            = models.DateField()
+        home_team       = models.ForeignKey(Hockey_Team, related_name="home_team")
+        away_team       = models.ForeignKey(Hockey_Team, related_name="away_team")
+        time            = models.TimeField()
+        nhl_game_id     = models.IntegerField(max_length=10)
+
 class Injury(models.Model):
         skater          = models.ForeignKey(Skater)
         date            = models.DateField()
