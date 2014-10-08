@@ -6,7 +6,7 @@
         {% if status != 0 %}
         setInterval(function(){reduceTimer()},1000);
         {% endif %}
-        setInterval(function(){pageUpdate()},1000);
+        setInterval(function(){pageUpdate()},8000);
 
         function reduceTimer() {
                 var element = document.getElementById("time_remaining_text");
@@ -42,27 +42,27 @@
                                 var goalie_html = "";
 
                                 for (i = 0; i < data.lw.length; i++){
-                                        left_wing_html += "<li>" + data.left_wing[i] + "</li>";
+                                        left_wing_html += "<li>" + data.lw[i] + "</li>";
                                 }
 
                                 for (i = 0; i < data.rw.length; i++){
-                                        right_wing_html += "<li>" + data.right_wing[i] + "</li>";
+                                        right_wing_html += "<li>" + data.rw[i] + "</li>";
                                 }
 
                                 for (i = 0; i < data.c.length; i++){
-                                        center_html += "<li>" + data.center[i] + "</li>";
+                                        center_html += "<li>" + data.c[i] + "</li>";
                                 }
 
                                 for (i = 0; i < data.ld.length; i++){
-                                        ldefense_html += "<li>" + data.ldefense[i] + "</li>";
+                                        ldefense_html += "<li>" + data.ld[i] + "</li>";
                                 }
 
                                 for (i = 0; i < data.rd.length; i++){
-                                        rdefense_html += "<li>" + data.rdefense[i] + "</li>";
+                                        rdefense_html += "<li>" + data.rd[i] + "</li>";
                                 }
 
                                 for (i = 0; i < data.g.length; i++){
-                                        goalie_html += "<li>" + data.goalie[i] + "</li>";
+                                        goalie_html += "<li>" + data.g[i] + "</li>";
                                 }
 
                                 $(".left_wing ol").html(left_wing_html);
@@ -129,7 +129,7 @@
                 } else {
                         var draft_var = 1;
                 }
-                var postData = {"status" : draft_var}
+                var postData = {"status" : draft_var, "csrfmiddlewaretoken": '{{ csrf_token }}'}
                 $.post("/ajax/updateStatus", postData, function(data, status) {
                         if (data.errors == 1) {
                                 alert("Fail:\n\n Did not successfully update status. Contact the comissioner");
@@ -139,7 +139,7 @@
 
         function select_player() {
                 var player_name = document.getElementById("draft_pick").value;
-                var postData = {"player_name" : player_name};
+                var postData = {"player_name" : player_name, "csrfmiddlewaretoken": '{{ csrf_token }}'};
                 $.post("/ajax/pickPlayer", postData, function(data, status){
                         if (data.errors == 1) {
                                 alert("Fail:\n\n" + data.message);

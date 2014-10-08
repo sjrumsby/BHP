@@ -6,6 +6,7 @@ from django.utils.timezone import utc
 from django.core.cache import cache
 
 from hockeypool.models import *
+from match.models import *
 from draft.models import *
 import logging
 
@@ -16,7 +17,7 @@ def getPlayer(request, player_name):
         data = ""
         if len(s) >= 1:
                 for i in s:
-                        data = data + '<p><a onclick="replace_draft_text(\'%s\');" href="javascript:void(0)">%s</p>' % (i.get_name(), i.get_name())
+                        data = data + '<p><a onclick="replace_draft_text(\'%s\');" href="javascript:void(0)">%s</p>' % (i.name, i.name)
         else:
                 data = "No results found"
         return HttpResponse(data)
@@ -66,7 +67,10 @@ def draftUpdate(request):
                                 draft_swap = Draft_Swap.objects.filter(pick = draft_picks[total_picks - null_count]).order_by("-id")[0]
                                 before = draft_swap.time
                         else:
-                                before = draft_picks[total_picks - null_count - 1].time
+				if total_picks - null_count - 1 >= 0:
+					before = draft_picks[total_picks - null_count - 1].time
+				else:
+					before = now
 
                         end = before + datetime.timedelta(minutes=3, seconds=0) - datetime.timedelta(minutes=0,seconds=before.second)
                         time_diff = end - now
@@ -85,18 +89,18 @@ def draftUpdate(request):
                         all_picks = Draft_Pick.objects.select_related().filter(pick__isnull=False).filter(player=request.user)
 
                         for x in all_picks:
-                                if x.pick.position == "L":
-                                        lw.append(x.pick.name)
-                                elif x.pick.position == "C":
-                                        c.append(x.pick.name)
-                                elif x.pick.position == "R":
-                                        rw.append(x.pick.name)
-                                elif x.pick.position == "D" and (len(ld) <= len(rd)):
-                                        ld.append(x.pick.name)
-                                elif x.pick.position == "D":
-                                        rd.append(x.pick.name)
-                                elif x.pick.position == "G":
-                                        g.append(x.pick.name)
+                                if x.pick.position[0] == "L":
+                                        lw.append(x.pick.name + " (" + x.pick.position + ")")
+                                elif x.pick.position[0] == "C":
+                                        c.append(x.pick.name + " (" + x.pick.position + ")")
+                                elif x.pick.position[0] == "R":
+                                        rw.append(x.pick.name + " (" + x.pick.position + ")")
+                                elif x.pick.position[0] == "D" and (len(ld) <= len(rd)):
+                                        ld.append(x.pick.name + " (" + x.pick.position + ")")
+                                elif x.pick.position[0] == "D":
+                                        rd.append(x.pick.name + " (" + x.pick.position + ")")
+                                elif x.pick.position[0] == "G":
+                                        g.append(x.pick.name + " (" + x.pick.position + ")")
 
                         for x in null_picks:
                                 if x.pick == None:
@@ -186,10 +190,10 @@ def updateStatus(request):
         return HttpResponse(json.dumps(data), content_type="application/json")
 
 def activateRoster(request):
-        activations = request.POST.get("ids")
-        logger.info("Attempting to activate: %s" % activations)
+        activations = json.loads(request.body)
+        logger.info("User: %s Attempting to activate: %s" % (request.user.id, activations))
         team_check = 1
-        vals = activations.split(",")
+	vals = []
         error = 0
         msg = []
         p = Pool.objects.get(pk=1)
@@ -202,61 +206,71 @@ def activateRoster(request):
         Activation.objects.filter(player__id = request.user.id).delete()
         team_to_activate = []
 
-        for x in vals:
-                sub("/,/", "", x)
-                if x.isdigit():
-                        if Team.objects.filter(player__id = request.user.id, skater__nhl_id = x).count() == 1:
-                                t = Team.objects.get(player__id = request.user.id, skater__nhl_id = x)
-                                team_to_activate.append([t.skater, t.player])
+        for x in activations['ids']:
+                if x['id'].isdigit():
+                        if Team.objects.filter(player__id = request.user.id, skater__nhl_id = x['id']).count() == 1:
+                                t = Team.objects.get(player__id = request.user.id, skater__nhl_id = x['id'])
+				if x['position'] not in t.skater.position and x['position'] != 'B':
+					logger.info("Can not activate %s as position %s" % (t.skater, x['position']))
+					error = 1
+				else:
+					team_to_activate.append([t.skater, t.player, x['position']])
                         else:
-                                logger.info("not found")
-        c = l = r = d = g = 0
-        for x in team_to_activate:
-                if x[0].position == "C":
-                        c = c + 1
-                elif x[0].position == "L":
-                        l = l + 1
-                elif x[0].position == "R":
-                        r = r + 1
-                elif x[0].position == "D":
-                        d = d + 1
-                elif x[0].position == "G":
-                        g = g + 1
-        if c < 3:
-                error = 2
-                msg.append("Too few centres")
-        if l < 3:
-                error = 2
-                msg.append("Too few Left Wing")
-        if r < 3:
-                error = 2
-                msg.append("Too few Right Wing")
-        if d < 6:
-                error = 2
-                msg.append("Too few defense")
-        if g < 1:
-                error = 2
-                msg.append("Too few goalies")
-        if c > 3:
-                error = 1
-                msg.append("Too many centres")
-        if l > 3:
-                error = 1
-                msg.append("Too many Left Wing")
-        if r > 3:
-                error = 1
-                msg.append("Too many Right Wing")
-        if d > 6:
-                error = 1
-                msg.append("Too many defense")
-        if g > 1:
-                error = 1
-                msg.append("Too many goaies")
+				error = 1
+                                logger.info("Skater not found with id: %s" % x['id'])
+
+	if error != 1:
+		c = l = r = d = g = 0
+		for x in team_to_activate:
+			if x[2] == "C":
+				c = c + 1
+			elif x[2] == "L":
+				l = l + 1
+			elif x[2] == "R":
+				r = r + 1
+			elif x[2] == "D":
+				d = d + 1
+			elif x[2] == "G":
+				g = g + 1
+		if c < 3:
+			error = 2
+			msg.append("Too few centres")
+		if l < 3:
+			error = 2
+			msg.append("Too few Left Wing")
+		if r < 3:
+			error = 2
+			msg.append("Too few Right Wing")
+		if d < 6:
+			error = 2
+			msg.append("Too few defense")
+		if g < 1:
+			error = 2
+			msg.append("Too few goalies")
+		if c > 3:
+			error = 1
+			msg.append("Too many centres")
+		if l > 3:
+			error = 1
+			msg.append("Too many Left Wing")
+		if r > 3:
+			error = 1
+			msg.append("Too many Right Wing")
+		if d > 6:
+			error = 1
+			msg.append("Too many defense")
+		if g > 1:
+			error = 1
+			msg.append("Too many goaies")
 
         if error != 1:
                 for t in team_to_activate:
-                        a = Activation.objects.create(skater=t[0], player=t[1], week=week)
-                        a.save()
+			if t[2] == 'B':
+				a = Activation.objects.create(skater=t[0], player=t[1], week=week, bench=True)
+				a.save()
+			else:
+				a = Activation.objects.create(skater=t[0], player=t[1], week=week, bench=False)
+				a.save()
                         logger.info("Skater: %s" % a.skater.name)
 
         data = {"error" : error, "message" : msg}

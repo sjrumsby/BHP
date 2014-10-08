@@ -1,19 +1,19 @@
 #!/usr/bin/python
 
 import django
-from sys import path
+import sys
+import os
 from random import random
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
 import HTMLParser, grequests, urllib2, re
 
-django_path = '/django/django_bhp/'
-if django_path not in path:
-        path.append(django_path)
+if "/django/BHP" not in sys.path:
+        sys.path.append("/django/BHP")
 
-from django_bhp import settings
-from django.core.management import setup_environ
-setup_environ(settings)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+
+from BHP import settings
 
 from hockeypool.models import *
 from draft.models import *

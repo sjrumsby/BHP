@@ -835,8 +835,8 @@ current_time = datetime.utcnow()
 logger.info(current_time)
 formed_date = "%s-%s-%s" % (current_time.year, str(current_time.month).zfill(2), str(current_time.day).zfill(2))
 
-if current_time.month < 10 and current_time.year == 2013:
-	formed_date = "2013-10-01"
+if current_time.month < 10 and current_time.year == 2014:
+	formed_date = "2014-10-01"
 
 week = Week_Dates.objects.get(date=formed_date)
 week = week.week

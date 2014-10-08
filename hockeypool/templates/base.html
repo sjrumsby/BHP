@@ -5,7 +5,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <script src="/scripts/scripts.js" type="text/javascript"></script>
         <script src="/scripts/sortable.js" type="text/javascript"></script>
-        <title>Hockey Pool</title>
+        <title>Bitchin' Hockey Pool</title>
         <link rel="stylesheet" type="text/css" href="/style.css" />
         <link rel="stylesheet" type="text/css" href="/dropdown-menu.css" />
         <link rel="stylesheet" type="text/css" href="/header.css" />
@@ -68,11 +68,7 @@
                                                 <div class="dropdownContain">
                                                         <div class="dropOut">
                                                                 <div class="triangle"></div>
-								{% for t in print_teams %}
-								<ul class="subMenu">
-									<li><a href="nowhere">{{ teams }}</a></li>
-								</ul>
-								{% endfor %}
+								{% print_teams %}
                                                         </div>
                                                 </div>
                                         </li>

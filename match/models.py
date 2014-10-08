@@ -16,6 +16,7 @@ class Activation(models.Model):
         week            = models.ForeignKey(Week)
         skater          = models.ForeignKey(Skater)
         player          = models.ForeignKey(Player)
+	bench		= models.BooleanField()
 
 class Activated_Team(models.Model):
         skater          = models.ForeignKey(Skater)

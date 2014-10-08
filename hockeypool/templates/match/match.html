@@ -29,7 +29,10 @@
                         <a href="/match/week/21/">21</a> -
                         <a href="/match/week/22/">22</a> -
                         <a href="/match/week/23/">23</a> -
-                        <a href="/match/week/24/">24</a>
+                        <a href="/match/week/24/">24</a> - 
+                        <a href="/match/week/25/">25</a> - 
+                        <a href="/match/week/26/">26</a>
+
                 </div>
 
                 {% for m in matches %}
@@ -55,7 +58,7 @@
                                         <th>In Action</th>
                                 </tr>
                                 <tr>
-                                        <td>{{m.match.home_player}}</td>
+                                        <td><a href="/team/{{m.match.home_player.id}}/">{{m.match.home_player}}</a></td>
                                         <td>{{m.home.category_points.fantasy_points|default_if_none:"0"}}</td>
                                         <td>{{m.home.category_points.goals|default_if_none:"0"}}</td>
                                         <td>{{m.home.category_points.assists|default_if_none:"0"}}</td>
@@ -68,7 +71,7 @@
                                         <td>{{m.home.in_action}}</td>
                                 </tr>
                                 <tr>
-                                        <td>{{m.match.away_player}}</td>
+                                        <td><a href="/team/{{m.match.away_player.id}}/">{{m.match.away_player}}</a></td>
                                         <td>{{m.away.category_points.fantasy_points|default_if_none:"0"}}</td>
                                         <td>{{m.away.category_points.goals|default_if_none:"0"}}</td>
                                         <td>{{m.away.category_points.assists|default_if_none:"0"}}</td>

@@ -28,15 +28,15 @@
                 <td><a href="/skater/{{t.skater.nhl_id}}">{{t.skater.name}}</a></td>
                 <td>{{t.skater.position}}</td>
                 <td>{{t.skater.hockey_team}}</td>
-                <td>{{t.skater.games}}</td>
-                <td>{{t.category_points.fantasy_points}}</td>
-                <td>{{t.category_points.goals}}</td>
-                <td>{{t.category_points.assists}}</td>
-                <td>{{t.category_points.plus_minus}}</td>
-                <td>{{t.category_points.offensive_special}}</td>
-                <td>{{t.category_points.true_grit}}</td>
-                <td>{{t.category_points.goalie}}</td>
-                <td>{{t.category_points.shootout}}</td>
+                <td>{{t.skater.games|default_if_none:"0"}}</td>
+                <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goals|default_if_none:"0"}}</td>
+                <td>{{t.category_points.assists|default_if_none:"0"}}</td>
+                <td>{{t.category_points.plus_minus|default_if_none:"0"}}</td>
+                <td>{{t.category_points.offensive_special|default_if_none:"0"}}</td>
+                <td>{{t.category_points.true_grit|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goalie|default_if_none:"0"}}</td>
+                <td>{{t.category_points.shootout|default_if_none:"0"}}</td>
         </tr>
 {% endfor %}
 </table>

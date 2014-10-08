@@ -93,6 +93,7 @@ def match_detail(request, match_id):
 
         if len(match) > 0:
                 match = match[0]
+		logger.info("%s, %s, %s" % (match.id, match.home_player, match.away_player))
                 match_info = []
                 week = match.week.number
                 m_info = { 'match' : match, 'home' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } }, 'away' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } } }
@@ -271,7 +272,7 @@ def match_detail(request, match_id):
                                 m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
 
 
-
+	logger.info(m_info)
         context = {'page_name' : 'Match: %s' % match_id, 'match' : m_info }
         return render(request, 'match/match_detail.html', context)
 

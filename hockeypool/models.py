@@ -11,7 +11,7 @@ class Skater(models.Model):
         nhl_id          = models.IntegerField(max_length=8)
         name            = models.CharField(max_length=64, default="")
         hockey_team     = models.ForeignKey(Hockey_Team, default=0)
-        position        = models.CharField(max_length=2, default="")
+        position        = models.CharField(max_length=8, default="")
         games           = models.IntegerField(max_length=8, default=0)
         goals           = models.IntegerField(max_length=8, default=0)
         assists         = models.IntegerField(max_length=8, default=0)

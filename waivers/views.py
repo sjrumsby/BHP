@@ -36,8 +36,9 @@ def index(request):
         skater_ids = team.values_list("skater_id", flat="True")
         all_waivers = Waiver.objects.filter(state__lte=2)
         player_waivers = Waiver.objects.filter(skater_id__in = skater_ids).filter(state__lte=2)
-        pickups = Waiver_Pickup.objects.filter(state=0)
-        context = { 'page_name' : 'Waivers', 'team' : team, 'all_waivers' : all_waivers, 'player_waivers' : player_waivers, 'error' : error, 'error_msg' : error_msg, 'action' : action, 'pickups' : pickups }
+        all_pickups = Waiver_Pickup.objects.filter(state=1)
+	player_pickups = Waiver_Pickup.objects.filter(state=0).filter(player=request.user)
+        context = { 'page_name' : 'Waivers', 'team' : team, 'all_waivers' : all_waivers, 'player_waivers' : player_waivers, 'error' : error, 'error_msg' : error_msg, 'action' : action, 'pickups' : all_pickups, 'player_pickups' : player_pickups}
         return render(request, 'waivers/index.html', context)
 
 @login_required
@@ -89,9 +90,7 @@ def waiver_add(request):
                                         error = 0
                                         error_msg = ""
                                         logger.info("success")
-                                        new_t = Team.objects.create(player = p, skater = s, week = 1, active = 0)
-                                        new_t.save()
-                                        new_wp = Waiver_Pickup.objects.create(player = p, skater = s)
+                                        new_wp = Waiver_Pickup.objects.create(player = p, skater = s, state=0)
                                         new_wp.save()
                 else:
                         error = 1

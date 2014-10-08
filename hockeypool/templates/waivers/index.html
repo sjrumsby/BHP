@@ -13,6 +13,25 @@
                 </p>
         {% endif %}
 {% endif %}
+
+{% if player_pickups|length > 0 %}
+<div id="player_pickups">
+<h1>Your Waiver Pickups</h1>
+<p>The following players have been picked up off of waivers this week.</p>
+<table class="sortable" id="waiver_pickups">
+        <tr>
+                <th>Team</th>
+                <th>Skater</th>
+        </tr>
+        {% for p in player_pickups %}
+        <tr>
+                <td>{{p.player}}</td>
+                <td>{{p.skater.name}}</td>
+        </tr>
+        {% endfor %}
+</table>
+{% endif %}
+
 {% if pickups|length > 0 %}
 <div id="pickups">
 <h1>Waiver Pickups</h1>
@@ -79,7 +98,7 @@
 <div id="add">
         <h1>Add Players</h1>
         <p>Use this form to add a player to your team</p>
-        <form action="/waivers/add/" method="POST">
+        <form action="/waivers/add/" method="POST">{% csrf_token %}
                <input type="text" value="" name="waiver_add" id="waiver_add" onkeyup="add_player()" />
                 <input type="hidden" value="" name="waiver_add_id" id="waiver_add_id"/>
                 <input type="submit" value="Add" />
@@ -89,7 +108,7 @@
 <div id="drop">
         <h1>Drop Players</h1>
         <p>Use the below form to drop a player to waivers:</p>
-        <form action="" method="POST">
+        <form action="" method="POST">{% csrf_token %}
         <table class="sortable" id="waiver_table">
                 <tr>
                         <th>Player</th>

@@ -25,18 +25,18 @@
         <tr>
                 <td>{{p.name}}</td>
                 <td>{{p.conference}}</td>
-                <td>{{p.wins}}</td>
-                <td>{{p.loss}}</td>
-                <td>{{p.streak}}</td>
-                <td>{{p.categories}}</td>
-                <td>{{p.points.fantasy_points}}</td>
-                <td>{{p.points.goals}}</td>
-                <td>{{p.points.assists}}</td>
-                <td>{{p.points.plus_minus}}</td>
-                <td>{{p.points.offensive_special}}</td>
-                <td>{{p.points.true_grit}}</td>
-                <td>{{p.points.goalie}}</td>
-                <td>{{p.points.shootout}}</td>
+                <td>{{p.wins|default_if_none:"0"}}</td>
+                <td>{{p.loss|default_if_none:"0"}}</td>
+                <td>{{p.streak|default_if_none:"0"}}</td>
+                <td>{{p.categories|default_if_none:"0"}}</td>
+                <td>{{p.points.fantasy_points|default_if_none:"0"}}</td>
+                <td>{{p.points.goals|default_if_none:"0"}}</td>
+                <td>{{p.points.assists|default_if_none:"0"}}</td>
+                <td>{{p.points.plus_minus|default_if_none:"0"}}</td>
+                <td>{{p.points.offensive_special|default_if_none:"0"}}</td>
+                <td>{{p.points.true_grit|default_if_none:"0"}}</td>
+                <td>{{p.points.goalie|default_if_none:"0"}}</td>
+                <td>{{p.points.shootout|default_if_none:"0"}}</td>
         </tr>
 {% endfor %}
 </table>

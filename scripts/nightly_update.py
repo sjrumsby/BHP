@@ -1,20 +1,20 @@
 #!/usr/bin/python
 
 import django
-from sys import path
+import sys
+import os
 from random import random
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from time import time
 import HTMLParser, grequests, urllib2, re
 
-django_path = '/django/django_bhp/'
-if django_path not in path:
-        path.append(django_path)
+if "/django/BHP" not in sys.path:
+        sys.path.append("/django/BHP")
 
-from django_bhp import settings
-from django.core.management import setup_environ
-setup_environ(settings)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+
+from BHP import settings
 
 from hockeypool.models import *
 from draft.models import *
@@ -28,10 +28,10 @@ cat_vals = {
 		'goals' 		: 10,
 		'assists' 		: 10,
 		'plus_minus' 		: 7,
-		'ppg' 			: 10,
-		'shg' 			: 10,
-		'ppa' 			: 10,
-		'sha' 			: 10,
+		'ppg' 			: 8,
+		'shg' 			: 12,
+		'ppa' 			: 8,
+		'sha' 			: 12,
 		'psg' 			: 10,
 		'gwg' 			: 10,
 		'hits' 			: 1,
@@ -41,8 +41,8 @@ cat_vals = {
 		'faceoff_win' 		: 1,
 		'faceoff_loss' 		: -1,
 		'shots' 		: 1,
-		'pims' 			: -2,
-		'fights' 		: 30,
+		'pims' 			: -1,
+		'fights' 		: 20,
 		'shootout_made' 	: 1,
 		'shootout_fail' 	: -1,
 		'wins' 			: 15,

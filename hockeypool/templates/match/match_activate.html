@@ -2,14 +2,40 @@
 {% block title %} {{ page_name }}{% endblock %}
 {% block primary %}
 <script type="text/javascript">
+if (!$)
+    var $ = django.jQuery;
+
+	$('html').ajaxSend(function(event, xhr, settings) {
+	    function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+		    var cookies = document.cookie.split(';');
+		    for (var i = 0; i < cookies.length; i++) {
+			var cookie = $.trim(cookies[i]);
+			// Does this cookie string begin with the name we want?
+			if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			    break;
+			}
+		    }
+		}
+		return cookieValue;
+	    }
+	    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+		// Only send the token to relative URLs i.e. locally.
+		xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+	    }
+	});
+
         function activate_roster() {
-                var ids = ""
+                var skaters = []
                 $('#activate_table input').each(function () {
                         if(this.checked){
-                                ids += ($(this).attr("value")) + ",";
+				skater = { "id" : $(this).attr("value"), "position" : $(this).parent().parent().children('td').eq(1).children().first().val()} 
+                                skaters.push(skater);
                         }
                 });
-                var postData = { "ids" : ids };
+                var postData = JSON.stringify({ "ids" : skaters });
                 $.post("/ajax/activateRoster", postData, function(data, status) {
                         var success_html;
                         if (data.error == 1) {
@@ -39,8 +65,6 @@
                 <th>Name</th>
                 <th>Pos</th>
                 <th>T</th>
-                <th>Pos</th>
-                <th>T</th>
                 <th>GP</th>
                 <th>FP</th>
                 <th>G</th>
@@ -56,18 +80,18 @@
 {% for t in team %}
         <tr>
                 <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.name}}</a></td>
-                <td>{{t.skater.skater.position}}</td>
+                <td><select>{% for p in t.skater.skater.position %}{% if p != ',' and p != ' ' %} <option>{{ p }}</option> {% endif %} {% endfor %}<option>B</option></select></td>
                 <td>{{t.skater.skater.hockey_team}}</td>
                 <td>{{t.skater.skater.games}}</td>
-                <td>{{ t.category_points.fantasy_points|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.goals|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.assists|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.plus_minus|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.offensive_special|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.true_grit|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.goalie|default_if_none:"0"}}</td>
-                <td>{{ t.category_points.shootout|default_if_none:"0"}}</td>
-                <td>{{t.num_games}}</td>
+                <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goals|default_if_none:"0"}}</td>
+                <td>{{t.category_points.assists|default_if_none:"0"}}</td>
+                <td>{{t.category_points.plus_minus|default_if_none:"0"}}</td>
+                <td>{{t.category_points.offensive_special|default_if_none:"0"}}</td>
+                <td>{{t.category_points.true_grit|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goalie|default_if_none:"0"}}</td>
+                <td>{{t.category_points.shootout|default_if_none:"0"}}</td>
+                <td>{{t.num_games|default_if_none:"0"}}</td>
                 {% if t.check == 1 %}
                         <td><input id="activate_{{t.skater.skater.nhl_id}}" name="activate_{{t.skater.skater.nhl_id}}" type="checkbox" checked="checked" value="{{t.skater.skater.nhl_id}}"></td>
                 {% else %}

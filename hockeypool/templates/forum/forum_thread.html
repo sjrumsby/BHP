@@ -39,7 +39,7 @@
 </div>
         <link rel="stylesheet" type="text/css" href="/newpost.css" />
         <div id="newpost" class="newpost">
-                <form method="POST" action="">
+                <form method="POST" action="">{% csrf_token %}
                         <div id="above_post_message" class="above_post_message">
                                 <h2 class="blockhead">Your Message</h1>
                         </div>

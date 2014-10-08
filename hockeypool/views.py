@@ -12,6 +12,8 @@ from match.models import *
 from trades.models import *
 from waivers.models import *
 
+from re import match
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ def standings_sort(data):
 
 def index(request):
         teams = Player.objects.all().values_list("name", flat=True)
-	logger.info(teams)
+	logger.info(len(teams))
         posts = Post.objects.all().order_by("id")
         posts = posts.reverse()[:5]
 	mainFrame = { 'posts' : posts }
@@ -54,7 +56,7 @@ def freeagents_index(request):
                                 s = Skater.objects.select_related().exclude(position = "G").order_by("-%s" % sortby)
         else:
                 if Team.objects.all().count() == 0:
-                        s = Skater.objects.select_related().filter(position=position).exclude(id__in = Draft_Pick.objects.filter(pick_isnull=False).values_list('skater_id', flat=True)).order_by("-%s" % sortby)
+                        s = Skater.objects.select_related().filter(position=position).exclude(id__in = Draft_Pick.objects.filter(pick__isnull=False).values_list('pick_id', flat=True)).order_by("-%s" % sortby)
                 else:
                         if only_freeagents == "0":
                                 s = Skater.objects.select_related().filter(position=position).exclude(id__in = Team.objects.all().values_list('skater_id', flat=True)).order_by("-%s" % sortby)
@@ -284,7 +286,7 @@ def team_detail(request, team_id):
         for t in team:
                 skater_data = {'skater' : t.skater}
                 skater_data['category_points'] = Point.objects.filter(skater = t.skater).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
-                team_data.append(skater_data)
+                team_data.append(skater_data)	
 
         context = {'page_name' : 'Team: %s' % player.name, 'team' : team_data}
         return render(request, 'hockeypool/team_detail.html', context)

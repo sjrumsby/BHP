@@ -31,7 +31,10 @@ def index(request):
                 total_picks = len(draft_picks)
                 if null_count != 0:
                         now = datetime.utcnow().replace(tzinfo=utc)
-                        before = draft_picks[total_picks - null_count - 1].time
+			if total_picks - null_count - 1 >= 0:
+				before = draft_picks[total_picks - null_count - 1].time
+			else:
+				before = now
                         end = before + timedelta(minutes=3, seconds=0) - timedelta(minutes=0,seconds=before.second)
                         time_diff = end - now
                         time_left = int(time_diff.total_seconds())
