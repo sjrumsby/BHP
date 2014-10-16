@@ -1,6 +1,8 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<script src="/scripts/scripts.js"></script>
+<div class="container">
 {% if action == "POST" %}
         <div id="success_banner">
         {% if error == 0 %}
@@ -15,7 +17,7 @@
 {% endif %}
 
 {% if player_pickups|length > 0 %}
-<div id="player_pickups">
+<div id="player_pickups col-lg-12">
 <h1>Your Waiver Pickups</h1>
 <p>The following players have been picked up off of waivers this week.</p>
 <table class="sortable" id="waiver_pickups">
@@ -33,29 +35,30 @@
 {% endif %}
 
 {% if pickups|length > 0 %}
-<div id="pickups">
+<div id="pickups col-lg-12">
 <h1>Waiver Pickups</h1>
 <p>The following players have been picked up off of waivers this week</p>
-<table class="sortable" id="waiver_pickups">
-        <tr>
-                <th>Team</th>
-                <th>Skater</th>
-        </tr>
-        {% for p in pickups %}
-        <tr>
-                <td>{{p.player}}</td>
-                <td>{{p.skater.name}}</td>
-        </tr>
-        {% endfor %}
-</table>
+	<table class="sortable table" id="waiver_pickups">
+		<tr>
+			<th>Team</th>
+			<th>Skater</th>
+		</tr>
+		{% for p in pickups %}
+		<tr>
+			<td>{{p.player}}</td>
+			<td>{{p.skater.name}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
 {% endif %}
 
-<div id="player_waivers">
+<div id="player_waivers col-lg-12">
 <h1>Your Pending Waivers</h1>
 
 {% if player_waivers|length != 0 %}
         <p>You have the following players waiting to clear waivers:
-                <table id = "player_waiver" class="sortable">
+                <table id = "player_waiver" class="sortable table">
                         <tr>
                                 <th>Name</th>
                                 <th>Pos</th>
@@ -63,9 +66,11 @@
                                 <th>Status</th>
                                 <th>Action</th>
                         </tr>
+	{% autoescape off %}
         {% for p in player_waivers %}
                 {{p.own_waiver_row}}
         {% endfor %}
+	{% endautoescape %}
                 </table>
         </p>
 {% else %}
@@ -78,7 +83,7 @@
 
 {% if all_waivers|length != 0 %}
         <p>All players currently on waivers:</p>
-                <table id = "player_waiver" class="sortable">
+                <table id = "player_waiver" class="sortable table">
                         <tr>
                                 <th>Name</th>
                                 <th>Pos</th>
@@ -87,7 +92,7 @@
                         </tr>
 
         {% for p in all_waivers %}
-                {{p.all_waiver_row}}
+                {% autoescape off %}{{p.all_waiver_row}}{% endautoescape %}
         {% endfor %}
         </table>
 {% else %}
@@ -108,20 +113,24 @@
 <div id="drop">
         <h1>Drop Players</h1>
         <p>Use the below form to drop a player to waivers:</p>
-        <form action="" method="POST">{% csrf_token %}
-        <table class="sortable" id="waiver_table">
-                <tr>
-                        <th>Player</th>
-                        <th>Pos</th>
-                        <th>Team</th>
-                        <th>Drop</th>
-                </tr>
-                {% for t in team %}
-                        <td>{{t.skater.name}}</td><td>{{t.skater.position}}</td><td>{{t.skater.hockey_team}}</td><td><input type="checkbox" value="{{t.skater.id}}" name="waiver_player"></td></tr>
-                {% endfor %}
-        </table>
-        <input type="submit" value="Drop"></input>
-        </form>
+	<div class="col-lg-6">
+		<form action="" method="POST">{% csrf_token %}
+		<table class="sortable table table-striped" id="waiver_table">
+			<tr>
+				<th>Player</th>
+				<th>Pos</th>
+				<th>Team</th>
+				<th>Drop</th>
+			</tr>
+			{% for t in team %}
+				<td>{{t.skater.name}}</td><td>{{t.skater.position}}</td><td>{{t.skater.hockey_team}}</td><td><input type="checkbox" value="{{t.skater.id}}" name="waiver_player"></td></tr>
+			{% endfor %}
+		</table>
+		<input type="submit" value="Drop"></input>
+		</form>
+	</div>
+</div>
+</div>
 </div>
 {% endblock %}
 

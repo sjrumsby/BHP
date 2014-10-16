@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-{% block title %}{{page_name}}{% endblock %}
-
+{% extends "bootstrap_base.html" %}
 {% block primary %}
 <script type="text/javascript">
         {% if status != 0 %}
@@ -149,6 +147,7 @@
                 });
         }
 </script>
+<div class="container">
 
 {% if errors == 1 %}
         <p>Errors:<p>
@@ -278,5 +277,6 @@
 
         {% endif %}
 {% endif %}
+</div>
 {% endblock %}
 

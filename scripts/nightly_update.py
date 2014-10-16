@@ -17,6 +17,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
 from BHP import settings
 
 from hockeypool.models import *
+from match.models import *
 from draft.models import *
 
 import logging
@@ -28,9 +29,9 @@ cat_vals = {
 		'goals' 		: 10,
 		'assists' 		: 10,
 		'plus_minus' 		: 7,
-		'ppg' 			: 8,
+		'ppg' 			: 7,
 		'shg' 			: 12,
-		'ppa' 			: 8,
+		'ppa' 			: 7,
 		'sha' 			: 12,
 		'psg' 			: 10,
 		'gwg' 			: 10,
@@ -94,20 +95,24 @@ class NHLOvernightParser(HTMLParser.HTMLParser):
                         
 def nightly_update():
 	st = time()
-    	URL1 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20142ALLSASALL&viewName=goals&sort=goals&pg="
-    	URL2 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20142ALLSASALL&viewName=assists&sort=assists&pg="
-    	URL3 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20142ALLSASALL&viewName=rtssPlayerStats&sort=gamesPlayed&pg="
-    	URL4 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20142ALLSASALL&viewName=penalties&sort=goals&pg="
-    	URL5 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20142ALLSASALL&viewName=shootouts&sort=goals&pg="
-    	URL6 = "http://www.nhl.com/ice/playerstats.htm?season=20132014&gameType=2&position=G&viewName=summary&pg="
-    	URL7 = "http://www.nhl.com/ice/playerstats.htm?gameType=2&position=G&season=20132014&sort=shootoutGamesWon&status=A&viewName=shootouts&pg="
-    	URL8 = "http://www.nhl.com/ice/playerstats.htm?gameType=2&position=G&season=20132014&sort=penaltyShotsAgainst&status=A&viewName=penaltyShot&pg="
+	pool = Pool.objects.get(pk=1)
+	week = pool.current_week
+    	URL1 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=goals&sort=goals&pg="
+    	URL2 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=assists&sort=assists&pg="
+    	URL3 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=rtssPlayerStats&sort=gamesPlayed&pg="
+    	URL4 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=penalties&sort=goals&pg="
+    	URL5 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=shootouts&sort=goals&pg="
+    	URL6 = "http://www.nhl.com/ice/playerstats.htm?season=20142015&gameType=2&position=G&viewName=summary&pg="
+    	URL7 = "http://www.nhl.com/ice/playerstats.htm?gameType=2&position=G&season=20142015&sort=shootoutGamesWon&status=A&viewName=shootouts&pg="
+    	URL8 = "http://www.nhl.com/ice/playerstats.htm?gameType=2&position=G&season=20142015&sort=penaltyShotsAgainst&status=A&viewName=penaltyShot&pg="
+	URL9 = "http://www.nhl.com/ice/playerstats.htm?fetchKey=20152ALLSASALL&viewName=timeOnIce&sort=timeOnIce&pg="
 
     	player_goal_data = []
     	player_assist_data = []
     	player_rt_data = []
     	player_pim_data = []
     	player_shootout_data = []
+	player_toi_data = []
     	player_id_data = []
     	goalie_win_data = []
     	goalie_shootout_data = []
@@ -122,15 +127,17 @@ def nightly_update():
     	uris6 = []
     	uris7 = []
     	uris8 = []
+	uris9 = []
 
-    	for i in range(1,30):
+    	for i in range(1,25):
         	uris1.append(URL1 + str(i))
 		uris2.append(URL2 + str(i))
 		uris3.append(URL3 + str(i))
 		uris4.append(URL4 + str(i))
 		uris5.append(URL5 + str(i))
+		uris9.append(URL9 + str(i))
 
-	for i in range(1,8):
+	for i in range(1,4):
 		uris6.append(URL6 + str(i))
 		uris7.append(URL7 + str(i))
 	   	uris8.append(URL8 + str(i))
@@ -143,6 +150,7 @@ def nightly_update():
     	reqs6 = [ grequests.get(x) for x in uris6 ]
     	reqs7 = [ grequests.get(x) for x in uris7 ]
     	reqs8 = [ grequests.get(x) for x in uris8 ]
+	reqs9 = [ grequests.get(x) for x in uris9 ]
 
     	resps1 = grequests.map(reqs1)
     	resps2 = grequests.map(reqs2)
@@ -152,6 +160,7 @@ def nightly_update():
     	resps6 = grequests.map(reqs6)
     	resps7 = grequests.map(reqs7)
     	resps8 = grequests.map(reqs8)
+	resps9 = grequests.map(reqs9)
 
     	for x in resps1:
         	p = NHLOvernightParser()
@@ -219,6 +228,14 @@ def nightly_update():
             		if y not in goalie_penshot_data:
                 		goalie_penshot_data.append(y)
 
+	for x in resps9:
+		p = NHLOvernightParser()
+		p.feed(x.content)
+
+		for y in p.player:
+			if y not in player_toi_data:
+				player_toi_data.append(y)
+
     	full_player_data = []
     	for a in player_id_data:
 		temp_player_data = []
@@ -283,6 +300,12 @@ def nightly_update():
 			temp_player_data.append("0")    #If the player has no shootout attempts, assign them manually to zero
 			temp_player_data.append("0")    #As otherwise list out of bounds errors will pop up when saving data
 
+                for b in player_toi_data:
+                        if b[1] != a:
+                                continue
+                        else:
+                                temp_player_data.append(b[13])
+
 		full_player_data.append(temp_player_data)
 
 	full_goalie_data = []
@@ -338,7 +361,7 @@ def nightly_update():
 
 		full_goalie_data.append(temp_player_data)
 
-	all_activated_skater_ids = Activated_Team.objects.all().values_list("skater_id", flat="True")
+	all_activated_skater_ids = Activated_Team.objects.filter(week_id=week.number).values_list("skater_id", flat="True")
 	pool = Pool.objects.get(pk=1)
 	current_week = pool.current_week
 
@@ -356,8 +379,19 @@ def nightly_update():
 			continue
 
 	  	if Skater.objects.filter(nhl_id=x[0]).exists():
-			player_start = time()
 			s = Skater.objects.select_related().get(nhl_id=x[0])
+			player_start = time()
+			u_toi_parts = x[26].split(':')
+	
+			if len(u_toi_parts) != 2:
+				logger.info("Error with skater: %s. TOI: %s, full data: %s, length: %s" % (s, u_toi_parts, x, len(x)))
+				continue
+				
+			u_toi_sec = int(u_toi_parts[0])*60 + int(u_toi_parts[1])
+
+			c_toi_sec = s.time_on_ice.split(':')
+			c_toi_sec = int(c_toi_sec[0])*60 + int(c_toi_sec[1])
+
 			u_games_played     = x[4] - s.games
 			u_goals            = x[5] - s.goals
 			u_assists          = x[6] - s.assists
@@ -380,16 +414,32 @@ def nightly_update():
 			u_fights           = x[23] - s.fights
 			u_shootout_goals   = x[24] - s.shootout_made
 			u_shootout_miss    = x[25] - s.shootout_fail
+			u_toi_sec	   = u_toi_sec - c_toi_sec
 
 			if u_fights > 3:
 				continue
 
-			goals_cat	= u_goals*cat_vals['goals'] + u_psg*cat_vals['psg'] + u_gwg*cat_vals['gwg']
-			assists_cat	= u_assists*cat_vals['assists']
+			if u_toi_sec >= 1200:
+				u_toi_point = 1
+			elif u_toi_sec >= 1380:
+				u_toi_point = 2
+			elif u_toi_sec >= 1560:
+				u_toi_point = 3
+			elif u_toi_sec >= 1740:
+				u_toi_point = 4
+			elif u_toi_sec >= 1920:
+				u_toi_point = 5
+			elif u_toi_sec >= 2100:
+				u_toi_point = 6
+			else:
+				u_toi_point = 0
+
+			goals_cat	= u_goals*cat_vals['goals'] + u_psg*cat_vals['psg'] + u_gwg*cat_vals['gwg']  + u_ppg*cat_vals['ppg'] + u_shg*cat_vals['shg']
+			assists_cat	= u_assists*cat_vals['assists'] + u_ppa*cat_vals['ppa'] + u_sha*cat_vals['sha']
 			plus_minus_cat	= u_plus_minus*cat_vals['plus_minus']
 			goalie_cat	= 0
-			off_spec_cat	= u_shots*cat_vals['shots'] + u_faceoff_wins*cat_vals['faceoff_win'] + u_faceoff_loss*cat_vals['faceoff_loss'] + u_ppg*cat_vals['ppg'] + u_ppa*cat_vals['ppa'] + u_shg*cat_vals['shg'] + u_sha*cat_vals['sha']
-			true_grit_cat	= u_blocks*cat_vals['blocks'] + u_hits*cat_vals['hits'] + u_fights*cat_vals['fights'] + u_pims*cat_vals['pims'] + u_takeaways*cat_vals['takeaways'] + u_giveaways*cat_vals['giveaways']
+			off_spec_cat	= u_shots*cat_vals['shots'] + u_faceoff_wins*cat_vals['faceoff_win'] + u_faceoff_loss*cat_vals['faceoff_loss']
+			true_grit_cat	= u_blocks*cat_vals['blocks'] + u_hits*cat_vals['hits'] + u_fights*cat_vals['fights'] + u_pims*cat_vals['pims'] + u_takeaways*cat_vals['takeaways'] + u_giveaways*cat_vals['giveaways'] + u_toi_point
 			shootout_cat = u_shootout_goals*cat_vals['shootout_made'] + u_shootout_miss*cat_vals['shootout_fail']
 			fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
 			
@@ -436,14 +486,18 @@ def nightly_update():
 								)
 					point.save()
 					if s.id in all_activated_skater_ids:
-						team = Activated_Team.objects.get(skater=s)
-						tp = Team_Point.objects.create(
-									point = point,
-									player = team.player,
-									)
-						tp.save()
+						team = Activated_Team.objects.filter(skater=s).filter(week_id=current_week.number)
+						if len(team) == 1:
+							team = team[0]
+							tp = Team_Point.objects.create(
+										point = point,
+										player = team.player,
+										)
+							tp.save()
+						else:
+							logger.info("More than one Activated Team object for id: %s" % s.id)
 
-			fan_points = x[5]*cat_vals['goals'] + x[6]*cat_vals['assists'] + x[8]*cat_vals['plus_minus'] + x[9]*cat_vals['ppg'] + x[10]*cat_vals['shg'] + x[11]*cat_vals['gwg'] + x[12]*cat_vals['psg'] + x[13]*cat_vals['ppa'] + x[14]*cat_vals['sha'] + x[15]*cat_vals['hits'] + x[16]*cat_vals['blocks'] + x[17]*cat_vals['giveaways'] + x[18]*cat_vals['takeaways'] + x[19]*cat_vals['faceoff_win'] + x[20]*cat_vals['faceoff_loss'] + x[21]*cat_vals['shots'] + x[22]*cat_vals['pims'] + x[23]*cat_vals['fights'] + x[24]*cat_vals['shootout_made'] + x[25]*cat_vals['shootout_fail']
+			fan_points = x[5]*cat_vals['goals'] + x[6]*cat_vals['assists'] + x[8]*cat_vals['plus_minus'] + x[9]*cat_vals['ppg'] + x[10]*cat_vals['shg'] + x[11]*cat_vals['gwg'] + x[12]*cat_vals['psg'] + x[13]*cat_vals['ppa'] + x[14]*cat_vals['sha'] + x[15]*cat_vals['hits'] + x[16]*cat_vals['blocks'] + x[17]*cat_vals['giveaways'] + x[18]*cat_vals['takeaways'] + x[19]*cat_vals['faceoff_win'] + x[20]*cat_vals['faceoff_loss'] + x[21]*cat_vals['shots'] + x[22]*cat_vals['pims'] + x[23]*cat_vals['fights'] + x[24]*cat_vals['shootout_made'] + x[25]*cat_vals['shootout_fail'] + u_toi_point
 
 			s.games 	= x[4]
 			s.goals 	= x[5]
@@ -467,10 +521,29 @@ def nightly_update():
 			s.fights 	= x[23]
 			s.shootout_made = x[24]
 			s.shootout_fail = x[25]
+			s.time_on_ice = x[26]
 			s.fantasy_points = fan_points
 			s.save()
 		else:
-			fan_points = x[5]*cat_vals['goals'] + x[6]*cat_vals['assists'] + x[8]*cat_vals['plus_minus'] + x[9]*cat_vals['ppg'] + x[10]*cat_vals['shg'] + x[11]*cat_vals['gwg'] + x[12]*cat_vals['psg'] + x[13]*cat_vals['ppa'] + x[14]*cat_vals['sha'] + x[15]*cat_vals['hits'] + x[16]*cat_vals['blocks'] + x[17]*cat_vals['giveaways'] + x[18]*cat_vals['takeaways'] + x[19]*cat_vals['faceoff_win'] + x[20]*cat_vals['faceoff_loss'] + x[21]*cat_vals['shots'] + x[22]*cat_vals['pims'] + x[23]*cat_vals['fights'] + x[24]*cat_vals['shootout_made'] + x[25]*cat_vals['shootout_fail']
+                        u_toi_parts = x[26].split(':')
+                        u_toi_sec = int(u_toi_parts[0])*60 + int(u_toi_parts[1])
+
+                        if u_toi_sec >= 1200:
+                                u_toi_point = 1
+                        elif u_toi_sec >= 1380:
+                                u_toi_point = 2
+                        elif u_toi_sec >= 1560:
+                                u_toi_point = 3
+                        elif u_toi_sec >= 1740:
+                                u_toi_point = 4
+                        elif u_toi_sec >= 1920:
+                                u_toi_point = 5
+                        elif u_toi_sec >= 2100:
+                                u_toi_point = 6
+                        else:
+                                u_toi_point = 0
+
+			fan_points = x[5]*cat_vals['goals'] + x[6]*cat_vals['assists'] + x[8]*cat_vals['plus_minus'] + x[9]*cat_vals['ppg'] + x[10]*cat_vals['shg'] + x[11]*cat_vals['gwg'] + x[12]*cat_vals['psg'] + x[13]*cat_vals['ppa'] + x[14]*cat_vals['sha'] + x[15]*cat_vals['hits'] + x[16]*cat_vals['blocks'] + x[17]*cat_vals['giveaways'] + x[18]*cat_vals['takeaways'] + x[19]*cat_vals['faceoff_win'] + x[20]*cat_vals['faceoff_loss'] + x[21]*cat_vals['shots'] + x[22]*cat_vals['pims'] + x[23]*cat_vals['fights'] + x[24]*cat_vals['shootout_made'] + x[25]*cat_vals['shootout_fail'] + u_toi_point
 
 			p = Skater(
 				nhl_id        = x[0],
@@ -499,6 +572,7 @@ def nightly_update():
 				fights        = x[23],
 				shootout_made = x[24],
 				shootout_fail = x[25],
+				time_on_ice    = x[26],
 				fantasy_points = fan_points,
 			)
 			p.save()
@@ -526,13 +600,13 @@ def nightly_update():
 			u_shootout_goals   = x[24]
 			u_shootout_miss    = x[25]
 
-			goals_cat       = u_goals*cat_vals['goals'] + u_psg*cat_vals['psg'] + u_gwg*cat_vals['gwg']
-			assists_cat     = u_assists*cat_vals['assists']
+			goals_cat       = u_goals*cat_vals['goals'] + u_psg*cat_vals['psg'] + u_gwg*cat_vals['gwg'] + u_ppg*cat_vals['ppg'] + u_shg*cat_vals['shg']
+			assists_cat     = u_assists*cat_vals['assists'] + u_ppa*cat_vals['ppa'] + u_sha*cat_vals['sha']
 			plus_minus_cat  = u_plus_minus*cat_vals['plus_minus']
 			goalie_cat      = 0
 			shootout_cat 	= u_shootout_goals*cat_vals['shootout_made'] + u_shootout_miss*cat_vals['shootout_fail']
-			off_spec_cat    = u_shots*cat_vals['shots'] + u_faceoff_wins*cat_vals['faceoff_win'] + u_faceoff_loss*cat_vals['faceoff_loss'] + u_ppg*cat_vals['ppg'] + u_ppa*cat_vals['ppa'] + u_shg*cat_vals['shg'] + u_sha*cat_vals['sha']
-			true_grit_cat   = u_blocks*cat_vals['blocks'] + u_hits*cat_vals['hits'] + u_fights*cat_vals['fights'] + u_pims*cat_vals['pims'] + u_takeaways*cat_vals['takeaways'] + u_giveaways*cat_vals['giveaways']
+			off_spec_cat    = u_shots*cat_vals['shots'] + u_faceoff_wins*cat_vals['faceoff_win'] + u_faceoff_loss*cat_vals['faceoff_loss']
+			true_grit_cat   = u_blocks*cat_vals['blocks'] + u_hits*cat_vals['hits'] + u_fights*cat_vals['fights'] + u_pims*cat_vals['pims'] + u_takeaways*cat_vals['takeaways'] + u_giveaways*cat_vals['giveaways'] + u_toi_point
 			fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
 
                         curr_date = datetime.now() - timedelta(days = 1)
@@ -556,177 +630,194 @@ def nightly_update():
 								    )
 					point.save()
 					if s.id in all_activated_skater_ids:
-						team = Activated_Team.objects.get(skater=s)
-						tp = Team_Point.objects.create(
-										point = point,
-										player = team.player,
-										)
-						tp.save()
+                                                team = Activated_Team.objects.filter(skater=s).filter(week_id=current_week.number)
+                                                if len(team) == 1:
+                                                        team = team[0]
+                                                        tp = Team_Point.objects.create(
+                                                                                point = point,
+                                                                                player = team.player,
+                                                                                )
+                                                        tp.save()
+                                                else:
+                                                        logger.info("More than one Activated Team object for id: %s" % s.id)
 
+        logger.info(full_goalie_data)
 	for x in full_goalie_data:
-		for i in range(4, 17):
-			x[i] = int(x[i])
+		try:
+			for i in range(4, 17):
+				x[i] = int(x[i])
 
-		if Skater.objects.filter(nhl_id=x[0]).exists():
-			s = Skater.objects.select_related().get(nhl_id=x[0])
-			u_goals		= x[10] - s.goals
-			u_assists	= x[11] - s.assists
-			u_pims		= x[12] - s.pims 
-			u_wins		= x[5] - s.wins
-			u_otloss	= x[6] - s.otloss
-			u_shutouts	= x[7] - s.shutouts
-			u_penshot_save	= x[14] - s.penshot_save
-			u_penshot_ga	= x[13] - s.penshot_ga
-			u_shootout_save = x[15] - s.shootout_save
-			u_shootout_ga	= x[16] - s.shootout_ga
-			u_saves		= x[9] - s.saves
-			u_goals_against = x[8] - s.goals_against
+			if Skater.objects.filter(nhl_id=x[0]).exists():
+				s = Skater.objects.select_related().get(nhl_id=x[0])
+				u_goals		= x[10] - s.goals
+				u_assists	= x[11] - s.assists
+				u_pims		= x[12] - s.pims 
+				u_wins		= x[5] - s.wins
+				u_otloss	= x[6] - s.otloss
+				u_shutouts	= x[7] - s.shutouts
+				u_penshot_save	= x[14] - s.penshot_save
+				u_penshot_ga	= x[13] - s.penshot_ga
+				u_shootout_save = x[15] - s.shootout_save
+				u_shootout_ga	= x[16] - s.shootout_ga
+				u_saves		= x[9] - s.saves
+				u_goals_against = x[8] - s.goals_against
 
-			goals_cat = u_goals*cat_vals['goals']
-			assists_cat = u_assists*cat_vals['assists']
-			shootout_cat = u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga']
-			plus_minus_cat = 0
-			true_grit_cat = u_pims*cat_vals['pims']
-			off_spec_cat = 0
-			goalie_cat = u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] + u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
-                        fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
-                        curr_date = datetime.now() - timedelta(days = 1)
-                        formed_date = "%s-%s-%s" % (curr_date.year, str(curr_date.month).zfill(2), str(curr_date.day).zfill(2))
+				goals_cat = u_goals*cat_vals['goals']
+				assists_cat = u_assists*cat_vals['assists']
+				shootout_cat = u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga']
+				plus_minus_cat = 0
+				true_grit_cat = u_pims*cat_vals['pims']
+				off_spec_cat = 0
+				goalie_cat = u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] + u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
+				fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
+				curr_date = datetime.now() - timedelta(days = 1)
+				formed_date = "%s-%s-%s" % (curr_date.year, str(curr_date.month).zfill(2), str(curr_date.day).zfill(2))
 
-            		if (goals_cat != 0 or assists_cat != 0 or shootout_cat != 0 or true_grit_cat != 0 or plus_minus_cat != 0 or goalie_cat != 0 or off_spec_cat != 0):
-				logger.info("Processing existing goalie: %s" % s.name)
-				logger.info("Goals: %s, %s, %s"         % (u_goals,             x[10],  s.goals))
-				logger.info("Assists: %s, %s, %s"       % (u_assists,           x[11],  s.assists))
-				logger.info("PIMs: %s, %s, %s"          % (u_pims,              x[12],  s.pims))
-				logger.info("Wins: %s, %s, %s"          % (u_wins,              x[5],   s.wins))
-				logger.info("OT Loss: %s, %s, %s"       % (u_otloss,            x[6],   s.otloss))
-				logger.info("Shutouts: %s, %s, %s"      % (u_shutouts,          x[7],   s.shutouts))
-				logger.info("Penshot Save: %s, %s, %s"  % (u_penshot_save,      x[14],  s.penshot_save))
-				logger.info("Penshot GA: %s, %s, %s"    % (u_penshot_ga,        x[13],  s.penshot_ga))
-				logger.info("Shootout Save: %s, %s, %s" % (u_shootout_save,     x[15],  s.shootout_save))
-				logger.info("Shootout GA: %s, %s, %s"   % (u_shootout_ga,       x[15],  s.shootout_ga))
-				logger.info("Saves: %s, %s, %s"         % (u_saves,             x[9],   s.saves))
-				logger.info("Goals Against: %s, %s, %s" % (u_goals_against,     x[8],   s.goals_against))
-				if Week_Dates.objects.filter(date=formed_date).exists():
-					week = Week_Dates.objects.get(date=formed_date)
+				if (goals_cat != 0 or assists_cat != 0 or shootout_cat != 0 or true_grit_cat != 0 or plus_minus_cat != 0 or goalie_cat != 0 or off_spec_cat != 0):
+					logger.info("Processing existing goalie: %s" % s.name)
+					logger.info("Goals: %s, %s, %s"         % (u_goals,             x[10],  s.goals))
+					logger.info("Assists: %s, %s, %s"       % (u_assists,           x[11],  s.assists))
+					logger.info("PIMs: %s, %s, %s"          % (u_pims,              x[12],  s.pims))
+					logger.info("Wins: %s, %s, %s"          % (u_wins,              x[5],   s.wins))
+					logger.info("OT Loss: %s, %s, %s"       % (u_otloss,            x[6],   s.otloss))
+					logger.info("Shutouts: %s, %s, %s"      % (u_shutouts,          x[7],   s.shutouts))
+					logger.info("Penshot Save: %s, %s, %s"  % (u_penshot_save,      x[14],  s.penshot_save))
+					logger.info("Penshot GA: %s, %s, %s"    % (u_penshot_ga,        x[13],  s.penshot_ga))
+					logger.info("Shootout Save: %s, %s, %s" % (u_shootout_save,     x[15],  s.shootout_save))
+					logger.info("Shootout GA: %s, %s, %s"   % (u_shootout_ga,       x[15],  s.shootout_ga))
+					logger.info("Saves: %s, %s, %s"         % (u_saves,             x[9],   s.saves))
+					logger.info("Goals Against: %s, %s, %s" % (u_goals_against,     x[8],   s.goals_against))
+					if Week_Dates.objects.filter(date=formed_date).exists():
+						week = Week_Dates.objects.get(date=formed_date)
+						point = Point.objects.create(
+										skater = s,
+										week = current_week,
+										fantasy_points = fan_points_cat,
+										goals = goals_cat,
+										assists = assists_cat,
+										shootout = shootout_cat,
+										plus_minus = plus_minus_cat,
+										true_grit_special = true_grit_cat,
+										offensive_special = off_spec_cat,
+										goalie = goalie_cat,
+										date = formed_date,
+									)
+						logger.info(point.id)
+						point.save()
+						if s.id in all_activated_skater_ids:
+							team = Activated_Team.objects.filter(skater=s).filter(week_id=current_week.number)
+							if len(team) == 1:
+								team = team[0]
+								tp = Team_Point.objects.create(
+											point = point,
+											player = team.player,
+											)
+								tp.save()
+							else:
+								logger.info("More than one Activated Team object for id: %s" % s.id)
+
+				fan_points = x[10]*cat_vals['goals'] + x[11]*cat_vals['assists'] + x[12]*cat_vals['pims'] + x[5]*cat_vals['wins'] + x[6]*cat_vals['otloss'] + x[7]*cat_vals['shutouts'] + x[14]*cat_vals['penshot_save'] + x[13]*cat_vals['penshot_ga'] + x[15]*cat_vals['shootout_save'] + x[16]*cat_vals['shootout_ga'] + x[9]*cat_vals['saves'] + x[8]*cat_vals['goals_against']
+		
+				s.games         = x[4]
+				s.goals         = x[10]
+				s.assists       = x[11]
+				s.points        = x[10] + x[11]
+				s.pims          = x[12]
+				s.wins          = x[5]
+				s.otloss        = x[6]
+				s.shutouts      = x[7]
+				s.penshot_save  = x[14]
+				s.penshot_ga    = x[13]
+				s.shootout_save = x[15]
+				s.shootout_ga   = x[16]
+				s.saves         = x[9]
+				s.goals_against = x[8]
+				s.fantasy_points = fan_points
+				s.save()
+			else:
+				logger.info("Processing new goalie")
+				u_goals         = x[10]
+				u_assists       = x[11]
+				u_pims          = x[12]
+				u_wins          = x[5]
+				u_otloss        = x[6] 
+				u_shutouts      = x[7] 
+				u_penshot_save  = x[14]
+				u_penshot_ga    = x[13] 
+				u_shootout_save = x[15] 
+				u_shootout_ga   = x[16]
+				u_saves         = x[9]
+				u_goals_against = x[8]
+
+				fan_points = u_goals*cat_vals['goals'] + u_assists*cat_vals['assists'] + u_pims*cat_vals['assists'] + u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] + u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga'] + u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
+
+				s = Skater(
+					nhl_id        = x[0],
+					name          = x[1],
+					hockey_team   = x[2],
+					position      = x[3],
+					games         = x[4],
+					goals         = x[10],
+					assists       = x[11],
+					points        = x[10] + x[11],
+					pims          = x[12],
+					wins          = x[5],
+					otloss        = x[6],
+					shutouts      = x[7],
+					penshot_save  = x[14],
+					penshot_ga    = x[13],
+					shootout_save = x[15],
+					shootout_ga   = x[16],
+					saves         = x[9],
+					goals_against = x[8],
+					fantasy_points = fan_points,
+					)
+				s.save()
+				logger.info("Processed: %s" % s.name)
+
+				goals_cat = u_goals*cat_vals['goals']
+				assists_cat = u_assists*cat_vals['assists']
+				shootout_cat = u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga']
+				plus_minus_cat = 0
+				true_grit_cat = u_pims*cat_vals['pims']
+				off_spec_cat = 0
+				goalie_cat = u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] +u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
+				fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
+
+				curr_date = datetime.now() - timedelta(days = 1)
+				formed_date = "%s-%s-%s" % (curr_date.year, str(curr_date.month).zfill(2), str(curr_date.day).zfill(2))
+				logger.info(goals_cat, assists_cat, shootout_cat, plus_minus_cat, true_grit_cat, off_spec_cat, goalie_cat, fan_points_cat)
+
+				if (goals_cat != 0 or assists_cat != 0 or shootout_cat != 0 or true_grit_cat != 0 or plus_minus_cat != 0 or goalie_cat != 0 or off_spec_cat != 0):
 					point = Point.objects.create(
-									skater = s,
-									week = current_week,
-									fantasy_points = fan_points_cat,
-									goals = goals_cat,
-									assists = assists_cat,
-									shootout = shootout_cat,
-									plus_minus = plus_minus_cat,
-									true_grit_special = true_grit_cat,
-									offensive_special = off_spec_cat,
-									goalie = goalie_cat,
-									date = formed_date,
-								)
+							     skater = s,
+							     week = current_week,
+							     fantasy_points = fan_points_cat,
+							     goals = goals_cat,
+							     assists = assists_cat,
+							     shootout = shootout_cat,
+							     plus_minus = plus_minus_cat,
+							     true_grit_special = true_grit_cat,
+							     offensive_special = off_spec_cat,
+							     goalie = goalie_cat,
+							     date = formed_date,
+							    )
 					logger.info(point.id)
 					point.save()
 					if s.id in all_activated_skater_ids:
-						team = Activated_Team.objects.get(skater=s)
-						tp = Team_Point.objects.create(
-									point = point,
-									player = team.player,
-									)
-						tp.save()
+                                                team = Activated_Team.objects.filter(skater=s).filter(week_id=current_week.number)
+                                                if len(team) == 1:
+                                                        team = team[0]
+                                                        tp = Team_Point.objects.create(
+                                                                                point = point,
+                                                                                player = team.player,
+                                                                                )
+                                                        tp.save()
+                                                else:
+                                                        logger.info("More than one Activated Team object for id: %s" % s.id)
 
-			fan_points = x[10]*cat_vals['goals'] + x[11]*cat_vals['assists'] + x[12]*cat_vals['pims'] + x[5]*cat_vals['wins'] + x[6]*cat_vals['otloss'] + x[7]*cat_vals['shutouts'] + x[14]*cat_vals['penshot_save'] + x[13]*cat_vals['penshot_ga'] + x[15]*cat_vals['shootout_save'] + x[16]*cat_vals['shootout_ga'] + x[9]*cat_vals['saves'] + x[8]*cat_vals['goals_against']
-	
-            		s.games         = x[4]
-            		s.goals         = x[10]
-            		s.assists       = x[11]
-            		s.points        = x[10] + x[11]
-            		s.pims          = x[12]
-            		s.wins          = x[5]
-            		s.otloss        = x[6]
-            		s.shutouts      = x[7]
-            		s.penshot_save  = x[14]
-            		s.penshot_ga    = x[13]
-            		s.shootout_save = x[15]
-            		s.shootout_ga   = x[16]
-            		s.saves         = x[9]
-            		s.goals_against = x[8]
-			s.fantasy_points = fan_points
-			s.save()
-		else:
-			logger.info("Processing new goalie")
-            		u_goals         = x[10]
-            		u_assists       = x[11]
-            		u_pims          = x[12]
-            		u_wins          = x[5]
-            		u_otloss        = x[6] 
-            		u_shutouts      = x[7] 
-            		u_penshot_save  = x[14]
-            		u_penshot_ga    = x[13] 
-            		u_shootout_save = x[15] 
-            		u_shootout_ga   = x[16]
-            		u_saves         = x[9]
-            		u_goals_against = x[8]
-
-            		fan_points = u_goals*cat_vals['goals'] + u_assists*cat_vals['assists'] + u_pims*cat_vals['assists'] + u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] + u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga'] + u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
-
-			s = Skater(
-                		nhl_id        = x[0],
-                		name          = x[1],
-                		hockey_team   = x[2],
-                		position      = x[3],
-                		games         = x[4],
-                		goals         = x[10],
-                		assists       = x[11],
-                		points        = x[10] + x[11],
-                		pims          = x[12],
-				wins          = x[5],
-				otloss        = x[6],
-				shutouts      = x[7],
-				penshot_save  = x[14],
-				penshot_ga    = x[13],
-				shootout_save = x[15],
-				shootout_ga   = x[16],
-				saves         = x[9],
-				goals_against = x[8],
-				fantasy_points = fan_points,
-				)
-			s.save()
-			logger.info("Processed: %s" % s.name)
-
-            		goals_cat = u_goals*cat_vals['goals']
-            		assists_cat = u_assists*cat_vals['assists']
-            		shootout_cat = u_shootout_save*cat_vals['shootout_save'] + u_shootout_ga*cat_vals['shootout_ga']
-            		plus_minus_cat = 0
-            		true_grit_cat = u_pims*cat_vals['pims']
-            		off_spec_cat = 0
-            		goalie_cat = u_wins*cat_vals['wins'] + u_otloss*cat_vals['otloss'] + u_shutouts*cat_vals['shutouts'] + u_penshot_save*cat_vals['penshot_save'] + u_penshot_ga*cat_vals['penshot_ga'] +u_saves*cat_vals['saves'] + u_goals_against*cat_vals['goals_against']
-            		fan_points_cat = goals_cat + assists_cat + shootout_cat + plus_minus_cat + goalie_cat + off_spec_cat + true_grit_cat
-
-            		curr_date = datetime.now() - timedelta(days = 1)
-            		formed_date = "%s-%s-%s" % (curr_date.year, str(curr_date.month).zfill(2), str(curr_date.day).zfill(2))
-			logger.info(goals_cat, assists_cat, shootout_cat, plus_minus_cat, true_grit_cat, off_spec_cat, goalie_cat, fan_points_cat)
-
-			if (goals_cat != 0 or assists_cat != 0 or shootout_cat != 0 or true_grit_cat != 0 or plus_minus_cat != 0 or goalie_cat != 0 or off_spec_cat != 0):
-				point = Point.objects.create(
-						     skater = s,
-						     week = current_week,
-						     fantasy_points = fan_points_cat,
-						     goals = goals_cat,
-						     assists = assists_cat,
-						     shootout = shootout_cat,
-						     plus_minus = plus_minus_cat,
-						     true_grit_special = true_grit_cat,
-						     offensive_special = off_spec_cat,
-						     goalie = goalie_cat,
-						     date = formed_date,
-						    )
-				logger.info(point.id)
-				point.save()
-				if s.id in all_activated_skater_ids:
-					team = Activated_Team.objects.get(skater=s)
-					tp = Team_Point.objects.create(
-								point = point,
-								player = team.player,
-								)
-					tp.save()
+		except:
+			print x
 
 	diff_time = time() - st
 	logger.info("Total time elapsed: %s" % diff_time)

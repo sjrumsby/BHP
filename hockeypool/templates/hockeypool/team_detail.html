@@ -1,11 +1,10 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
-
+<div class="container">
+<div class="col-md-8 col-md-offset-2">
 <p>Detailed listing for team: {{team_id}}</p>
-<table id="team_table" class="sortable">
+<table id="team_table" class="sortable table">
         <thead>
                 <tr>
                         <th>Name</th>
@@ -40,4 +39,6 @@
         </tr>
 {% endfor %}
 </table>
+</div>
+</div>
 {% endblock %}

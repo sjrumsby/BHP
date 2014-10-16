@@ -1,7 +1,6 @@
-{% extends "base.html" %}
-{% block title %} {{ page_name }}{% endblock %}
-
+{% extends "bootstrap_base.html" %}
 {% block primary %}
+<div class="container">
 <div class="contentText">
         {% if error == "Success" %}
                 {% if skater.position != 'G' %}
@@ -108,6 +107,7 @@
         {% else %}
                         <p>{{error}}</p>
         {% endif %}
+</div>
 </div>
 {% endblock %}
 

@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<div class="container lg-12">
 <form action="" method="POST">
 {% csrf_token %}
 <p>Position:
@@ -57,7 +56,7 @@
 </select>
 <input type="submit" value="Submit" />
 <p>
-<table class="sortable" id="freeagents_table">
+<table class="sortable table table-striped" id="freeagents_table">
 {% if weeks == "0" %}
         {% if position == "G" %}
                 {% if view_type == "0" %}
@@ -84,25 +83,25 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.name}}</td>
-                                        {% if only_freeagents == "1" %}<td>{{f.get_owner}}</td>{% endif %}
-                                        <td>{{f.hockey_team}}</td>
-                                        <td>{{f.position}}</td>
-                                        <td>{{f.games}}</td>
-                                        <td>{{f.goals}}</td>
-                                        <td>{{f.assists}}</td>
-                                        <td>{{f.points}}</td>
-                                        <td>{{f.pims}}</td>
-                                        <td>{{f.wins}}</td>
-                                        <td>{{f.otloss}}</td>
-                                        <td>{{f.shutouts}}</td>
-                                        <td>{{f.shootout_save}}</td>
-                                        <td>{{f.shootout_ga}}</td>
-                                        <td>{{f.penshot_save}}</td>
-                                        <td>{{f.penshot_ga}}</td>
-                                        <td>{{f.saves}}</td>
-                                        <td>{{f.goals_against}}</td>
-                                        <td>{{f.fantasy_points}}</td>
+                                        <td>{{f.skater.name}}</td>
+                                        {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
+                                        <td>{{f.skater.hockey_team}}</td>
+                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.goals}}</td>
+                                        <td>{{f.skater.assists}}</td>
+                                        <td>{{f.skater.points}}</td>
+                                        <td>{{f.skater.pims}}</td>
+                                        <td>{{f.skater.wins}}</td>
+                                        <td>{{f.skater.otloss}}</td>
+                                        <td>{{f.skater.shutouts}}</td>
+                                        <td>{{f.skater.shootout_save}}</td>
+                                        <td>{{f.skater.shootout_ga}}</td>
+                                        <td>{{f.skater.penshot_save}}</td>
+                                        <td>{{f.skater.penshot_ga}}</td>
+                                        <td>{{f.skater.saves}}</td>
+                                        <td>{{f.skater.goals_against}}</td>
+                                        <td>{{f.skater.fantasy_points}}</td>
                                 </tr>
                         {% endfor %}
                 {% else %}
@@ -123,13 +122,20 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.name}}</td>
-                                        {% if only_freeagents == "1" %}<td>{{f.get_owner}}</td>{% endif %}
-                                        <td>{{f.hockey_team}}</td>
-                                        <td>{{f.position}}</td>
-                                        <td>{{f.games}}</td>
-                                        <td>{{f.fantasy_points}}</td>
-                                        {{f.get_cat_td_data}}
+                                        <td>{{f.skater.name}}</td>
+                                        {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
+                                        <td>{{f.skater.hockey_team}}</td>
+                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.fantasy_points}}</td>
+                                        <td>{{f.cat_points.goals}}</td>
+                                        <td>{{f.cat_points.assists}}</td>
+                                        <td>{{f.cat_points.plus_minus}}</td>
+                                        <td>{{f.cat_points.offensive_special}}</td>
+                                        <td>{{f.cat_points.true_grit}}</td>
+                                        <td>{{f.cat_points.goalie}}</td>
+                                        <td>{{f.cat_points.shootout}}</td>
+
                                 </tr>
                         {% endfor %}
                 {% endif %}
@@ -166,33 +172,33 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.name}}</td>
-                                        {% if only_freeagents == "1" %}<td>{{f.get_owner}}</td>{% endif %}
-                                        <td>{{f.hockey_team}}</td>
-                                        <td>{{f.position}}</td>
-                                        <td>{{f.games}}</td>
-                                        <td>{{f.goals}}</td>
-                                        <td>{{f.assists}}</td>
-                                        <td>{{f.points}}</td>
-                                        <td>{{f.plus_minus}}</td>
-                                        <td>{{f.ppg}}</td>
-                                        <td>{{f.ppa}}</td>
-                                        <td>{{f.shg}}</td>
-                                        <td>{{f.sha}}</td>
-                                        <td>{{f.gwg}}</td>
-                                        <td>{{f.psg}}</td>
-                                        <td>{{f.pims}}</td>
-                                        <td>{{f.hits}}</td>
-                                        <td>{{f.shots}}</td>
-                                        <td>{{f.blocks}}</td>
-                                        <td>{{f.giveaways}}</td>
-                                        <td>{{f.takeaways}}</td>
-                                        <td>{{f.faceoff_win}}</td>
-                                        <td>{{f.faceoff_loss}}</td>
-                                        <td>{{f.fights}}</td>
-                                        <td>{{f.shootout_made}}</td>
-                                        <td>{{f.shootout_fail}}</td>
-                                        <td>{{f.fantasy_points}}</td>
+                                        <td>{{f.skater.name}}</td>
+                                        {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
+                                        <td>{{f.skater.hockey_team}}</td>
+                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.goals}}</td>
+                                        <td>{{f.skater.assists}}</td>
+                                        <td>{{f.skater.points}}</td>
+                                        <td>{{f.skater.plus_minus}}</td>
+                                        <td>{{f.skater.ppg}}</td>
+                                        <td>{{f.skater.ppa}}</td>
+                                        <td>{{f.skater.shg}}</td>
+                                        <td>{{f.skater.sha}}</td>
+                                        <td>{{f.skater.gwg}}</td>
+                                        <td>{{f.skater.psg}}</td>
+                                        <td>{{f.skater.pims}}</td>
+                                        <td>{{f.skater.hits}}</td>
+                                        <td>{{f.skater.shots}}</td>
+                                        <td>{{f.skater.blocks}}</td>
+                                        <td>{{f.skater.giveaways}}</td>
+                                        <td>{{f.skater.takeaways}}</td>
+                                        <td>{{f.skater.faceoff_win}}</td>
+                                        <td>{{f.skater.faceoff_loss}}</td>
+                                        <td>{{f.skater.fights}}</td>
+                                        <td>{{f.skater.shootout_made}}</td>
+                                        <td>{{f.skater.shootout_fail}}</td>
+                                        <td>{{f.skater.fantasy_points}}</td>
                                 </tr>
                         {% endfor %}
                 {% else %}
@@ -213,13 +219,19 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.name}}</td>
-                                        {% if only_freeagents == "1" %}<td>{{f.get_owner}}</td>{% endif %}
-                                        <td>{{f.hockey_team}}</td>
-                                        <td>{{f.position}}</td>
-                                        <td>{{f.games}}</td>
-                                        <td>{{f.fantasy_points}}</td>
-                                        {{f.get_cat_td_data}}
+                                        <td>{{f.skater.name}}</td>
+                                        {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
+                                        <td>{{f.skater.hockey_team}}</td>
+                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.fantasy_points}}</td>
+					<td>{{f.cat_points.goals}}</td>
+					<td>{{f.cat_points.assists}}</td>
+					<td>{{f.cat_points.plus_minus}}</td>
+					<td>{{f.cat_points.offensive_special}}</td>
+					<td>{{f.cat_points.true_grit}}</td>
+					<td>{{f.cat_points.goalie}}</td>
+					<td>{{f.cat_points.shootout}}</td>
                                 </tr>
                         {% endfor %}
                 {% endif %}
@@ -243,6 +255,7 @@
         {% for p in free_agents %}
                 <tr>
                         <td>{{p.skater.name}}</td>
+			{% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                         <td>{{p.skater.hockey_team}}</td>
                         <td>{{p.skater.position}}</td>
                         <td>{{p.skater.games}}</td>
@@ -256,7 +269,10 @@
                         <td>{{p.cat_points.shootout}}</td>
         {% endfor %}
 {% endif %}
+
 </table>
 </p>
+</div>
+</div>
 {% endblock %}
 

@@ -1,10 +1,8 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
-
-<table class="sortable" id="standings_table">
+<div class="container">
+<table class="sortable  table table-hover table-striped" id="standings_table">
         <tr>
                 <th>Team</th>
                 <th>Conference</th>
@@ -23,8 +21,6 @@
         </tr>
 {% for p in p_data %}
         <tr>
-                <td>{{p.name}}</td>
-                <td>{{p.conference}}</td>
                 <td>{{p.name}}</td>
                 <td>{{p.conference}}</td>
                 <td>{{p.wins|default_if_none:"0"}}</td>
@@ -51,6 +47,6 @@
         <li>5: Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
 </ol>
 </p>
-
+</div>
 {% endblock %}
 

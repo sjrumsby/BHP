@@ -69,32 +69,44 @@ def waiver_cancel(request, waiver_id):
 
 @login_required
 def waiver_add(request):
+	error = 0
         if request.method == "POST":
                 p = Player.objects.get(id = request.user.id)
                 nhl_id = request.POST.get("waiver_add_id")
-                if Skater.objects.filter(nhl_id = nhl_id).exists():
-                        s = Skater.objects.get(nhl_id = nhl_id)
-                        logger.info("%s is trying to claim %s off of waivers" % (p.name, s.name))
-                        t = Team.objects.all().values_list("skater_id", flat="True")
-                        if s.id in t:
-                                error = 1
-                                error_msg = "The player you are trying to claim is already owned"
-                                logger.info("Attempt failed because the player is owned by someone else")
-                        else:
-                                t = Team.objects.filter(player = p).count()
-                                if t >= 19:
-                                        error = 1
-                                        error_msg = "You cannot add a player without having a player clear waivers first"
-                                        logger.info("The attempt failed because the manager already has 19 players")
-                                else:
-                                        error = 0
-                                        error_msg = ""
-                                        logger.info("success")
-                                        new_wp = Waiver_Pickup.objects.create(player = p, skater = s, state=0)
-                                        new_wp.save()
-                else:
-                        error = 1
-                        error_msg = "The skater with id %s does not exist" % nhl_id
+
+		if not nhl_id.isnumeric():
+			name = request.POST.get("waiver_add")
+			if Skater.objects.filter(name=name).count() == 1:
+				s = Skater.objects.get(name=name)
+				nhl_id = s.nhl_id
+			else:
+			 	error = 1
+				error_msg = "No player found with name: %s" % name
+
+		if error != 1:
+			if Skater.objects.filter(nhl_id = nhl_id).exists():
+				s = Skater.objects.get(nhl_id = nhl_id)
+				logger.info("%s is trying to claim %s off of waivers" % (p.name, s.name))
+				t = Team.objects.all().values_list("skater_id", flat="True")
+				if s.id in t:
+					error = 1
+					error_msg = "The player you are trying to claim is already owned"
+					logger.info("Attempt failed because the player is owned by someone else")
+				else:
+					t = Team.objects.filter(player = p).count()
+					if t >= 19:
+						error = 1
+						error_msg = "You cannot add a player without having a player clear waivers first"
+						logger.info("The attempt failed because the manager already has 19 players")
+					else:
+						error = 0
+						error_msg = ""
+						logger.info("success")
+						new_wp = Waiver_Pickup.objects.create(player = p, skater = s, state=0)
+						new_wp.save()
+			else:
+				error = 1
+				error_msg = "The skater with id %s does not exist" % nhl_id
         else:
                 error = 1
                 error_msg = "You didn't POST any data... quit fucking with my shit"

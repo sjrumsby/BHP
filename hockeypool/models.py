@@ -1,4 +1,11 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+def get_theme(self):
+	p = Player.objects.get(id=self.id)
+	return p.theme
+
+User.add_to_class("get_theme", get_theme)
 
 class Hockey_Team(models.Model):
         name            = models.CharField(max_length=3)
@@ -6,6 +13,17 @@ class Hockey_Team(models.Model):
 
         def __unicode__(self):
                 return self.name
+
+class Week(models.Model):
+        number          = models.IntegerField(max_length=2)
+
+        def __unicode__(self):
+                return "Week: %s" % self.number
+
+class Pool(models.Model):
+        name = models.CharField(max_length="64", default="")
+        current_week = models.ForeignKey(Week)
+
 
 class Skater(models.Model):
         nhl_id          = models.IntegerField(max_length=8)
@@ -43,20 +61,24 @@ class Skater(models.Model):
         shootout_ga     = models.IntegerField(max_length=8, default=0)
         saves           = models.IntegerField(max_length=8, default=0)
         goals_against   = models.IntegerField(max_length=8, default=0)
+	time_on_ice	= models.CharField(max_length=16, default="0:00")
         fantasy_points  = models.IntegerField(max_length=8, default=0)
 
 	def __unicode__(self):
 		return self.name
 
-class Week(models.Model):
-        number          = models.IntegerField(max_length=2)
+	def get_owner(self):
+		t = Team.objects.filter(skater_id=self.id)
 
-        def __unicode__(self):
-                return "Week: %s" % self.number
+		if len(t) == 1:
+			return t[0].player.name
+		else:
+			return "Free Agent"
 
 class Player(models.Model):
         name            = models.CharField(max_length=32)
         conference      = models.CharField(max_length=4, default ="")
+	theme		= models.CharField(max_length=64, default = "sandstone")
 
         def __unicode__(self):
                 return self.name
@@ -106,9 +128,5 @@ class Post(models.Model):
 class Week_Dates(models.Model):
         week            = models.ForeignKey(Week)
         date            = models.DateField()
-
-class Pool(models.Model):
-        name = models.CharField(max_length="64", default="")
-        current_week = models.ForeignKey(Week)
 
 

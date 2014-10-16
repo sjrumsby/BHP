@@ -1,10 +1,10 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<div class="container">
         {% if state == 1 %}
-                <div id="match_week_top">
+                <div id="match_week_top container">
+		<p class="text-center">
                         Week:
                         <a href="/match/week/1/">1</a> -
                         <a href="/match/week/2/">2</a> -
@@ -32,18 +32,15 @@
                         <a href="/match/week/24/">24</a> -
                         <a href="/match/week/25/">25</a> -
                         <a href="/match/week/26/">26</a>
-
+		</p>
                 </div>
-
+                <div class="container col-lg-8">
                 {% for m in matches %}
-                <div class="match">
-                        <div class="match_week_top">
-                                <p><b><a href="/match/{{ m.match.id }}/">Match: {{ m.match.id }}</a></b></p>
-                                <div class="match_player_names">
-                                        <p>{{ m.match.home_player.name }} vs. {{ m.match.away_player.name }}</p>
-                                </div>
+                <div class="panel panel-default">
+                        <div class="match_week_top panel-heading">
+				<p><b><a href="/match/{{ m.match.id }}/">{{ m.match.home_player.name }} vs. {{ m.match.away_player.name }}</a></b></p>
                         </div>
-                        <table class="sortable" id="match_outline_table" name="match_outline_table">
+                        <table class="sortable table" id="match_outline_table" name="match_outline_table">
                                 <tr>
                                         <th>Name</th>
                                         <th title="Fantasy Points">FP</th>
@@ -86,8 +83,10 @@
                         </table>
                 </div>
                 {% endfor %}
+		</div>
         {% else %}
                 <p>Season schedule has not yet been released. Check back after the draft</p>
         {% endif %}
+</div>
 {% endblock %}
 

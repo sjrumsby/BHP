@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-
-{% block title %}{{page_name}}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<div class="container">
 <link rel="stylesheet" type="text/css" href="/thread.css" />
 <div id="thread_div" class="thread_div">
         <div id="above_thread_list" class="above_thread_list">
@@ -40,6 +39,7 @@
                         </li>
 {% endfor %}
                 </ol>
+</div>
 </div>
 {% endblock %}
 

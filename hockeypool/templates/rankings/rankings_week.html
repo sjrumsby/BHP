@@ -1,8 +1,7 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<div class="contaier">
 <p>Week:
 <a href="/rankings/week/1">1</a> -
 <a href="/rankings/week/2">2</a> -
@@ -37,6 +36,6 @@
                 </tr>
         {% endfor %}
 </table>
-
+</div>
 {% endblock %}
 

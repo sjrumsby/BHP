@@ -1,29 +1,35 @@
-{% extends "base.html" %}
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 {% block primary %}
 <script type="text/javascript">
-if (!$)
-    var $ = django.jQuery;
 
-	$('html').ajaxSend(function(event, xhr, settings) {
-	    function getCookie(name) {
-		var cookieValue = null;
-		if (document.cookie && document.cookie != '') {
-		    var cookies = document.cookie.split(';');
-		    for (var i = 0; i < cookies.length; i++) {
-			var cookie = $.trim(cookies[i]);
-			// Does this cookie string begin with the name we want?
-			if (cookie.substring(0, name.length + 1) == (name + '=')) {
-			    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-			    break;
-			}
+	function getCookie(name) {
+	    var cookieValue = null;
+	    if (document.cookie && document.cookie != '') {
+		var cookies = document.cookie.split(';');
+		for (var i = 0; i < cookies.length; i++) {
+		    var cookie = jQuery.trim(cookies[i]);
+		    // Does this cookie string begin with the name we want?
+		    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			break;
 		    }
 		}
-		return cookieValue;
 	    }
-	    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
-		// Only send the token to relative URLs i.e. locally.
-		xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+	    return cookieValue;
+	}
+
+	var csrftoken = getCookie('csrftoken');
+
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+		if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+		    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		}
 	    }
 	});
 
@@ -35,7 +41,7 @@ if (!$)
                                 skaters.push(skater);
                         }
                 });
-                var postData = JSON.stringify({ "ids" : skaters });
+                var postData = JSON.stringify({ "ids" : skaters, csrfmiddlewaretoken : '{{ csrf_token }}'});
                 $.post("/ajax/activateRoster", postData, function(data, status) {
                         var success_html;
                         if (data.error == 1) {
@@ -59,8 +65,10 @@ if (!$)
                 });
         }
 </script>
+<div class="container">
+<div class="col-lg-10 col-lg-offset-1">
 <div id="success_div"></div>
-<table class="sortable" id="activate_table" name="activate_table">
+<table class="sortable table" id="activate_table" name="activate_table">
         <tr>
                 <th>Name</th>
                 <th>Pos</th>
@@ -80,7 +88,7 @@ if (!$)
 {% for t in team %}
         <tr>
                 <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.name}}</a></td>
-                <td><select>{% for p in t.skater.skater.position %}{% if p != ',' and p != ' ' %} <option>{{ p }}</option> {% endif %} {% endfor %}<option>B</option></select></td>
+                <td><select>{% for p in t.positions %} <option {% if t.position == p %} selected="selected" {% endif %}>{{ p }}</option> {% endfor %}{% if 'G' not in t.positions %}<option {% if t.position == 'B' %} selected="selected" {% endif %}>B</option>{% endif %}</select></td>
                 <td>{{t.skater.skater.hockey_team}}</td>
                 <td>{{t.skater.skater.games}}</td>
                 <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
@@ -102,5 +110,7 @@ if (!$)
 </table>
 
 <button id="activate_button" name="activate_button" value="Activate" onclick="activate_roster()">Activate</button>
+</div>
+</div>
 {% endblock %}
 

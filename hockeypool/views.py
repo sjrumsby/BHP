@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import logout
 from django.db.models import Sum
 from django.db.models import Q
 
@@ -22,11 +24,62 @@ def standings_sort(data):
 
 def index(request):
         teams = Player.objects.all().values_list("name", flat=True)
-	logger.info(len(teams))
         posts = Post.objects.all().order_by("id")
         posts = posts.reverse()[:5]
+	week = Pool.objects.get(pk=1)
+	week = week.current_week.number
+        match = Match.objects.select_related().filter(week__number = week)
+        match_data = []
+
+        if len(match) > 0:
+                for m in match:
+                        tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
+                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+
+                        if tmp_arr['home']['category_points']['fantasy_points'] > tmp_arr['away']['category_points']['fantasy_points']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 2
+                        elif tmp_arr['home']['category_points']['fantasy_points'] < tmp_arr['away']['category_points']['fantasy_points']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 2
+
+                        if tmp_arr['home']['category_points']['goals'] > tmp_arr['away']['category_points']['goals']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['goals'] < tmp_arr['away']['category_points']['goals']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['category_points']['assists'] > tmp_arr['away']['category_points']['assists']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['assists'] < tmp_arr['away']['category_points']['assists']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['category_points']['plus_minus'] > tmp_arr['away']['category_points']['plus_minus']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['plus_minus'] < tmp_arr['away']['category_points']['plus_minus']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['category_points']['offensive_special'] > tmp_arr['away']['category_points']['offensive_special']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['offensive_special'] < tmp_arr['away']['category_points']['offensive_special']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['category_points']['true_grit'] > tmp_arr['away']['category_points']['true_grit']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['true_grit'] < tmp_arr['away']['category_points']['true_grit']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['category_points']['goalie'] > tmp_arr['away']['category_points']['goalie']:
+                                tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                        elif tmp_arr['home']['category_points']['goalie'] < tmp_arr['away']['category_points']['goalie']:
+                                tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+
+                        if tmp_arr['home']['score'] == tmp_arr['away']['score']:
+                                if tmp_arr['home']['category_points']['shootout'] > tmp_arr['away']['category_points']['shootout']:
+                                        tmp_arr['home']['score'] = tmp_arr['home']['score'] + 1
+                                elif tmp_arr['home']['category_points']['shootout'] < tmp_arr['away']['category_points']['shootout']:
+                                        tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
+                        match_data.append(tmp_arr)
 	mainFrame = { 'posts' : posts }
-	sideFrame = {}
+	sideFrame = { 'matches' : match_data }
         context = {'page_name' : 'Home', 'mainFrame' : mainFrame, 'sideFrame' : sideFrame}
         return render(request, 'hockeypool/index.html', context)
 
@@ -75,15 +128,14 @@ def freeagents_index(request):
         elif sortnumber == "250":
                 s = s[:250]
 
-        if weeks != "0":
-                pool = Pool.objects.get(pk=1)
-                current_week = pool.current_week.id
-                free_agents = []
-                for x in s:
-                        tmp_dict = {'skater' : x}
-                        tmp_dict['cat_points'] = Point.objects.filter(week__id__gte=current_week-int(weeks)).filter(skater=x).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
-                        free_agents.append(tmp_dict)
-                s = free_agents
+	pool = Pool.objects.get(pk=1)
+	current_week = pool.current_week.id
+	free_agents = []
+	for x in s:
+		tmp_dict = {'skater' : x}
+		tmp_dict['cat_points'] = Point.objects.filter(skater=x).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+		free_agents.append(tmp_dict)
+	s = free_agents
 
         context = {'page_name' : 'Free Agents', 'free_agents' : s, 'position' : position, 'sortby' : sortby, 'sortnumber' : sortnumber, 'only_freeagents' : only_freeagents, 'view_type' : view_type, 'weeks' : weeks}
         return render(request, 'hockeypool/freeagents.html', context)
@@ -106,11 +158,14 @@ def logout_page(request):
 @login_required
 def profile_index(request):
         user = User.objects.get(username=request.user.username)
+
         if request.method == "POST":
                 new_name = request.POST.get("change_team_name")
                 old_pass = request.POST.get("old_pass")
                 new_pass1 = request.POST.get("password1")
                 new_pass2 = request.POST.get("password2")
+		new_theme = request.POST.get("theme_select")
+
                 if new_name != None:
                         if Player.objects.filter(id=user.id).exists():
                                 p = Player.objects.get(id=user.id)
@@ -119,10 +174,12 @@ def profile_index(request):
                         else:
                                 p = Player(id=user.id, name=new_name)
                                 p.save()
+
+
                 if new_pass1 != "" and old_pass != "" and new_pass1 == new_pass2:
                         logger.info(old_pass)
                         logger.info("Attempting password reset for user: %s" % request.user)
-                        if check_password(old_pass, user.password):
+                        if user.check_password(old_pass):
                                 hash_pass = make_password(new_pass1)
                                 user.password = hash_pass
                                 user.save()
@@ -131,12 +188,39 @@ def profile_index(request):
                                 logger.info(make_password(old_pass))
                                 logger.info(user.password)
 
-        if Player.objects.filter(name=request.user.username).exists():
+		p = Player.objects.get(id=request.user.id)
+
+		if p.theme != new_theme:
+			p.theme = new_theme
+			p.save()
+		
+        if Player.objects.filter(id=request.user.id).exists():
                 p = Player.objects.get(id=user.id)
-                team_name = p.get_name()
+                team_name = p.name
         else:
+		p = None
                 team_name = ""
-        context = {'page_name' : 'Profile', 'team_name' : team_name}
+
+	themes = [	"Cerulean",
+			"Cosmo",
+			"Cyborg",
+			"Darkly",
+			"Flatly",
+			"Journal",
+			"Lumen",
+			"Paper",
+			"Readable",
+			"Sandstone",
+			"Simplex",
+			"Slate",
+			"Spacelab",
+			"Superhero",
+			"United",
+			"Yeti"
+		]
+	
+        context = {'page_name' : 'Profile', 'team_name' : team_name, "themes" : themes, "player" : p }
+	logger.info(context)
         return render(request, 'hockeypool/profile_index.html', context)
 
 def register(request):
@@ -178,7 +262,7 @@ def standings_index(request):
         for p in players:
                 player_data = {'name' : p.name, 'conference' : p.conference}
                 player_data['wins'] = Match.objects.filter(winner_player = p).count()
-                player_data['loss'] = pool.current_week.number - player_data['wins']
+                player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
                 away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
                 home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
                 player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
@@ -212,7 +296,7 @@ def standings_west(request):
         for p in players:
                 player_data = {'name' : p.name, 'conference' : p.conference}
                 player_data['wins'] = Match.objects.filter(winner_player = p).count()
-                player_data['loss'] = pool.current_week.number - player_data['wins']
+                player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
                 away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
                 home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
                 player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
@@ -246,7 +330,7 @@ def standings_east(request):
         for p in players:
                 player_data = {'name' : p.name, 'conference' : p.conference}
                 player_data['wins'] = Match.objects.filter(winner_player = p).count()
-                player_data['loss'] = pool.current_week.number - player_data['wins']
+                player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
                 away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
                 home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
                 player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']

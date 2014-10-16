@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
+<div class="container">
         <div id="success_banner">
         {% if error == 0 %}
                 <h1>Success</h1>
@@ -11,5 +12,6 @@
                         <ul>{{msg}}</ul>
                 </p>
         {% endif %}
+</div>
 {% endblock %}
 

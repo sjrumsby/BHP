@@ -1,9 +1,8 @@
-{% extends "base.html" %}
-
-{% block title %} {{ page_name }}{% endblock %}
+{% extends "bootstrap_base.html" %}
 
 {% block primary %}
-<table id="power_rankings" class="rankings">
+<div class="container">
+<table id="power_rankings" class="rankings table table-striped">
         <tr {% cycle 'class="odd"' 'class="even"' %}>
                 <th>Team</th>
                 <th>This week</th>
@@ -21,5 +20,6 @@
                 </tr>
         {% endfor %}
 </table>
+</div>
 {% endblock %}
 

@@ -220,7 +220,7 @@ def activateRoster(request):
                                 logger.info("Skater not found with id: %s" % x['id'])
 
 	if error != 1:
-		c = l = r = d = g = 0
+		c = l = r = d = g = b = 0
 		for x in team_to_activate:
 			if x[2] == "C":
 				c = c + 1
@@ -232,6 +232,8 @@ def activateRoster(request):
 				d = d + 1
 			elif x[2] == "G":
 				g = g + 1
+			elif x[2] == "B":
+				b = b + 1
 		if c < 3:
 			error = 2
 			msg.append("Too few centres")
@@ -263,15 +265,20 @@ def activateRoster(request):
 			error = 1
 			msg.append("Too many goaies")
 
+		if b > 1:
+			error = 1
+			msg.append("Too many benches")
+
         if error != 1:
+		Activation.objects.filter(player_id=request.user.id).delete()
                 for t in team_to_activate:
 			if t[2] == 'B':
-				a = Activation.objects.create(skater=t[0], player=t[1], week=week, bench=True)
+				a = Activation.objects.create(skater=t[0], player=t[1], week=week, position=t[2])
 				a.save()
 			else:
-				a = Activation.objects.create(skater=t[0], player=t[1], week=week, bench=False)
+				a = Activation.objects.create(skater=t[0], player=t[1], week=week, position=t[2])
 				a.save()
-                        logger.info("Skater: %s" % a.skater.name)
+                        logger.info("Skater: %s, position: %s" % (a.skater.name, a.position))
 
         data = {"error" : error, "message" : msg}
         return HttpResponse(json.dumps(data), content_type="application/json")
