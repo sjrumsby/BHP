@@ -38,7 +38,9 @@ def index(request):
         player_waivers = Waiver.objects.filter(skater_id__in = skater_ids).filter(state__lte=2)
         all_pickups = Waiver_Pickup.objects.filter(state=1)
 	player_pickups = Waiver_Pickup.objects.filter(state=0).filter(player=request.user)
-        context = { 'page_name' : 'Waivers', 'team' : team, 'all_waivers' : all_waivers, 'player_waivers' : player_waivers, 'error' : error, 'error_msg' : error_msg, 'action' : action, 'pickups' : all_pickups, 'player_pickups' : player_pickups}
+	main = {'team' : team, 'all_waivers' : all_waivers, 'player_waivers' : player_waivers, 'error' : error, 'error_msg' : error_msg, 'action' : action, 'pickups' : all_pickups, 'player_pickups' : player_pickups }
+	side = None;
+        context = { 'page_name' : 'Waivers', 'main' : main, 'side' : side }
         return render(request, 'waivers/index.html', context)
 
 @login_required
@@ -64,7 +66,9 @@ def waiver_cancel(request, waiver_id):
         else:
                 error = 1
                 error_msg = "Could not find waiver with id: %s" % waiver_id
-        context = { 'page_name' : "Waiver Cancel", 'error' : error, 'msg' : error_msg }
+        main = { 'error' : error, 'msg' : error_msg }
+        side = None
+        context = { 'page_name' : 'Waiver Cancel', 'main' : main, 'side' : side }
         return render(request, 'waivers/cancel.html', context)
 
 @login_required
@@ -110,6 +114,8 @@ def waiver_add(request):
         else:
                 error = 1
                 error_msg = "You didn't POST any data... quit fucking with my shit"
-        context = { 'page_name' : "Waiver Add", 'error' : error, 'msg' : error_msg }
+        main = { 'error' : error, 'msg' : error_msg } 
+        side = None
+        context = { 'page_name' : 'Waiver Add', 'main' : main, 'side' : side }
         return render(request, 'waivers/add.html', context)
 

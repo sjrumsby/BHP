@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.db.models import Q
 
 from hockeypool.models import *
 from trades.models import *
@@ -20,7 +21,10 @@ def index(request):
         else:
                 t_out = 0
         all_trades = Trade.objects.filter(state=1)
-        context = {'t_in' : t_in, 't_out' : t_out, 'in_trades' : in_trades, 'out_trades' : out_trades, 'page_name' : 'Trades', 'all_trades' : all_trades}
+        prev_trades = Trade.objets.filter(state=1).filter(Q(player1__id=request.user.id) | Q(player2__id=request.user.id))
+        main = {'t_in' : t_in, 't_out' : t_out, 'in_trades' : in_trades, 'out_trades' : out_trades, 'all_trades' : all_trades}
+        side = {'prev_trades' : prev_trades }
+        context = { 'page_name' : 'Trades', 'main' : main, 'side' : side }
         return render(request, 'trades/index.html', context)
 
 @login_required
@@ -47,7 +51,9 @@ def trade_cancel(request, trade_id):
                 logger.info("Trade does not exist")
                 errors = 1
                 error = "Trade with id: %s does not exist" % trade_id
-        context = {'page_name' : 'Cancel Trade', 'error' : error, 'errors' : errors }
+        main = { 'error' : error, 'errors' : errors }
+        side = None
+        context = { 'page_name' : 'Cancel Trade', 'main' : main, 'side' : side }
         return render(request, 'trades/cancel.html', context)
 
 
@@ -85,7 +91,9 @@ def trade_accept(request, trade_id):
                 logger.info("Trade does not exist")
                 errors = 1
                 error = "Trade with id: %s does not exist" % trade_id
-        context = {'page_name' : 'Cancel Trade', 'error' : error, 'errors' : errors }
+        main = { 'error' : error, 'errors' : errors }
+        side = None
+        context = { 'page_name' : 'Accept Trade', 'main' : main, 'side' : side }
         return render(request, 'trades/accept.html', context)
 
 
