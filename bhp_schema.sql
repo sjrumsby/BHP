@@ -66,6 +66,25 @@ tablespace APEX
     minextents 1
     maxextents unlimited
   );
+  
+create table hockey_pool.category_points
+(
+  category_points_pool_id number not null,
+  category_name varchar2(30) not null,
+  category_value number not null,
+  constraint category_pooints_pool_fk foreign key (category_points_pool_id) references hockey_pool.pools (pool_id)
+)
+tablespace APEX
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
 
 create table hockey_pool.positions
 (
@@ -660,7 +679,7 @@ begin
 end;
 /
 
-create or replace package pkg_pool is
+create or replace package hockey_pool.pkg_pool is
 
 procedure insert_point(p_skater_id number,
                          p_game_id number,
@@ -707,7 +726,7 @@ procedure insert_point(p_skater_id number,
 end pkg_pool;
 /
 
-create or replace package body pkg_pool is
+create or replace package body hockey_pool.pkg_pool is
   procedure insert_point(p_skater_id number,
                          p_game_id number,
                          p_goals number,
@@ -894,8 +913,6 @@ create or replace package body pkg_pool is
     end;
 end pkg_pool;
 /
-
-
  
 INSERT INTO hockey_pool.draft_round (round_id, round_number) VALUES (1, 1);
 INSERT INTO hockey_pool.draft_round (round_id, round_number) VALUES (2, 2);
@@ -946,6 +963,46 @@ INSERT INTO hockey_pool.weeks (week_id, week_number) VALUES (25, 25);
 INSERT INTO hockey_pool.weeks (week_id, week_number) VALUES (26, 26);
 
 INSERT INTO hockey_pool.pools (pool_id, pool_name, current_week_id) VALUES (1, 'Bitchin'' Hockey Pool', 26);
+
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'goals', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'assists', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'plus_minus', 7); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'shg', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'sha', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'gwa', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'ena', 5); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'ppg', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'ppa', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'gwg', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'psg', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'eng', 5); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'pims', -1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'pims_drawn', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'hits', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'shots', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'shots_blocked', -1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'misses', -1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'blocks', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'fights', 20); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'gwy', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'twy', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'fow', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'fol', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'toi', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'sog', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'som', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'w', 15); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'otl', 8); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'saves', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'so', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'pss', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'psga', -10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'sos', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'soga', 1); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'ga', -7); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'first_star', 10); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'second_star', 7); 
+INSERT INTO hockey_pool.category_points (category_points_pool_id, category_name, category_value) values (1, 'third_star', 5); 
 
 INSERT INTO hockey_pool.positions (position_id, position_code, position_long_name) VALUES (1,'L','Left Wing');
 INSERT INTO hockey_pool.positions (position_id, position_code, position_long_name) VALUES (2,'C','Centre');
