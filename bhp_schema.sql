@@ -8,6 +8,7 @@ drop user hockey_pool cascade;
 create user hockey_pool identified by P4nc4k3s_devl;
 alter user hockey_pool quota 500M on APEX;
 grant create function to hockey_pool;
+grant create session to hockey_pool;
 
 create table hockey_pool.draft_round
 (
