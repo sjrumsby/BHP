@@ -1,4 +1,4 @@
-spool bhp_data_install.log
+spool logs/bhp_data_install.log
 
 INSERT INTO hockey_pool.injuries (injury_id, injury_skater_id, injury_date, status, description) VALUES (1, 8460561, '21-Sep-2014', 'IR', 'Torn right wrist ligament');
 INSERT INTO hockey_pool.injuries (injury_id, injury_skater_id, injury_date, status, description) VALUES (3, 8470612, '03-Apr-2015', 'day-to-day', 'Undisclosed injury');

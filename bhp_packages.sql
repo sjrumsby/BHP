@@ -1,4 +1,4 @@
-spool bhp_packages_install.log
+spool logs/bhp_packages_install.log
 
 create or replace package hockey_pool.pkg_pool is
 
@@ -221,7 +221,7 @@ end;
            p_takeaways,
            p_faceoff_wins,
            p_faceoff_losses,
-           p_toi,
+           trim(BOTH '''' FROM p_toi),
            p_shootout_goals,
            p_shootout_misses,
            p_wins,
@@ -262,7 +262,7 @@ end;
                p.takeaways=p_takeaways,
                p.faceoff_wins=p_faceoff_wins,
                p.faceoff_losses=p_faceoff_losses,
-               p.toi=p_toi,
+               p.toi=trim(BOTH '''' FROM p_toi),
                p.shootout_goals=p_shootout_goals,
                p.shootout_misses=p_shootout_misses,
                p.wins=p_wins,

@@ -2,13 +2,16 @@ set define off
 set echo on
 set sqlblanklines on
 set serveroutput on
-spool bhp_schema_install.log
+spool logs/bhp_schema_install.log
 
 drop user hockey_pool cascade;
 create user hockey_pool identified by P4nc4k3s_devl;
 alter user hockey_pool quota 500M on APEX;
 grant create function to hockey_pool;
 grant create session to hockey_pool;
+grant create materialized view to hockey_pool;
+grant create table to hockey_pool;
+grant create any index to hockey_pool;
 
 create table hockey_pool.draft_round
 (

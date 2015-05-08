@@ -1,4 +1,4 @@
-spool bhp_base_data_install.log
+spool logs/bhp_base_data_install.log
 
 INSERT INTO hockey_pool.draft_round (round_id, round_number) VALUES (1, 1);
 INSERT INTO hockey_pool.draft_round (round_id, round_number) VALUES (2, 2);
