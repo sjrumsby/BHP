@@ -1,11 +1,8 @@
-from HTMLParser import HTMLParser
 from urllib2 import urlopen
 from parsers import *
-import datetime
 import os
 import re
 import sys
-import time
 import traceback
 import vars
 
@@ -61,6 +58,8 @@ class Game():
 					"hitstaken" : 0,
 					"goalsagainst" : 0,
 					"saves" : 0,
+                    "plusminus" : 0,
+                    "fights" : 0,
 				}
 
 	def pretty(self, d, indent=0):

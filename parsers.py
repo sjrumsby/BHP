@@ -192,7 +192,7 @@ class playerParser(HTMLParser):
 	def handle_starttag(self, tag, attributes):
 		if tag == "table":
 			for name, value in attributes:
-				if name == "class" and value == "data stats":
+				if name == "class" and "data stats" in value:
 					self.table = 1
 					
 		if self.table:
@@ -333,3 +333,27 @@ class shootoutParser(HTMLParser):
 			self.shots.append(self.shot_data)
 			self.rec = 0
 			self.shot_data = []
+
+class seasonParser(HTMLParser):
+        def __init__(self):
+                HTMLParser.__init__(self)
+                self.recording = 0
+                self.games = []
+                self.data = []
+
+        def handle_starttag(self, tag, attributes):
+                if tag == 'table':
+                        for name, value in attributes:
+                                if name == 'class' and value == 'data schedTbl':
+                                        self.recording = 1
+
+        def handle_endtag(self, tag):
+                if tag == 'tr' and self.recording:
+                        if "VISITING TEAM" not in self.data:
+                                self.games.append(self.data)
+                        self.data = []
+
+        def handle_data(self, data):
+                if self.recording:
+                        self.data.append(data)
+

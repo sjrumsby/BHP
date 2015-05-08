@@ -260,11 +260,53 @@ longNameToShortName = {	"ANAHEIM DUCKS" : "ANA",
 						"WINNIPEG JETS" : "WPG",
 					}
 
+cityToID = {
+                "ANAHEIM" : 1,
+                "ARIZONA" : 22,
+                "BOSTON" : 2,
+                "BUFFALO" : 3,
+                "CALGARY" : 4,
+                "CAROLINA" : 5,
+                "CHICAGO" : 6,
+                "COLORADO" : 7,
+                "COLUMBUS" : 8,
+                "DALLAS" : 9,
+                "DETROIT" : 10,
+                "EDMONTON" : 11,
+                "FLORIDA" : 12,
+                "LOS ANGELES" : 13,
+                "MINNESOTA" : 14,
+                "MONTREAL" : 15,
+                "NASHVILLE" : 16,
+                "NEW JERSEY" : 17,
+                "NY ISLANDERS" : 18,
+                "NY RANGERS" : 19,
+                "OTTAWA" : 20,
+                "PHILADELPHIA" : 21,
+                "PHOENIX" : 22,
+                "PITTSBURGH" : 23,
+                "SAN JOSE" : 24,
+                "ST. LOUIS" : 25,
+                "TAMPA BAY" : 26,
+                "TORONTO" : 27,
+                "VANCOUVER" : 28,
+                "WASHINGTON" : 29,
+                "WINNIPEG" : 30,
+            }
+
 idToShortName = dict((v,k) for k,v in shortNameToID.iteritems())
 idToLongName = dict((v,k) for k,v in longNameToID.iteritems())
 shortNameToLongName = dict((v,k) for k,v in longNameToShortName.iteritems())
+idToCity = dict((v,k) for k,v in cityToID.iteritems())
 
 numberOfGames = { 	"20112012" : 1230,
 					"20122013" : 624,
 					"20132014" : 1230,
 				}
+
+seasons = [ {"year" : "20112012", "games" : 1230},
+            {"year" : "20122013", "games" : 720},
+            {"year" : "20132014", "games" : 1230},
+            {"year" : "20142015", "games" : 1230}
+          ]
+
