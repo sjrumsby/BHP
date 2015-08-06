@@ -1,3 +1,4 @@
 *.pyc
 bhp/settings.py
+scripts/legacy
 
