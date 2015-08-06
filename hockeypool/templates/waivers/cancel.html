@@ -1,0 +1,17 @@
+{% extends "bootstrap_base.html" %}
+
+{% block primary %}
+<div class="container">
+        <div id="success_banner">
+        {% if error == 0 %}
+                <h1>Success</h1>
+                <p>Waiver processed successfully</p>
+        {% else %}
+                <h1>Error</h1>
+                <p>Your query returned the following error:
+                        <ul>{{msg}}</ul>
+                </p>
+        {% endif %}
+</div>
+{% endblock %}
+

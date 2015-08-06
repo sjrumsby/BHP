@@ -1,0 +1,129 @@
+.thread_list_head {
+	font: bold 12px Ubuntubeta,Ubuntu,Bitstream Vera Sans,DejaVu Sans,Tahoma,sans-serif;
+	margin: 0px;
+	width: 100%;
+	border: 0px solid;
+	background: none repeat scroll 0% 0% rgb(247, 246, 245);
+	color: rgb(0, 0, 0);
+	float: left;
+	display: block;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+	box-shadow: -2px 2px 2px rgb(255, 255, 255);
+	position: relative;
+}
+
+.above_thread_list {
+	width: 100%;
+	height: 30px;
+}
+
+.new_thread_button {
+	border-radius: 4px 4px 4px 4px;
+	background-color: #777777;
+	float: left;
+	display: block;
+	margin-bottom: 3px;
+	left: 0px;
+	padding: 5px;
+}
+
+.thread_div .above_thread_list a {
+	color: #000000;
+	text-decoration: none;
+}
+
+.thread_div .above_thread_list a:hover {
+	color: #cccccc;
+}
+
+.thread_page_nav {
+	float: right;
+	display: block;
+	margin-top: 5px;
+}
+
+.thread_list_head span.thread_info, .thread_list_head span.thread_stats, .thread_list_head span.thread_last_post {
+	display: block;
+	float: left;
+	clear: right;
+	padding:2px 0px;
+}
+
+.thread_list_head span.thread_info {
+	text-align: left;
+        min-width: 350px;
+        width:62%;
+	padding-left: 10px;
+}
+
+.thread_list_head span.thread_stats {
+	text-align: center;
+        width: 12%
+}
+
+.thread_list_head span.thread_last_post {
+	width: 22%;
+        text-align: left;
+        padding-left: 2%;
+}
+
+ol#threads {
+	    border-top: 1px solid rgb(194, 194, 194);
+}
+
+.thread_list .threads {
+	display: block;
+	clear: both;
+}
+
+.threads_bit {
+    width: 100%;
+    display: block;
+    clear: both;
+    color: rgb(0, 0, 0);
+    float: left;
+    position: relative;
+    box-shadow: -2px 2px 2px rgb(255, 255, 255);
+    padding: 0px;
+}
+
+.threads_bit .thread_info {
+	width: 62%;
+	min-width: 350px;
+	text-align: left;
+}
+
+.threads_bit .thread_stats {
+	width: 12%;
+	font-size: 12px;
+	text-align: right;
+	padding: 6px 0px;
+}
+
+.threads_bit .thread_stats li {
+	text-align: right;
+	margin-right: 20px;
+}
+
+.threads_bit .thread_last_post {
+	width: 23%;
+	padding: 6.74px 0px 6.74px 2%;
+	float: left;
+	clear: right;
+	display: block;
+	height: 29.52px;
+	font-size: 11px;
+}
+
+.threads_bit .thread_info, .threads_bit .thread_stats, .threads_bit .thread_last_post {
+	float: left;
+	clear: right;
+	display: inline-block;
+}
+
+.threads_bit .thread_title {
+	margin-top: 3px;
+}
+
+

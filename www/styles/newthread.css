@@ -1,0 +1,66 @@
+.blockhead {
+	font: 12px Verdana,'Lucida Grande';
+	line-height: 20px;
+	background-color: #222222;
+	border-radius: 5px 5px 5px 5px;
+	color: #dddddd;
+	text-align: left;
+	text-indent: 5px;
+	padding 4px;
+}
+
+.title_block label {
+	display: block;
+	margin-bottom: 2px;
+}
+
+.title_block label.full {
+	float: none;
+	width: auto;
+	font-weight: bold;
+}
+
+.title_block_subject {
+	width: 100%;
+	display: block;
+}
+
+.title_block .newthread_subject {
+	max-width: 100%;
+	width: 496px;
+	float: left;
+	margin-left:25px;
+	clear: right;
+}
+
+.title_block, .newthread_block {
+	text-align: left;
+	text-indent: 25px;
+	float:left;
+	display: block;
+	width:100%;
+}
+
+.newthread_block label {
+        display: block;
+        margin-bottom: 2px;
+}
+
+.newthread_block label.full {
+        float: none;
+        width: auto;
+        font-weight: bold;
+}
+
+.newthread_block .newthread_post {
+    width: 850px;
+    float: left;
+    margin-left: 25px;
+    margin-right:25px;
+    margin-top: 10px;
+    clear: right;
+}
+
+.newthread_block {
+	margin-top: 5px;
+}

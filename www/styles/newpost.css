@@ -1,0 +1,24 @@
+.newpost {
+	display:block;
+}
+
+.title_block, .newpost_block {
+	text-align: left;
+	text-indent: 25px;
+	float:left;
+	display: block;
+	width:100%;
+}
+
+.newpost_block .newpost_post {
+    width: 850px;
+    float: left;
+    margin-left: 25px;
+    margin-right:25px;
+    margin-top: 10px;
+    clear: right;
+}
+
+.newpost_block {
+	margin-top: 5px;
+}

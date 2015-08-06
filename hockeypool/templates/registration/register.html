@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+<link rel="stylesheet" type="text/css" href="/register.css" />
+{% block title %}Create an account{% endblock %}
+
+{% block primary %}
+        <form action="" method="post">{% csrf_token %}
+                {{ form.as_p }}
+                <p>Team Name: <input type="text" value="" id="team_name" name="team_name"></input>(lower case, upper case, numbers and spaces only)</p>
+                <input type="submit" value="Create the account">
+        </form>
+{% endblock %}
+

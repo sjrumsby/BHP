@@ -1,0 +1,116 @@
+{% extends "bootstrap_base.html" %}
+{% block primary %}
+<script type="text/javascript">
+
+	function getCookie(name) {
+	    var cookieValue = null;
+	    if (document.cookie && document.cookie != '') {
+		var cookies = document.cookie.split(';');
+		for (var i = 0; i < cookies.length; i++) {
+		    var cookie = jQuery.trim(cookies[i]);
+		    // Does this cookie string begin with the name we want?
+		    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+			cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			break;
+		    }
+		}
+	    }
+	    return cookieValue;
+	}
+
+	var csrftoken = getCookie('csrftoken');
+
+	function csrfSafeMethod(method) {
+	    // these HTTP methods do not require CSRF protection
+	    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+		if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+		    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		}
+	    }
+	});
+
+        function activate_roster() {
+                var skaters = []
+                $('#activate_table input').each(function () {
+                        if(this.checked){
+				skater = { "id" : $(this).attr("value"), "position" : $(this).parent().parent().children('td').eq(1).children().first().val()} 
+                                skaters.push(skater);
+                        }
+                });
+                var postData = JSON.stringify({ "ids" : skaters, csrfmiddlewaretoken : '{{ csrf_token }}'});
+                $.post("/ajax/activateRoster", postData, function(data, status) {
+                        var success_html;
+                        if (data.error == 1) {
+                                success_html = "<h1>Error</h1><p>Activations not processed with the following errors:<ul>";
+                                for(var i = 0; i < data.message.length; i++){
+                                        success_html += "<li>" + data.message[i] + "</li>";
+                                }
+                                success_html += "</ul></p>";
+                        } else if (data.error == 2) {
+                                success_html = "<h1>Warning</h1><p>Activations processed, but with the following warnings:<ul>";
+                                for(var i = 0; i < data.message.length; i++){
+                                        success_html += "<li>" + data.message[i] + "</li>";
+                                }
+                                success_html += "</ul></p>";
+                        } else if (data.error == 0) {
+                                success_html = "<h1>Success</h1><p>All activations successfully processed</p>";
+                        } else {
+                                success_html = "<h1>Shady shit just happened</h1><p>Ain't nobody know why, but you're shit didn't go through. Call Ghostbusters</p>";
+                        }
+                        $("#success_div").html(success_html);
+                });
+        }
+</script>
+<div class="container">
+<div class="col-lg-10 col-lg-offset-1">
+<div id="success_div"></div>
+<table class="sortable table" id="activate_table" name="activate_table">
+        <tr>
+                <th>Name</th>
+                <th>Pos</th>
+                <th>T</th>
+                <th>GP</th>
+                <th>FP</th>
+                <th>G</th>
+                <th>A</th>
+                <th>+/-</th>
+                <th>OS</th>
+                <th>TG</th>
+                <th>Goalie</th>
+                <th>SO</th>
+                <th>Num Games</th>
+                <th>Active</th>
+        </tr>
+{% for t in team %}
+        <tr>
+                <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.name}}</a></td>
+                <td><select>{% for p in t.positions %} <option {% if t.position == p %} selected="selected" {% endif %}>{{ p }}</option> {% endfor %}{% if 'G' not in t.positions %}<option {% if t.position == 'B' %} selected="selected" {% endif %}>B</option>{% endif %}</select></td>
+                <td>{{t.skater.skater.hockey_team}}</td>
+                <td>{{t.skater.skater.games}}</td>
+                <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goals|default_if_none:"0"}}</td>
+                <td>{{t.category_points.assists|default_if_none:"0"}}</td>
+                <td>{{t.category_points.plus_minus|default_if_none:"0"}}</td>
+                <td>{{t.category_points.offensive_special|default_if_none:"0"}}</td>
+                <td>{{t.category_points.true_grit|default_if_none:"0"}}</td>
+                <td>{{t.category_points.goalie|default_if_none:"0"}}</td>
+                <td>{{t.category_points.shootout|default_if_none:"0"}}</td>
+                <td>{{t.num_games|default_if_none:"0"}}</td>
+                {% if t.check == 1 %}
+                        <td><input id="activate_{{t.skater.skater.nhl_id}}" name="activate_{{t.skater.skater.nhl_id}}" type="checkbox" checked="checked" value="{{t.skater.skater.nhl_id}}"></td>
+                {% else %}
+                        <td><input id="activate_{{t.skater.skater.nhl_id}}" name="activate_{{t.skater.skater.nhl_id}}" type="checkbox" value="{{t.skater.skater.nhl_id}}"></td>
+                {% endif %}
+        </tr>
+{% endfor %}
+</table>
+
+<button id="activate_button" name="activate_button" value="Activate" onclick="activate_roster()">Activate</button>
+</div>
+</div>
+{% endblock %}
+

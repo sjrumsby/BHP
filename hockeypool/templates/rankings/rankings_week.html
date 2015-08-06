@@ -1,0 +1,41 @@
+{% extends "bootstrap_base.html" %}
+
+{% block primary %}
+<div class="contaier">
+<p>Week:
+<a href="/rankings/week/1">1</a> -
+<a href="/rankings/week/2">2</a> -
+<a href="/rankings/week/3">3</a> -
+<a href="/rankings/week/4">4</a> -
+<a href="/rankings/week/5">5</a> -
+<a href="/rankings/week/6">6</a> -
+<a href="/rankings/week/7">7</a> -
+<a href="/rankings/week/8">8</a> -
+<a href="/rankings/week/9">9</a> -
+<a href="/rankings/week/10">10</a> -
+<a href="/rankings/week/11">11</a> -
+<a href="/rankings/week/12">12</a> -
+<a href="/rankings/week/13">13</a>
+</p>
+
+<table id="power_rankings" class="rankings">
+        <tr {% cycle 'class="odd"' 'class="even"' %}>
+                <th>Team</th>
+                <th>This week</th>
+                <th>Last Week</th>
+                <th>Change</th>
+                <th>Comments</th>
+        </tr>
+        {% for r in ranks %}
+                <tr {% cycle 'class="odd"' 'class="even"' %}>
+                        <td>{{r.name}}</td>
+                        <td>{{r.ranking}}</td>
+                        <td>{{r.old_ranking}}</td>
+                        <td>{{r.change}}</td>
+                        <td>{{r.comment}}</td>
+                </tr>
+        {% endfor %}
+</table>
+</div>
+{% endblock %}
+

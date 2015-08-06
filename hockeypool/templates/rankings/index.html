@@ -1,0 +1,25 @@
+{% extends "bootstrap_base.html" %}
+
+{% block primary %}
+<div class="container">
+<table id="power_rankings" class="rankings table table-striped">
+        <tr {% cycle 'class="odd"' 'class="even"' %}>
+                <th>Team</th>
+                <th>This week</th>
+                <th>Last Week</th>
+                <th>Change</th>
+                <th>Comments</th>
+        </tr>
+        {% for r in ranks %}
+                <tr {% cycle 'class="odd"' 'class="even"' %}>
+                        <td>{{r.name}}</td>
+                        <td>{{r.ranking}}</td>
+                        <td>{{r.old_ranking}}</td>
+                        <td>{{r.change}}</td>
+                        <td>{{r.comment}}</td>
+                </tr>
+        {% endfor %}
+</table>
+</div>
+{% endblock %}
+
