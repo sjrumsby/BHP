@@ -9,13 +9,15 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 
 import os, sys
 
-if "/django/BHP" not in sys.path:
-        sys.path.append("/django/BHP")
+django_path = "/var/www/django/bhp"
+
+if django_path not in sys.path:
+        sys.path.append(django_path)
 
 if "/usr/local/lib/python2.7/dist-packages/django_mobile" not in sys.path:
         sys.path.append("/usr/local/lib/python2.7/dist-packages/django_mobile")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()

@@ -3,7 +3,8 @@ from django.db.models import Count
 from hockeypool.models import *
 
 class Draft_Round(models.Model):
-        number = models.IntegerField(max_length=2, default=1)
+        number 	= models.IntegerField(default=1)
+	year 	= models.ForeignKey(Year)
 
         def __unicode__(self):
                 return self.number
@@ -26,7 +27,7 @@ class Draft_Pick(models.Model):
 
 class Draft_Start(models.Model):
         player = models.ForeignKey(Player)
-        status = models.IntegerField(max_length=1, default=0)
+        status = models.IntegerField(default=0)
 
 class Draft_Swap(models.Model):
         round = models.ForeignKey(Draft_Round)

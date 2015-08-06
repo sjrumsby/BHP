@@ -7,5 +7,5 @@ class Trade(models.Model):
         skater1         = models.ForeignKey(Skater, related_name="skater1")
         skater2         = models.ForeignKey(Skater, related_name="skater2")
         week            = models.ForeignKey(Week)
-        state           = models.IntegerField(max_length=1, default=0)
+        state           = models.IntegerField(default=0)
 

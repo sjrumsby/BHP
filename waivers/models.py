@@ -4,7 +4,7 @@ from hockeypool.models import *
 class Waiver(models.Model):
         skater          = models.ForeignKey(Skater)
         player          = models.ForeignKey(Player)
-        state           = models.IntegerField(max_length=1, default=0)
+        state           = models.IntegerField(default=0)
 
         def all_waiver_row(self):
                 if self.state == 0:
@@ -34,5 +34,5 @@ class Waiver(models.Model):
 class Waiver_Pickup(models.Model):
         skater          = models.ForeignKey(Skater)
         player          = models.ForeignKey(Player)
-        state           = models.IntegerField(default=0,max_length=1)
+        state           = models.IntegerField(default=0)
 

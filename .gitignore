@@ -1,4 +1,6 @@
 *.pyc
 bhp/settings.py
 scripts/legacy
+scripts/bootstrap_data
+logs
 
