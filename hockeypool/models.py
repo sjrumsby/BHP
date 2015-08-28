@@ -47,7 +47,8 @@ class Category_Point(models.Model):
 
 class Skater(models.Model):
         nhl_id          = models.IntegerField(primary_key=True)
-        name            = models.CharField(max_length=64, default="")
+        first_name      = models.CharField(max_length=64, default="")
+	last_name       = models.CharField(max_length=64, default="")
         hockey_team     = models.ForeignKey(Hockey_Team, default=0)
         games           = models.IntegerField(default=0)
         goals           = models.IntegerField(default=0)
@@ -102,6 +103,10 @@ class Skater(models.Model):
 		else:
 			return "Free Agent"
 
+class Skater_Position(models.Model):
+	skater = models.ForeignKey(Skater)
+	position = models.ForeignKey(Position)
+
 class Player(models.Model):
         name            = models.CharField(max_length=32)
         conference      = models.CharField(max_length=4,default="")
@@ -114,8 +119,6 @@ class Player(models.Model):
 class Team(models.Model):
         skater          = models.ForeignKey(Skater)
         player          = models.ForeignKey(Player)
-        week            = models.IntegerField()
-        active          = models.IntegerField()
 
 class Point(models.Model):
         skater                  = models.ForeignKey(Skater)
@@ -138,7 +141,6 @@ class Team_Point(models.Model):
 class Injury(models.Model):
         skater          = models.ForeignKey(Skater)
         date            = models.DateField()
-        name            = models.CharField(max_length=128)
         status          = models.CharField(max_length=128)
         description     = models.CharField(max_length=512)
 

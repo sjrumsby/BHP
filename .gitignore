@@ -2,5 +2,9 @@
 bhp/settings.py
 scripts/legacy
 scripts/bootstrap_data
+scripts/nhl_updates/reports
 logs
+install.log
+vars.py
+reset_db.sh
 

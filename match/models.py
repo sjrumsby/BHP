@@ -21,5 +21,6 @@ class Activation(models.Model):
 class Activated_Team(models.Model):
         skater          = models.ForeignKey(Skater)
         player          = models.ForeignKey(Player)
-	week_id		= models.IntegerField(default=0)
+	week		= models.ForeignKey(Week)
+	position	= models.ForeignKey(Position)
 

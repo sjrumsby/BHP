@@ -31,8 +31,8 @@ def index(request):
         if len(match) > 0:
                 for m in match:
                         tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
-                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
                         tmp_arr['home']['in_action'] = Activated_Team.objects.filter(player=m.home_player).filter(skater__hockey_team__in=game_ids).filter(week_id=week.number).count()
                         tmp_arr['away']['in_action'] = Activated_Team.objects.filter(player=m.away_player).filter(skater__hockey_team__in=game_ids).filter(week_id=week.number).count()
 
@@ -98,8 +98,8 @@ def match_detail(request, match_id):
                 match_info = []
                 week = match.week.number
                 m_info = { 'match' : match, 'home' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } }, 'away' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } } }
-                m_info['home']['category_points'] = Team_Point.objects.filter(point__week = week, player=match.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                m_info['away']['category_points'] = Team_Point.objects.filter(point__week = week, player=match.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                m_info['home']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=match.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                m_info['away']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=match.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
                 m_info['home']['in_action'] = Activated_Team.objects.filter(player=match.home_player).filter(skater__hockey_team__in=game_ids).filter(week_id=week).count()
                 m_info['away']['in_action'] = Activated_Team.objects.filter(player=match.away_player).filter(skater__hockey_team__in=game_ids).filter(week_id=week).count()
 
@@ -168,7 +168,7 @@ def match_detail(request, match_id):
                                 tmp_dict['active'] = 1
                         else:
                                 tmp_dict['active'] = 0
-                        tmp_dict['category_points'] = Team_Point.objects.filter(point__week__number = week, point__skater = h.skater).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_dict['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, point__skater = h.skater).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
                         tmp_dict['num_games'] = Game.objects.filter(date__in=Week_Dates.objects.filter(week=match.week).values_list('date', flat="True")).filter(Q(home_team=h.skater.hockey_team)|Q(away_team=h.skater.hockey_team)).count()
                         m_info['home']['team'].append(tmp_dict)
 
@@ -181,7 +181,7 @@ def match_detail(request, match_id):
                                 tmp_dict['active'] = 1
                         else:
                                 tmp_dict['active'] = 0
-                        tmp_dict['category_points'] = Team_Point.objects.filter(point__week__number = week, point__skater = h.skater).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_dict['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, point__skater = h.skater).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
                         tmp_dict['num_games'] = Game.objects.filter(date__in=Week_Dates.objects.filter(week=match.week).values_list('date', flat="True")).filter(Q(home_team=h.skater.hockey_team)|Q(away_team=h.skater.hockey_team)).count()
                         m_info['away']['team'].append(tmp_dict)
 
@@ -294,8 +294,8 @@ def match_week(request, match_week):
         if len(match) > 0:
                 for m in match:
                         tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
-                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__id__in = game_ids, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
                         tmp_arr['home']['in_action'] = Activated_Team.objects.filter(player=m.home_player).filter(skater__hockey_team__in=game_ids).filter(week_id=m.week.number).count()
                         tmp_arr['away']['in_action'] = Activated_Team.objects.filter(player=m.away_player).filter(skater__hockey_team__in=game_ids).filter(week_id=m.week.number).count()
 
@@ -348,7 +348,7 @@ def match_week(request, match_week):
 @login_required
 def match_activate(request):
         activations = Activation.objects.filter(player__id = request.user.id)
-        team = Team.objects.filter(player__id = request.user.id).order_by("skater__position")
+        team = Team.objects.filter(player__id = request.user.id)
         team_array = []
         pool = Pool.objects.get(pk=1)
         for t in team:
