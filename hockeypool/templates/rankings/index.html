@@ -2,6 +2,1134 @@
 
 {% block primary %}
 <div class="container">
+{% if week == 10 %}
+<p>The power rankings this week are based on a number of factors. The first of these, weighted the most, is the team’s performance over the previous week. This includes Wins, FP for and against and is weighted this most for obvious reasons. After this I focused on team performance over the last three weeks (7, 8 and 9). In an attempt to look at performance quantitatively, I generated average FP for and against for each team over the last three weeks. These numbers can be observed below. I then took into account the win-loss ratio over the last three weeks and tried to include the margin of loss or win (by FP) where it seemed prevalent. Finally, I looked at the overall standings at this point in the league, it seemed important to at least consider the impressive or unimpressive records some teams had to this point.</p>
+<table  class="table table-striped table-nonfluid">
+        <thead>
+                <tr>
+                        <th>Team</th>
+			<th>Result</th>
+			<th>FP For</th>
+			<th>FP Against</th>
+			<th>Category Wins</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Blitzkrieg Blades</td>
+			<td>W</td>
+			<td>919</td>
+			<td>901</td>
+			<td>5</td>
+		</tr>
+		<tr>
+			<td>Satans</td>
+			<td>W</td>
+			<td>905</td>
+			<td>545</td>
+			<td>7</td>
+		</tr>
+		<tr>
+			<td>PeeJays</td>
+			<td>W</td>
+			<td>780</td>
+			<td>671</td>
+			<td>5</td>
+		</tr>
+		<tr>
+			<td>BlackCocks</td>
+			<td>W</td>
+			<td>718</td>
+			<td>545</td>
+			<td>7</td>
+		</tr>
+		<tr>
+			<td>Mithril</td>
+			<td>L</td>
+			<td>901</td>
+			<td>919</td>
+			<td>3</td>
+		</tr>
+		<tr>
+			<td>Wildfire</td>
+			<td>L</td>
+			<td>671</td>
+			<td>780</td>
+			<td>3</td>
+		</tr>
+		<tr>
+			<td>DeKyser Soze</td>
+			<td>L</td>
+			<td>545</td>
+			<td>905</td>
+			<td>1</td>
+		</tr>
+		<tr>
+			<td>ISIS on Ice</td>
+			<td>L</td>
+			<td>545</td>
+			<td>718</td>
+			<td>1</td>
+		</tr>
+	</tbody>
+</table>
+<p>*The following two graphs are ranked by the avg score over the three weeks</p>
+<h3>FP For</h3>
+<table class="table table-striped table-nonfluid">
+    <tbody>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Team:</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 7</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 8</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 9</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Avg</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Blitzkrieg Blades
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    1107
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    791
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    919
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    939
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Satans
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    846
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    924
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    905
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    891.66
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    DeKyser Soze
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    881
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    1071
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    545
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    832.33
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Wildfire
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    790
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    835
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    671
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    765.33
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Mithril
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    733
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    619
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    901
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    751
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    PeeJays
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    683
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    712
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    780
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    725
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    BlackCocks
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    826
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    613
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    718
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    719
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    ISIS on Ice
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    734
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    459
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    545
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    579.33
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    <strong>League Average</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>825</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>753</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>748</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>775.33</strong>
+                </p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<table  class="table table-striped table-nonfluid" >
+    <tbody>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Team:</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 7</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 8</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 9</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Avg</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    DeKyser Soze
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    826
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    924
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    905
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    885
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    PeeJays
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    1107
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    835
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    671
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    871
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    ISIS on Ice
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    846
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    791
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    718
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    785
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Satans
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    734
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    1071
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    545
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    783.33
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Mithril
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    790
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    613
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    919
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    774
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Wildfire
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    733
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    712
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    780
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    741.66
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    BlackCocks
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    881
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    619
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    545
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    681.66
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Blitzkrieg Blades
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    683
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    459
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    901
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    681
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    <strong>League Average</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>825</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>753</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>748</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>775.33</strong>
+                </p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>
+    <strong>
+        The current 3 game streak with win loss FP margin:
+        <br/>
+        *This table is ranked by number of wins, then total FP point differential.
+    </strong>
+</p>
+<table  class="table table-striped table-nonfluid">
+    <tbody>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Team:</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 7</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 8</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Week 9</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Total</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Blitzkrieg Blades
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +424
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +332
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +18
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    W-W-W, +774
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Satans
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, 112
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -147
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +360
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    W-L-W, +325
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Wildfire
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +57
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +123
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -109
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    W-W-L, +71
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    DeKyser Soze
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +55
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +147
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -360
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    W-W-L, -158
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    BlackCocks
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -55
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -6
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +173
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    L-L-W, +112
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    Mithril
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -57
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +6
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -18
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    L-W-L, -69
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    PeeJays
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -424
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -123
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Win, +109
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    L-L-W, -438
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="125">
+                <p>
+                    ISIS on Ice
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    L, -112
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -332
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    Loss, -173
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    L-L-L, -617
+                </p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>
+    <strong>Current Standings:</strong>
+</p>
+<table class="table table-striped table-nonfluid">
+    <tbody>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    <strong>Place:</strong>
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    <strong>Team:</strong>
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    <strong>Record</strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>FP </strong>
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    <strong>Category wins</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    1
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    Satans
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    8-1
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    7071
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    51
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    2
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    DeKyser Soze
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    8-1
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    7680
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    50
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    3
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    BlackCocks
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    5-4
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    6007
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    45
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    4
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    Blitzkrieg Blades
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    5-4
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    7371
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    32
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    5
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    PeeJays
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    4-5
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    6228
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    30
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    6
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    Mithril
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    3-6
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    7020
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    37
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    7
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    Wildfire
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    3-6
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    6044
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    28
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" width="66">
+                <p>
+                    8
+                </p>
+            </td>
+            <td valign="top" width="142">
+                <p>
+                    ISIS on Ice
+                </p>
+            </td>
+            <td valign="top" width="166">
+                <p>
+                    0-9
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    4885
+                </p>
+            </td>
+            <td valign="top" width="125">
+                <p>
+                    14
+                </p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<p>And now onto the power rankings!</p>
+{% endif %}
 <table id="power_rankings" class="rankings table table-striped">
         <tr {% cycle 'class="odd"' 'class="even"' %}>
                 <th>Team</th>
@@ -16,7 +1144,7 @@
                         <td>{{r.ranking}}</td>
                         <td>{{r.old_ranking}}</td>
                         <td>{{r.change}}</td>
-                        <td>{{r.comment}}</td>
+                        <td>{% autoescape off %}{{r.comment}}{% endautoescape %}</td>
                 </tr>
         {% endfor %}
 </table>

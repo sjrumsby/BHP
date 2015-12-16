@@ -35,6 +35,7 @@ class Game(models.Model):
         away_team       = models.ForeignKey(Hockey_Team, related_name="away_team")
         time            = models.TimeField()
         nhl_game_id     = models.IntegerField()
+	year		= models.ForeignKey(Year)
 
 class Position(models.Model):
 	code		= models.CharField(max_length=1)
@@ -49,8 +50,8 @@ class Skater(models.Model):
         nhl_id          = models.IntegerField(primary_key=True)
         first_name      = models.CharField(max_length=64, default="")
 	last_name       = models.CharField(max_length=64, default="")
+	full_name	= models.CharField(max_length=64, default="")
         hockey_team     = models.ForeignKey(Hockey_Team, default=0)
-        games           = models.IntegerField(default=0)
         goals           = models.IntegerField(default=0)
         assists         = models.IntegerField(default=0)
         points          = models.IntegerField(default=0)
@@ -93,15 +94,29 @@ class Skater(models.Model):
         fantasy_points  = models.IntegerField(default=0)
 
 	def __unicode__(self):
-		return self.name
+		return '<a href="/skater/%s">%s</a>' % (self.nhl_id, self.first_name + " " + self.last_name)
+
+	def get_draft_name(self):
+		return '<a href="/skater/%s">%s (%s)</a>' % (self.nhl_id, self.first_name + " " + self.last_name, self.get_position())
+
+	def get_name(self):
+		return '<a href="/skater/%s">%s</a>' % (self.nhl_id, self.first_name + " " + self.last_name)
 
 	def get_owner(self):
-		t = Team.objects.filter(skater_id=self.id)
+		t = Team.objects.filter(skater_id=self.nhl_id)
 
 		if len(t) == 1:
 			return t[0].player.name
 		else:
 			return "Free Agent"
+
+	def get_position(self):
+		positions = []
+
+		for x in Skater_Position.objects.filter(skater_id=self.nhl_id).order_by('-position_id'):
+			positions.append(x.position.code)
+
+		return ', '.join(positions)
 
 class Skater_Position(models.Model):
 	skater = models.ForeignKey(Skater)

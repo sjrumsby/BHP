@@ -37,7 +37,7 @@
                 var skaters = []
                 $('#activate_table input').each(function () {
                         if(this.checked){
-				skater = { "id" : $(this).attr("value"), "position" : $(this).parent().parent().children('td').eq(1).children().first().val()} 
+				skater = { "id" : $(this).attr("value"), "position" : $(this).parents('tr').children('td').eq(1).find("option:selected").val()} 
                                 skaters.push(skater);
                         }
                 });
@@ -87,7 +87,7 @@
         </tr>
 {% for t in team %}
         <tr>
-                <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.name}}</a></td>
+                <td><a href="/skater/{{t.skater.skater.nhl_id}}/">{{t.skater.skater.first_name}} {{t.skater.skater.last_name}}</a></td>
                 <td><select>{% for p in t.positions %} <option {% if t.position == p %} selected="selected" {% endif %}>{{ p }}</option> {% endfor %}{% if 'G' not in t.positions %}<option {% if t.position == 'B' %} selected="selected" {% endif %}>B</option>{% endif %}</select></td>
                 <td>{{t.skater.skater.hockey_team}}</td>
                 <td>{{t.skater.skater.games}}</td>

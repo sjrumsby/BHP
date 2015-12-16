@@ -3,134 +3,135 @@
 {% block primary %}
 <script src="/scripts/scripts.js"></script>
 <div class="container">
-{% if action == "POST" %}
-        <div id="success_banner">
-        {% if error == 0 %}
-                <h1>Success</h1>
-                <p>Waiver processed successfull</p>
-        {% else %}
-                <h1>Error</h1>
-                <p>Your query returned the following error:
-                        <ul>{{error_msg}}</ul>
-                </p>
-        {% endif %}
-{% endif %}
+	<div class="container col-lg-6">
+		{% if action == "POST" %}
+		<div id="success_banner">
+			{% if error == 0 %}
+				<h1>Success</h1>
+				<p>Waiver processed successfull</p>
+			{% else %}
+				<h1>Error</h1>
+				<p>Your query returned the following error:
+					<ul>{{error_msg}}</ul>
+				</p>
+			{% endif %}
+		</div>
+		{% endif %}
 
-{% if player_pickups|length > 0 %}
-<div id="player_pickups col-lg-12">
-<h1>Your Waiver Pickups</h1>
-<p>The following players have been picked up off of waivers this week.</p>
-<table class="sortable" id="waiver_pickups">
-        <tr>
-                <th>Team</th>
-                <th>Skater</th>
-        </tr>
-        {% for p in player_pickups %}
-        <tr>
-                <td>{{p.player}}</td>
-                <td>{{p.skater.name}}</td>
-        </tr>
-        {% endfor %}
-</table>
-{% endif %}
+		{% if player_pickups|length > 0 %}
+		<div id="player_pickups">
+			<h1>Your Waiver Pickups</h1>
+			<p>The following players have been picked up off of waivers this week.</p>
+			<table class="sortable" id="waiver_pickups">
+				<tr>
+					<th>Team</th>
+					<th>Skater</th>
+				</tr>
+				{% for p in player_pickups %}
+				<tr>
+					<td>{{p.player}}</td>
+					<td>{{p.skater.first_name}} {{p.skater.last_name}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% endif %}
 
-{% if pickups|length > 0 %}
-<div id="pickups col-lg-12">
-<h1>Waiver Pickups</h1>
-<p>The following players have been picked up off of waivers this week</p>
-	<table class="sortable table" id="waiver_pickups">
-		<tr>
-			<th>Team</th>
-			<th>Skater</th>
-		</tr>
-		{% for p in pickups %}
-		<tr>
-			<td>{{p.player}}</td>
-			<td>{{p.skater.name}}</td>
-		</tr>
-		{% endfor %}
-	</table>
-</div>
-{% endif %}
+		{% if pickups|length > 0 %}
+		<div id="pickups">
+			<h1>Waiver Pickups</h1>
+			<p>The following players have been picked up off of waivers this week</p>
+			<table class="sortable table" id="waiver_pickups">
+				<tr>
+					<th>Team</th>
+					<th>Skater</th>
+				</tr>
+				{% for p in pickups %}
+				<tr>
+					<td>{{p.player}}</td>
+					<td>{{p.skater.first_name}} {{p.skater.last_name}}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% endif %}
 
-<div id="player_waivers col-lg-12">
-<h1>Your Pending Waivers</h1>
+		<div id="player_waivers">
+			<h1>Your Pending Waivers</h1>
 
-{% if player_waivers|length != 0 %}
-        <p>You have the following players waiting to clear waivers:
-                <table id = "player_waiver" class="sortable table">
-                        <tr>
-                                <th>Name</th>
-                                <th>Pos</th>
-                                <th>Team</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                        </tr>
-	{% autoescape off %}
-        {% for p in player_waivers %}
-                {{p.own_waiver_row}}
-        {% endfor %}
-	{% endautoescape %}
-                </table>
-        </p>
-{% else %}
-        <p>You do not have any pending waivers</p>
-{% endif %}
-
-</div>
-<div id="all_waivers">
-<h1>Pending Waivers</h1>
-
-{% if all_waivers|length != 0 %}
-        <p>All players currently on waivers:</p>
-                <table id = "player_waiver" class="sortable table">
-                        <tr>
-                                <th>Name</th>
-                                <th>Pos</th>
-                                <th>Team</th>
-                                <th>Status</th>
-                        </tr>
-
-        {% for p in all_waivers %}
-                {% autoescape off %}{{p.all_waiver_row}}{% endautoescape %}
-        {% endfor %}
-        </table>
-{% else %}
-        <p>No other manages have placed anyone on waivers</p>
-{% endif %}
-
-</div>
-<div id="add">
-        <h1>Add Players</h1>
-        <p>Use this form to add a player to your team</p>
-        <form action="/waivers/add/" method="POST">{% csrf_token %}
-               <input type="text" value="" name="waiver_add" id="waiver_add" onkeyup="add_player()" />
-                <input type="hidden" value="" name="waiver_add_id" id="waiver_add_id"/>
-                <input type="submit" value="Add" />
-        </form>
-        <div id="add_suggestions"></div>
-</div>
-<div id="drop">
-        <h1>Drop Players</h1>
-        <p>Use the below form to drop a player to waivers:</p>
-	<div class="col-lg-6">
-		<form action="" method="POST">{% csrf_token %}
-		<table class="sortable table table-striped" id="waiver_table">
-			<tr>
-				<th>Player</th>
-				<th>Pos</th>
-				<th>Team</th>
-				<th>Drop</th>
-			</tr>
-			{% for t in team %}
-				<td>{{t.skater.name}}</td><td>{{t.skater.position}}</td><td>{{t.skater.hockey_team}}</td><td><input type="checkbox" value="{{t.skater.id}}" name="waiver_player"></td></tr>
+			{% if player_waivers|length != 0 %}
+			<p>You have the following players waiting to clear waivers:
+				<table id = "player_waiver" class="sortable table">
+					<tr>
+						<th>Name</th>
+						<th>Pos</th>
+						<th>Team</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+			{% autoescape off %}
+			{% for p in player_waivers %}
+				{{p.own_waiver_row}}
 			{% endfor %}
-		</table>
-		<input type="submit" value="Drop"></input>
-		</form>
+			{% endautoescape %}
+				</table>
+			</p>
+			{% else %}
+			<p>You do not have any pending waivers</p>
+			{% endif %}
+
+		</div>
+		<div id="all_waivers">
+			<h1>Pending Waivers</h1>
+			{% if all_waivers|length != 0 %}
+			<p>All players currently on waivers:</p>
+				<table id = "player_waiver" class="sortable table">
+					<tr>
+						<th>Name</th>
+						<th>Pos</th>
+						<th>Team</th>
+						<th>Status</th>
+					</tr>
+
+			{% for p in all_waivers %}
+				{% autoescape off %}{{p.all_waiver_row}}{% endautoescape %}
+			{% endfor %}
+			</table>
+			{% else %}
+			<p>No other manages have placed anyone on waivers</p>
+			{% endif %}
+		</div>
+		<div id="add">
+			<h1>Add Players</h1>
+			<p>Use this form to add a player to your team</p>
+			<form action="/waivers/add/" method="POST">{% csrf_token %}
+			       <input type="text" value="" name="waiver_add" id="waiver_add" onkeyup="add_player()" />
+				<input type="hidden" value="" name="waiver_add_id" id="waiver_add_id"/>
+				<input type="submit" value="Add" />
+			</form>
+			<div id="add_suggestions"></div>
+		</div>
 	</div>
-</div>
-</div>
+	<div class="container col-lg-5">
+		<div id="drop">
+			<h1>Drop Players</h1>
+			<p>Use the below form to drop a player to waivers:</p>
+			<form action="" method="POST">{% csrf_token %}
+				<table class="sortable table table-striped" id="waiver_table">
+					<tr>
+						<th>Player</th>
+						<th>Pos</th>
+						<th>Team</th>
+						<th>Drop</th>
+					</tr>
+					{% for t in team %}
+						<td>{{t.skater.first_name}} {{t.skater.last_name}}</td><td>{{t.skater.get_position}}</td><td>{{t.skater.hockey_team}}</td><td><input type="checkbox" value="{{t.skater.nhl_id}}" name="waiver_player"></td></tr>
+					{% endfor %}
+				</table>
+			<input type="submit" value="Drop"></input>
+			</form>
+		</div>
+	</div>
 </div>
 {% endblock %}
 

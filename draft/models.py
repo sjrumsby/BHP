@@ -14,6 +14,7 @@ class Draft_Pick(models.Model):
         player = models.ForeignKey(Player)
         pick = models.ForeignKey(Skater, blank=True, null=True)
         time = models.DateTimeField(blank=True, null=True)
+	number = models.IntegerField(blank=True, null=True)
 
         def get_round(self):
                 return self.round.number
@@ -22,7 +23,7 @@ class Draft_Pick(models.Model):
                 if self.pick == None:
                         str = self.player.name
                 else:
-                        str = "%s - %s" % (self.player.name, self.pick.name)
+                        str = "%s - %s" % (self.player.name, self.pick.first_name + " " + self.pick.last_name)
                 return str
 
 class Draft_Start(models.Model):

@@ -7,4 +7,7 @@ logs
 install.log
 vars.py
 reset_db.sh
-
+maps
+iphone
+test.sql
+hockeypool/migrations

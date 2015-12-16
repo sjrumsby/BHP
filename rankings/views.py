@@ -15,6 +15,7 @@ def index(request):
         rankings = Power_Rank.objects.select_related().filter(week=last_week_number).order_by("power_rank")
         ranks = []
         for r in rankings:
+		logger.info(r)
                 tmp_dict = {'name' : r.player.name}
                 tmp_dict['ranking'] = r.power_rank
                 if r.week == 1:
@@ -22,12 +23,13 @@ def index(request):
                         tmp_dict['change'] = " - "
                 else:
                         old_rankings = Power_Rank.objects.filter(week=last_week_number-1).filter(player=r.player)
+			logger.info("%s-%s" % (last_week_number-1,r.player))
                         tmp_dict['old_ranking'] = old_rankings[0].power_rank
                         tmp_dict['change'] = tmp_dict['old_ranking'] - tmp_dict['ranking']
                 tmp_dict['comment'] = r.comment
                 ranks.append(tmp_dict)
 
-        context = {'page_name' : 'Rankings', 'ranks' : ranks}
+        context = {'page_name' : 'Rankings', 'ranks' : ranks, "week" : week.number}
         return render(request, 'rankings/index.html', context)
 
 @login_required

@@ -26,16 +26,16 @@ def index(request):
         teams = Player.objects.all().values_list("name", flat=True)
         posts = Post.objects.all().order_by("id")
         posts = posts.reverse()[:5]
-	week = Pool.objects.get(pk=1)
-	week = week.current_week.number
-        match = Match.objects.select_related().filter(week__number = week)
+	pool = Pool.objects.get(pk=1)
+	week = pool.current_week.number
+        match = Match.objects.select_related().filter(week__number = week).filter(week__year_id=pool.current_year_id)
         match_data = []
 
         if len(match) > 0:
                 for m in match:
                         tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
-                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=pool.current_week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=pool.current_week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
 
                         if tmp_arr['home']['category_points']['fantasy_points'] > tmp_arr['away']['category_points']['fantasy_points']:
                                 tmp_arr['home']['score'] = tmp_arr['home']['score'] + 2
@@ -78,6 +78,7 @@ def index(request):
                                 elif tmp_arr['home']['category_points']['shootout'] < tmp_arr['away']['category_points']['shootout']:
                                         tmp_arr['away']['score'] = tmp_arr['away']['score'] + 1
                         match_data.append(tmp_arr)
+
 	mainFrame = { 'posts' : posts }
 	sideFrame = { 'matches' : match_data }
         context = {'page_name' : 'Home', 'mainFrame' : mainFrame, 'sideFrame' : sideFrame}
@@ -85,11 +86,12 @@ def index(request):
 
 def freeagents_index(request):
         position = 'F'
-        sortby = "goals"
+        sortby = "fantasy_points"
         sortnumber = "50"
         only_freeagents = "0"
-        view_type = "0"
+        view_type = "1"
         weeks = "0"
+	season = 2
 
         if request.method == 'POST':
                 position = request.POST.get('position')
@@ -98,46 +100,49 @@ def freeagents_index(request):
                 only_freeagents = request.POST.get('only_freeagents')
                 weeks = request.POST.get('weeks')
                 view_type = request.POST.get('view_type')
-
-        if position == 'F':
-                if Team.objects.all().count() == 0:
-                        s = Skater.objects.select_related().exclude(position = "G").exclude(id__in = Draft_Pick.objects.filter(pick__isnull=False).values_list('pick_id', flat=True)).order_by("-%s" % sortby)
-                else:
-                        if only_freeagents == "0":
-                                s = Skater.objects.select_related().exclude(position = "G").exclude(id__in = Team.objects.all().values_list('skater_id', flat=True)).order_by("-%s" % sortby)
-                        else:
-                                s = Skater.objects.select_related().exclude(position = "G").order_by("-%s" % sortby)
-        else:
-                if Team.objects.all().count() == 0:
-                        s = Skater.objects.select_related().filter(position=position).exclude(id__in = Draft_Pick.objects.filter(pick__isnull=False).values_list('pick_id', flat=True)).order_by("-%s" % sortby)
-                else:
-                        if only_freeagents == "0":
-                                s = Skater.objects.select_related().filter(position=position).exclude(id__in = Team.objects.all().values_list('skater_id', flat=True)).order_by("-%s" % sortby)
-                        else:
-                                s = Skater.objects.select_related().filter(position=position).order_by("-%s" % sortby)
-        if sortnumber == "5":
-                s = s[:5]
-        elif sortnumber == "10":
-                s = s[:10]
-        elif sortnumber == "25":
-                s = s[:25]
-        elif sortnumber == "50":
-                s = s[:50]
-        elif sortnumber == "100":
-                s = s[:100]
-        elif sortnumber == "250":
-                s = s[:250]
+		season = request.POST.get('season')
 
 	pool = Pool.objects.get(pk=1)
 	current_week = pool.current_week.id
 	free_agents = []
-	for x in s:
-		tmp_dict = {'skater' : x}
-		tmp_dict['cat_points'] = Point.objects.filter(skater=x).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
-		free_agents.append(tmp_dict)
-	s = free_agents
 
-        context = {'page_name' : 'Free Agents', 'free_agents' : s, 'position' : position, 'sortby' : sortby, 'sortnumber' : sortnumber, 'only_freeagents' : only_freeagents, 'view_type' : view_type, 'weeks' : weeks}
+	cat_points = Point.objects.filter(game__year_id=season)
+
+	if only_freeagents == "0":
+		cat_points = cat_points.exclude(skater_id__in=Team.objects.all().values_list('skater_id', flat=True))
+
+	if position == "D":
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.filter(position=Position.objects.get(code="D")).values_list('skater_id', flat=True))
+	elif position == "L":
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.filter(position=Position.objects.get(code="L")).values_list('skater_id', flat=True))
+	elif position == "C":
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.filter(position=Position.objects.get(code="C")).values_list('skater_id', flat=True))
+	elif position == "R":
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.filter(position=Position.objects.get(code="R")).values_list('skater_id', flat=True))
+	elif position == "G":
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.filter(position=Position.objects.get(code="G")).values_list('skater_id', flat=True))
+	else:
+		cat_points = cat_points.filter(skater_id__in=Skater_Position.objects.exclude(position=Position.objects.get(code="G")).values_list('skater_id', flat=True))
+
+	cat_points = cat_points.values('skater_id').annotate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+
+	if sortby == "goals":
+		cat_points = sorted(cat_points, key=lambda k : (-1)*k['goals'])[:int(sortnumber)]
+	elif sortby == "assists":
+		cat_points = sorted(cat_points, key=lambda k : (-1)*k['assists'])[:int(sortnumber)]
+	elif sortby == "plus_minus":
+		cat_points = sorted(cat_points, key=lambda k : (-1)*k['plus_minus'])[:int(sortnumber)]
+	else:
+		cat_points = sorted(cat_points, key=lambda k : (-1)*k['fantasy_points'])[:int(sortnumber)]
+
+	for x in cat_points:
+		tmp_dict = {}
+		tmp_dict['cat_points'] = x
+		tmp_dict['skater'] = Skater.objects.get(nhl_id=x['skater_id'])
+		free_agents.append(tmp_dict)
+
+        context = {'page_name' : 'Free Agents', 'free_agents' : free_agents, 'position' : position, 'sortby' : sortby, 'sortnumber' : sortnumber, 'only_freeagents' : only_freeagents, 'view_type' : view_type, 'weeks' : weeks, 'season' : season}
+
         return render(request, 'hockeypool/freeagents.html', context)
 
 @login_required
@@ -159,41 +164,6 @@ def logout_page(request):
 def profile_index(request):
         user = User.objects.get(username=request.user.username)
 
-        if request.method == "POST":
-                new_name = request.POST.get("change_team_name")
-                old_pass = request.POST.get("old_pass")
-                new_pass1 = request.POST.get("password1")
-                new_pass2 = request.POST.get("password2")
-		new_theme = request.POST.get("theme_select")
-
-                if new_name != None:
-                        if Player.objects.filter(id=user.id).exists():
-                                p = Player.objects.get(id=user.id)
-                                p.name = new_name
-                                p.save()
-                        else:
-                                p = Player(id=user.id, name=new_name)
-                                p.save()
-
-
-                if new_pass1 != "" and old_pass != "" and new_pass1 == new_pass2:
-                        logger.info(old_pass)
-                        logger.info("Attempting password reset for user: %s" % request.user)
-                        if user.check_password(old_pass):
-                                hash_pass = make_password(new_pass1)
-                                user.password = hash_pass
-                                user.save()
-                        else:
-                                logger.info("Failed: old password does not match new password")
-                                logger.info(make_password(old_pass))
-                                logger.info(user.password)
-
-		p = Player.objects.get(id=request.user.id)
-
-		if p.theme != new_theme:
-			p.theme = new_theme
-			p.save()
-		
         if Player.objects.filter(id=request.user.id).exists():
                 p = Player.objects.get(id=user.id)
                 team_name = p.name
@@ -219,8 +189,7 @@ def profile_index(request):
 			"Yeti"
 		]
 	
-        context = {'page_name' : 'Profile', 'team_name' : team_name, "themes" : themes, "player" : p }
-	logger.info(context)
+        context = {'page_name' : 'Profile', 'team_name' : team_name, "user_name" : user.username, "themes" : themes, "player" : p }
         return render(request, 'hockeypool/profile_index.html', context)
 
 def register(request):
@@ -259,14 +228,29 @@ def standings_index(request):
         standings_data = []
         pool = Pool.objects.get(pk=1)
         current_week = pool.current_week
+	all_dates = Week_Date.objects.select_related().filter(week__in=Week.objects.filter(year_id=pool.current_year_id).filter(number__lt=pool.current_week.number)).values_list('date', flat=True)
         for p in players:
                 player_data = {'name' : p.name, 'conference' : p.conference}
-                player_data['wins'] = Match.objects.filter(winner_player = p).count()
+                player_data['wins'] = Match.objects.filter(winner_player = p).filter(week__year_id=pool.current_year_id).count()
                 player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
-                away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
-                home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
+                away_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('away_cat'))
+                home_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('home_cat'))
+                away_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('home_cat'))
+                home_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('away_cat'))
+
+		if away_cats['away_cat__sum'] == None:
+			away_cats['away_cat__sum'] = 0
+		if home_cats['home_cat__sum'] == None:
+			home_cats['home_cat__sum'] = 0
+
+		if away_cats['away_cat__sum'] == None:
+			away_cats['away_cat__sum'] = 0
+		if home_cats['home_cat__sum'] == None:
+			home_cats['home_cat__sum'] = 0
+
                 player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
-                streak_data = Match.objects.filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
+		player_data['categories_against'] = away_cats_against['home_cat__sum'] + home_cats_against['away_cat__sum']
+                streak_data = Match.objects.filter(week__year_id=pool.current_year_id).filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
                 streak = 0
 
                 for s in streak_data:
@@ -282,7 +266,22 @@ def standings_index(request):
                                         streak = streak - 1
                 player_data['streak'] = streak
 
-                player_data['points'] = Team_Point.objects.filter(player=p).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                player_data['points'] = Team_Point.objects.filter(player=p).filter(point__game__date__in=all_dates).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+		player_data['points_against'] = {"fp" : 0, "g" : 0, "a" : 0, "plus_minus" : 0, "os" : 0, "tg" : 0, "goalie" : 0, "so" : 0, "games" : 0}
+
+		for m in Match.objects.filter(week_id__in=Week.objects.filter(year_id=pool.current_year_id)).filter(winner_player_id__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('week'):
+			if m.home_player == p:
+				data = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+			else:
+				data = Team_Point.objects.filter(point__game__date__in=Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+
+			if p.id == 2:
+				logger.info("%s: FPA: %s" % (m, data["fantasy_points"]))
+			if data["fantasy_points"] is not None:
+				player_data['points_against']["fp"] += data["fantasy_points"]
+				player_data['points_against']['games'] += 1
+		player_data["points"]["per_game"] = player_data["points"]["fantasy_points"]/(pool.current_week.number - 1)
+		player_data["points_against"]["fp_per_game"] = player_data['points_against']["fp"] / player_data['points_against']['games']
                 standings_data.append(player_data)
         s_data = standings_sort(standings_data)
         context = {'page_name' : 'Standings', 'p_data' : s_data}
@@ -369,7 +368,9 @@ def team_detail(request, team_id):
         team_data = []
         for t in team:
                 skater_data = {'skater' : t.skater}
-                skater_data['category_points'] = Point.objects.filter(skater = t.skater).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+                skater_data['category_points'] = Point.objects.filter(game__year_id=2).filter(skater = t.skater).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+		if skater_data['category_points']['goals'] is not None:
+			skater_data['category_points']['fantasy_points'] = skater_data['category_points']['goals'] + skater_data['category_points']['assists'] + skater_data['category_points']['plus_minus'] + skater_data['category_points']['offensive_special'] + skater_data['category_points']['true_grit'] + skater_data['category_points']['goalie']
                 team_data.append(skater_data)	
 
         context = {'page_name' : 'Team: %s' % player.name, 'team' : team_data}

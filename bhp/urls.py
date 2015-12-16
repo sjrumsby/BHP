@@ -1,4 +1,9 @@
 from django.conf.urls import patterns, include, url
+from django.conf.urls.static import static
+from django.conf import settings
+
+
+
 
 from django.contrib import admin
 admin.autodiscover()
@@ -16,6 +21,11 @@ urlpatterns = patterns('',
 	url(r'^trades/', include('trades.urls')),
 	url(r'^rankings/', include('rankings.urls')),
 
+#Temporary URL for Safe Walk iPhone testing
+
+	url(r'^iphone/', include('iphone.urls')),
+	url(r'^maps/', include('maps.urls')),
+
 	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 	url(r'^logout/$', views.logout_page, name="logout_page"),
 	url(r'^profile/$', views.profile_index, name="profile_index"),
@@ -32,4 +42,4 @@ urlpatterns = patterns('',
 	url(r'^team/(?P<team_id>\d+)/$', views.team_detail, name="team_detail"),
 	url(r'^team/$', views.team_index, name="team_index"),
 	url(r'^$', views.index, name='index')
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -236,3 +236,7 @@ ul.to-do-list li {
 	margin: 0;
 	padding: 10px;
 }
+
+.table-nonfluid {
+   width: auto !important;
+}

@@ -5,14 +5,17 @@ import os
 import sys
 import HTMLParser, urllib2, re
 import logging
+import json
 
-if "/django/BHP" not in sys.path:
-	sys.path.append("/django/BHP")
+if "/var/www/django/bhp" not in sys.path:
+	sys.path.append("/var/www/django/bhp")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
+django.setup()
 
 from django.conf import settings
 from hockeypool.models import *
+from urllib2 import urlopen
 
 logger = logging.getLogger(__name__)
 
@@ -43,23 +46,58 @@ class playerParser(HTMLParser.HTMLParser):
 players = []
 
 for i in range(0,6):
-        url = "http://hockey.fantasysports.yahoo.com/hockey/draftanalysis?tab=SD&pos=ALL&sort=DA_AP&count=%s" % str(i*50)
-        resp = urllib2.urlopen(url)
-        html = resp.read()
-        p = playerParser()
-        p.feed(html)
+	url = "http://hockey.fantasysports.yahoo.com/hockey/draftanalysis?tab=SD&pos=ALL&sort=DA_AP&count=%s" % str(i*50)
+	resp = urllib2.urlopen(url)
+	html = resp.read()
+	p = playerParser()
+	p.feed(html)
 
-        for x in p.players:
+	for x in p.players:
 		players.append([x[5], x[7].split(" - ")[-1]])
 
+#Use nhl.com position code as fallback
+url = "http://www.nhl.com/stats/rest/grouped/skaters/season/skatersummary?cayenneExp=seasonId=20152016%20and%20gameTypeId=2"
+req = urlopen(url)
+data = json.loads(req.read())["data"]
+
 for x in players:
-	s = Skater.objects.filter(name=x[0])
+	s = Skater.objects.filter(full_name=x[0])
 	if len(s) == 1:
 		s = s[0]
-		position = x[1].replace(",",", ").replace("RW", "R").replace("LW", "L")
-		s.position = position
-		s.save()
+		Skater_Position.objects.filter(skater_id=s.nhl_id).delete()
+		position = x[1].replace("RW", "R").replace("LW", "L").split(",")
+		for p in position:
+			print "%s: %s" % (s.full_name, p)
+			sp = Skater_Position.objects.create(skater_id=s.nhl_id, position=Position.objects.get(code=p))
+			sp.save()
 	else:
 		print "No skater found: %s, %s" % (x[0], x[1])
+		if x[0] == "T.J. Brodie":
+			print "Fixing TJ Brodie"
+			sp = Skater_Position.objects.create(skater_id=8474673, position=Position.objects.get(code='D'))
+			sp.save()
+
+for d in data:
+	check = Skater_Position.objects.filter(skater_id=d["playerId"]).count()
+	if check == 0:
+		try:
+			p = Skater.objects.get(pk=d["playerId"])
+			print "Adding position %s record for: %s" % (d["playerPositionCode"], d["playerName"])
+			sp = Skater_Position.objects.create(skater_id=d["playerId"], position=Position.objects.get(code=d["playerPositionCode"]))
+			sp.save()
+		except Skater.DoesNotExist:
+			print "Creating skater for %s (ID: %s)" % (d["playerName"], d["playerId"])
+			s = Skater.objects.create(nhl_id=d["playerId"],first_name=d["playerFirstName"], last_name=d["playerLastName"], full_name=d["playerName"],hockey_team=Hockey_Team.objects.filter(name=d["playerTeamsPlayedFor"].split(", ")[-1])[0])
+			sp = Skater_Position.objects.create(skater=s, position=Position.objects.get(code=d["playerPositionCode"]))
+                        sp.save()
+
+
+
+
+
+
+
+
+
 
 

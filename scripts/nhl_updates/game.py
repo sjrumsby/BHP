@@ -309,6 +309,7 @@ class Game():
             self.awayTeamSkaters[t[0]]['timeonice'] = t[-1]
 
         for t in boxParse.away_goalies:
+            print t
             shots = t[7].split(" - ")
             saves = shots[0].strip()
             goals_against = str(int(shots[1].strip()) - int(saves))

@@ -57,7 +57,7 @@ def trade_accept(request, trade_id):
         if Trade.objects.filter(id=trade_id).exists():
                 t = Trade.objects.get(id=trade_id)
                 if t.player2.id == request.user.id:
-                        logger.info("Player initiated the request, accepting trade")
+                        logger.info("Player did not initiate the request, accepting trade")
                         if Team.objects.filter(skater = t.skater1).exists() and Team.objects.filter(skater = t.skater2).exists():
                                 t1 = Team.objects.get(skater = t.skater1)
                                 t2 = Team.objects.get(skater = t.skater2)
@@ -73,7 +73,6 @@ def trade_accept(request, trade_id):
                                 logger.info("One of the players involved in the trade is no longer on any team")
                                 errors = 1
                                 error = "Someone involved in this trade no longer has the player on their tema, or something else went wrong. Contact the commissioner"
-
                         t.state = 1
                         t.save()
                 else:
@@ -85,7 +84,7 @@ def trade_accept(request, trade_id):
                 logger.info("Trade does not exist")
                 errors = 1
                 error = "Trade with id: %s does not exist" % trade_id
-        context = {'page_name' : 'Cancel Trade', 'error' : error, 'errors' : errors }
+        context = {'page_name' : 'Accept Trade', 'error' : error, 'errors' : errors }
         return render(request, 'trades/accept.html', context)
 
 

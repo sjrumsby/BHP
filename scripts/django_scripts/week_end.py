@@ -3,17 +3,18 @@ import django
 import sys
 import os
 
-if "/django/BHP" not in sys.path:
-        sys.path.append("/django/BHP")
+if "/var/www/django/bhp" not in sys.path:
+        sys.path.append("/var/www/django/bhp")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
+django.setup()
 
-from BHP import settings
+from bhp import settings
 
 from random import random
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
-import HTMLParser, grequests, urllib2, re
+import HTMLParser, urllib2, re
 from django.db.models import Sum, Q
 from hockeypool.models import *
 from draft.models import *
@@ -33,12 +34,12 @@ logger.info("Adding all new activations")
 a = Activation.objects.all()
 
 for x in a:
-	logger.info("Adding %s to %s, with position: %s" % (x.skater.name, x.player.name, x.position))
-	new_at = Activated_Team.objects.create(skater = x.skater, player = x.player, week_id=week.number+1)
+	logger.info("Adding %s to %s, with position: %s" % (x.skater.get_name(), x.player.name, x.position))
+	new_at = Activated_Team.objects.create(skater = x.skater, player = x.player, week=Week.objects.filter(number=p.current_week.number+1).filter(year_id=p.current_year_id)[0], position=Position.objects.get(code=x.position))
 	new_at.save()
 
 logger.info("Activations added")
-new_week = Week.objects.get(number=week.number+1)
+new_week = Week.objects.filter(number=week.number+1).filter(year_id=p.current_year_id)[0]
 logger.info("Incrementing week from %s to %s" % (week.number, new_week.number))
 p.current_week = new_week
 p.save()
@@ -46,12 +47,13 @@ p.save()
 logger.info("Week incremented")
 logger.info("Ending matches")
 
-matches = Match.objects.filter(week=week)
+matches = Match.objects.filter(week_id=week.id)
 for m in matches:
 	logger.info("Match: %s vs %s" % (m.away_player, m.home_player))
 	tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
-	tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-	tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__week = week, player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+	tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True)).filter(player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+	tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True)).filter(player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+	logger.info(tmp_arr)
 
 	if tmp_arr['home']['category_points']['fantasy_points'] > tmp_arr['away']['category_points']['fantasy_points']:
 		tmp_arr['home']['score'] = tmp_arr['home']['score'] + 2
@@ -117,6 +119,7 @@ for x in pickups:
 	logger.info("Clearing skater %s from team %s" % (x.skater, x.player))
 	x.state=2
 	x.save()
+
 logger.info("Waiver pickups processed")
 logger.info("Cleaning up waiver drops")
 
@@ -127,27 +130,5 @@ for x in drops:
 	x.state = 3
 	x.save()
 logger.info("Waiver drops processed")
-logger.info("Adding point a point for every player")
-
-p = Player.objects.all()
-today = datetime.date(datetime.now())
-for x in p:
-	a = Activated_Team.objects.filter(player=x)
-	a = a[0]
-	point = Point.objects.create(	week=new_week, 
-					date=today,
-					skater=a.skater,
-					fantasy_points=0,
-					goals=0,
-					assists=0,
-					plus_minus=0,
-					offensive_special=0,
-					true_grit_special=0,
-					goalie=0,
-					shootout=0)
-
-	team_point = Team_Point.objects.create(point=point,player=x)
-	point.save()
-	team_point.save()
 
 logger.info("Week_end complete")

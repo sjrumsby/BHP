@@ -15,7 +15,7 @@ class Waiver(models.Model):
                         status = "Dropped"
                 else:
                         status = "Finished"
-                return "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (self.skater.name, self.skater.position, self.player.name, status)
+                return "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (self.skater.first_name + ' ' + self.skater.last_name, self.skater.get_position(), self.player.name, status)
 
         def own_waiver_row(self):
                 if self.state == 0:
@@ -26,7 +26,7 @@ class Waiver(models.Model):
                         status = "Dropped"
                 else:
                         status = "Finished"
-                return '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/waivers/cancel/%s/">%s</a></td></tr>' % (self.skater.name, self.skater.position, self.player.name, status, self.id, "Cancel")
+                return '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/waivers/cancel/%s/">%s</a></td></tr>' % (self.skater.first_name + ' ' + self.skater.last_name, self.skater.get_position(), self.player.name, status, self.id, "Cancel")
 
         def __unicode__(self):
                 return self.skater.name + " - " + self.player.name

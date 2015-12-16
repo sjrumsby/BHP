@@ -6,14 +6,14 @@ import os
 from random import random
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
-import HTMLParser, grequests, urllib2, re
 
-if "/django/BHP" not in sys.path:
-        sys.path.append("/django/BHP")
+if "/var/www/django.bhp" not in sys.path:
+        sys.path.append("/var/www/django/bhp")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
+django.setup()
 
-from BHP import settings
+from bhp import settings
 
 from hockeypool.models import *
 from draft.models import *
@@ -21,8 +21,10 @@ from draft.models import *
 import logging
 logger = logging.getLogger(__name__)
 
-drafts = Draft_Pick.objects.all()
-week= Week.objects.get(id=1)
+Team.objects.all().delete()
+
+drafts = Draft_Pick.objects.filter(round__year_id=2)
 
 for x in drafts:
-	Team.objects.create(player=x.player, skater=x.pick, week=1, active=1)
+	t = Team.objects.create(player=x.player, skater=x.pick)
+	t.save()

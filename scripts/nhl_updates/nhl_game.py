@@ -8,12 +8,13 @@ import vars
 
 class nhl_game():
     
-    def __init__(self, season, game, year):
+    def __init__(self, season, game, year, update_html = False):
         self.seasonID = season
         self.gameID = game
         self.yearID = year
         self.homeTeamSkaters = {}
         self.awayTeamSkaters = {}
+	self.update_html = update_html
         self.parseGame()
 
     def makeSkater(self, s):
@@ -230,7 +231,7 @@ class nhl_game():
         
     def parseGame(self):
         fp = vars.reports_path + "/reports/" + self.yearID + "/GS/GS" + self.seasonID + self.gameID + ".HTML"
-        if not os.path.exists(fp):
+        if not os.path.exists(fp) or self.update_html:
             url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/GS" + self.seasonID + self.gameID + ".HTM"
             try:
                 req = urlopen(url)
@@ -242,6 +243,7 @@ class nhl_game():
                     
             except:
                 print url
+		return
         else:
             f = open(fp, 'r')
             sum_html = f.read()
@@ -282,7 +284,7 @@ class nhl_game():
 
 
         fp = vars.reports_path + "/reports/" + self.yearID + "/BX/BX" + self.seasonID + self.gameID + ".HTML"
-        if not os.path.exists(fp):
+        if not os.path.exists(fp) or self.update_html:
             url = "http://www.nhl.com/gamecenter/en/boxscore?id=" + self.yearID[0:4] + self.seasonID + self.gameID
             try:
                 req = urlopen(url)
@@ -309,9 +311,15 @@ class nhl_game():
             self.awayTeamSkaters[t[0]]['timeonice'] = t[-1]
 
         for t in boxParse.away_goalies:
-            shots = t[7].split(" - ")
-            saves = shots[0].strip()
-            goals_against = str(int(shots[1].strip()) - int(saves))
+            if len(t) > 8:
+		    shots = t[7].split(" - ")
+		    saves = shots[0].strip()
+		    goals_against = str(int(shots[1].strip()) - int(saves))
+            else:
+                    shots = t[4].split(" - ")
+                    saves = shots[0].strip()
+                    goals_against = str(int(shots[1].strip()) - int(saves))
+
             self.awayTeamSkaters[t[0]] =  self.makeSkater(t[1])
             self.awayTeamSkaters[t[0]]['saves'] = saves
             self.awayTeamSkaters[t[0]]['goalsagainst'] = goals_against
@@ -334,9 +342,14 @@ class nhl_game():
             self.homeTeamSkaters[t[0]]['timeonice'] = t[-1]
 
         for t in boxParse.home_goalies:
-            shots = t[7].split(" - ")
-            saves = shots[0].strip()
-            goals_against = str(int(shots[1].strip()) - int(saves))
+            if len(t) > 8:
+                    shots = t[7].split(" - ")
+                    saves = shots[0].strip()
+                    goals_against = str(int(shots[1].strip()) - int(saves))
+            else:
+                    shots = t[4].split(" - ")
+                    saves = shots[0].strip()
+                    goals_against = str(int(shots[1].strip()) - int(saves))
             self.homeTeamSkaters[t[0]] =  self.makeSkater(t[1])
             self.homeTeamSkaters[t[0]]['saves'] = saves
             self.homeTeamSkaters[t[0]]['goalsagainst'] = goals_against
@@ -406,90 +419,90 @@ class nhl_game():
                 else:
                     print "Whoops: %s" % x
             starCount += 1
-
-        if "SO" in sumParse.goal_row[-1] and len(sumParse.goal_row[-1]) == 4:
-            try:
-                fp = vars.reports_path + "/reports/" + self.yearID + "/SO/SO" + self.seasonID + self.gameID.zfill(4) + ".HTML"
-                if not os.path.exists(fp):
-                    url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/SO" + self.seasonID + self.gameID + ".HTM"
-                    print url
-                    req = urlopen(url)
-                    shootout_html = req.read()
-                    f = open(fp, 'w')
-                    for line in shootout_html:
-                        f.write(line)
-                    f.close()
-                else:
-                    f = open(fp, 'r')
-                    shootout_html = f.read()
-                    f.close()
-                    
-                shootoutParse = shootoutParser()
-                shootoutParse.feed(shootout_html)
-            
-                for x in shootoutParse.shots:
-                    if vars.shortNameToID[self.convertHockeyTeamName(x[1])] == homeTeamID:
-                        if x[5] == 'G':
-                            if x[3].split(" ")[0]:
-                                self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
-                            else:
-                                print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-                            if x[4].split(" ")[0]:  
-                                self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
-                            else:
-                                if len(boxParse.away_goalies) == 1:
-                                    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
-                                else:
-                                    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-                        else:
-                            if x[3].split(" ")[0]:
-                                self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
-                            else:
-                                print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-                            if x[4].split(" ")[0]:
-                                self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
-                            else:
-                                if len(boxParse.away_goalies) == 1:
-                                    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
-                                else:
-                                    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-                            
-                    else:
-                        if x[5] == 'G':
-                            if x[3].split(" ")[0]:
-                                self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
-                            else:
-                                print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-                            if x[4].split(" ")[0]:
-                                self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
-                            else:
-                                if len(boxParse.home_goalies) == 1:
-                                    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
-                                else:
-                                    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-                        else:
-                            if x[3].split(" ")[0]:
-                                self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
-                            else:
-                                print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-                            if x[4].split(" ")[0]:
-                                self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
-                            else:
-                                if len(boxParse.home_goalies) == 1:
-                                    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
-                                else:
-                                    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-                                
-            except Exception as e:
-                print x 
-                print sys.exc_info()
-                print "\n"
-                print traceback.print_tb(sys.exc_info()[2])
-                print "\n"
+	if sumParse.goal_row != []:
+		if "SO" in sumParse.goal_row[-1] and len(sumParse.goal_row[-1]) == 4:
+		    try:
+			fp = vars.reports_path + "/reports/" + self.yearID + "/SO/SO" + self.seasonID + self.gameID.zfill(4) + ".HTML"
+			if not os.path.exists(fp) or self.update_html:
+			    url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/SO" + self.seasonID + self.gameID + ".HTM"
+			    print url
+			    req = urlopen(url)
+			    shootout_html = req.read()
+			    f = open(fp, 'w')
+			    for line in shootout_html:
+				f.write(line)
+			    f.close()
+			else:
+			    f = open(fp, 'r')
+			    shootout_html = f.read()
+			    f.close()
+			    
+			shootoutParse = shootoutParser()
+			shootoutParse.feed(shootout_html)
+		    
+			for x in shootoutParse.shots:
+			    if vars.shortNameToID[self.convertHockeyTeamName(x[1])] == homeTeamID:
+				if x[5] == 'G':
+				    if x[3].split(" ")[0]:
+					self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
+				    else:
+					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+				    if x[4].split(" ")[0]:  
+					self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
+				    else:
+					if len(boxParse.away_goalies) == 1:
+					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
+					else:
+					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+				else:
+				    if x[3].split(" ")[0]:
+					self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
+				    else:
+					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+				    if x[4].split(" ")[0]:
+					self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
+				    else:
+					if len(boxParse.away_goalies) == 1:
+					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
+					else:
+					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+				    
+			    else:
+				if x[5] == 'G':
+				    if x[3].split(" ")[0]:
+					self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
+				    else:
+					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+				    if x[4].split(" ")[0]:
+					self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
+				    else:
+					if len(boxParse.home_goalies) == 1:
+					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
+					else:
+					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+				else:
+				    if x[3].split(" ")[0]:
+					self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
+				    else:
+					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+				    if x[4].split(" ")[0]:
+					self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
+				    else:
+					if len(boxParse.home_goalies) == 1:
+					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
+					else:
+					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+					
+		    except Exception as e:
+			print x 
+			print sys.exc_info()
+			print "\n"
+			print traceback.print_tb(sys.exc_info()[2])
+			print "\n"
         
         fp = vars.reports_path + "/reports/" + self.yearID + "/PL/PL" + self.seasonID + self.gameID + ".HTML"
 
-        if not os.path.exists(fp):
+        if not os.path.exists(fp) or self.update_html:
             url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/PL" + self.seasonID + self.gameID + ".HTM"
             try:
                 req = urlopen(url)
@@ -505,6 +518,7 @@ class nhl_game():
                 print "\n"
                 print traceback.print_tb(sys.exc_info()[2])
                 print "\n"
+		return
         else:
             f = open(fp, 'r')
             play_html = f.read()

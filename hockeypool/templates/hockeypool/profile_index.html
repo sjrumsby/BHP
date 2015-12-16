@@ -1,29 +1,40 @@
 {% extends "bootstrap_base.html" %}
 
+{% block page_js %}
+<script src="/scripts/hockeypool/profile.js"></script>
+{% endblock %}
+
 {% block primary %}
 <div class="container">
-	<form action="" method="POST">{% csrf_token %}
 		<p>Team Name: <input id="change_team_name" name="change_team_name" value="{{team_name}}" /></p>
-		<input type="submit" value="Submit" />
-	</form>
+		<input type="submit" value="Submit" onclick="javascript:update_team_name();"/>
+	<br />
+	<br />
+                <p>Username: <input id="change_user_name" name="change_user_name" value="{{user_name}}" /></p>
+                <input type="submit" value="Submit" onclick="javascript:update_user_name();"/>
+        <br />
+        <br />
+
 	<p>Use this form to change your password</p>
-	<form action="" method="POST">
-		{% csrf_token %}
-		<p>Old password: <input id="old_pass" name="old_pass" type="password"/></p>
-		<p>New Password: <input id="password1" name="password1" type="password" /></p>
-		<p>Confirm: <input id="password2" name="password2" type="password" /></p>
-		<input type="submit" value="Submit" />
-	</form>
-	<p>Take a peak at the available themes <a href="http://bootswatch.com/">here</a> and choose your favourite below:</p>
-	<form action="" method="POST">
-		{% csrf_token %}
+		<table class="table table-nonfluid">
+		<tr>
+			<td>Old password:</td><td> <input id="old_pass" name="old_pass" type="password"/></td>
+		</tr><tr>
+			<td>New Password: </td><td><input id="password1" name="password1" type="password" /></td>
+		</tr><tr>
+			<td>Confirm: </td><td><input id="password2" name="password2" type="password" /></td>
+		</tr>
+		</table>
+		<input type="submit" value="Submit" onclick="javascript:update_password();"/>
+	<br />
+	<br />
+	<p>Take a peak at the available themes <a href="http://bootswatch.com/">here</a> and choose your favourite below (note: this feature is not currently functioning):</p>
 		<select id="theme_select" name="theme_select">
 			{% for t in themes %}
 			<option value="{{t}}" {% if player.theme == t %}selected="selected"{% endif %}>{{t}}</option>
 			{% endfor %}
 		</select>
-		 <input type="submit" value="Submit" />
-	</form>
+		<br /><br /><input type="submit" value="Submit" onclick="javascript:update_theme();"/>
 </div>
 {% endblock %}
 

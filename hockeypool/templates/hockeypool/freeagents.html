@@ -4,59 +4,84 @@
 <div class="container lg-12">
 <form action="" method="POST">
 {% csrf_token %}
-<p>Position:
-<select name="position" id="position">
-        <option value="F" {% if position == "F" %} selected="selected" {% endif %}>Skaters</option>
-        <option value="D" {% if position == "D" %} selected="selected" {% endif %}>Defense</option>
-        <option value="C" {% if position == "C" %} selected="selected" {% endif %}>Center</option>
-        <option value="L" {% if position == "L" %} selected="selected" {% endif %}>Left Wing</option>
-        <option value="R" {% if position == "R" %} selected="selected" {% endif %}>Right Wing</option>
-        <option value="G" {% if position == "G" %} selected="selected" {% endif %}>Goalie</option>
-</select></p>
-<p>Sort By:
-<select name="sortby" id="sortby">
-        <option value="goals" {% if sortby == "goals" %} selected="selected" {% endif %} >Goals</option>
-        <option value="assists" {% if sortby == "assists" %} selected="selected" {% endif %}>Assists</option>
-        <option value="plus_minus" {% if sortby == "plus_minus" %} selected="selected" {% endif %}>Plus Minus</option>
-        <option value="fantasy_points" {% if sortby == "fantasy_points" %} selected="selected" {% endif %}>Fantasy Points</option>
-</select>
-</p>
-<p>Number of Results
-<select name="resultnumber" id="resultnumber">
-        <option value="5" {% if sortnumber == "5" %} selected="selected" {% endif %}>5</option>
-        <option value="10" {% if sortnumber == "10" %} selected="selected" {% endif %}>10</option>
-        <option value="25" {% if sortnumber == "25" %} selected="selected" {% endif %}>25</option>
-        <option value="50" {% if sortnumber == "50" %} selected="selected" {% endif %}>50</option>
-        <option value="100" {% if sortnumber == "100" %} selected="selected" {% endif %}>100</option>
-        <option value="200" {% if sortnumber == "200" %} selected="selected" {% endif %}>200</option>
-        <option value="500" {% if sortnumber == "500" %} selected="selected" {% endif %}>500</option>
-        <option value="10000" {% if sortnumber == "10000" %} selected="selected" {% endif %}>No Limit</option>
-</select>
-</p>
-<p>Only free agents:
-<select name="only_freeagents" id="only_freeagents">
-        <option value ="0" {% if only_freeagents == "0" %} selected="selected" {% endif %}>Yes</option>
-        <option value ="1" {% if only_freeagents == "1" %} selected="selected" {% endif %}>No</option>
-</select>
-</p>
-<p>Weeks to go back:
-<select name="weeks" id="weeks">
-        <option value="0" {% if weeks == "0" %} selected="selected" {% endif %}>All</option>
-        <option value="1" {% if weeks == "1" %} selected="selected" {% endif %}>1</option>
-        <option value="2" {% if weeks == "2" %} selected="selected" {% endif %}>2</option>
-        <option value="3" {% if weeks == "3" %} selected="selected" {% endif %}>3</option>
-        <option value="4" {% if weeks == "4" %} selected="selected" {% endif %}>4</option>
-        <option value="5" {% if weeks == "5" %} selected="selected" {% endif %}>5</option>
-</select>
-<p>
-<p>View Type:
-<select name="view_type" id="view_type">
-        <option value="0" {% if view_type == "0" %} selected="selected" {% endif %}>Stats</option>
-        <option value="1" {% if view_type == "1" %} selected="selected" {% endif %}>Category</option>
-</select>
-<input type="submit" value="Submit" />
-<p>
-<table class="sortable table table-striped" id="freeagents_table">
+<table class="table table-nonfluid">
+<tr>
+	<td>Position:</td>
+	<td>
+		<select name="position" id="position">
+			<option value="F" {% if position == "F" %} selected="selected" {% endif %}>Skaters</option>
+			<option value="D" {% if position == "D" %} selected="selected" {% endif %}>Defense</option>
+			<option value="C" {% if position == "C" %} selected="selected" {% endif %}>Center</option>
+			<option value="L" {% if position == "L" %} selected="selected" {% endif %}>Left Wing</option>
+			<option value="R" {% if position == "R" %} selected="selected" {% endif %}>Right Wing</option>
+			<option value="G" {% if position == "G" %} selected="selected" {% endif %}>Goalie</option>
+		</select>
+	</td>
+	<td>Sort By:</td>
+	<td>
+		<select name="sortby" id="sortby">
+			<option value="goals" {% if sortby == "goals" %} selected="selected" {% endif %} >Goals</option>
+			<option value="assists" {% if sortby == "assists" %} selected="selected" {% endif %}>Assists</option>
+			<option value="plus_minus" {% if sortby == "plus_minus" %} selected="selected" {% endif %}>Plus Minus</option>
+			<option value="fantasy_points" {% if sortby == "fantasy_points" %} selected="selected" {% endif %}>Fantasy Points</option>
+		</select>
+	</td>
+	<td>Number of Results</td>
+	<td>
+		<select name="resultnumber" id="resultnumber">
+			<option value="5" {% if sortnumber == "5" %} selected="selected" {% endif %}>5</option>
+			<option value="10" {% if sortnumber == "10" %} selected="selected" {% endif %}>10</option>
+			<option value="25" {% if sortnumber == "25" %} selected="selected" {% endif %}>25</option>
+			<option value="50" {% if sortnumber == "50" %} selected="selected" {% endif %}>50</option>
+			<option value="100" {% if sortnumber == "100" %} selected="selected" {% endif %}>100</option>
+			<option value="200" {% if sortnumber == "200" %} selected="selected" {% endif %}>200</option>
+			<option value="500" {% if sortnumber == "500" %} selected="selected" {% endif %}>500</option>
+			<option value="10000" {% if sortnumber == "10000" %} selected="selected" {% endif %}>No Limit</option>
+		</select>
+	</td>
+	<td>Year</td>
+	<td>
+		<select name="season" id="season">
+			<option value="3" {% if season == "3" %} selected="selected" {% endif %}>201213</option>
+			<option value="5" {% if season == "5" %} selected="selected" {% endif %}>201314</option>
+			<option value="1" {% if season == "1" %} selected="selected" {% endif %}>201415</option>
+			<option value="2" {% if season == "2" %} selected="selected" {% endif %}>201516</option>
+		</select>
+	</td>
+</tr>
+<tr>
+	<td>Only free agents:</td>
+	<td>
+		<select name="only_freeagents" id="only_freeagents">
+			<option value ="0" {% if only_freeagents == "0" %} selected="selected" {% endif %}>Yes</option>
+			<option value ="1" {% if only_freeagents == "1" %} selected="selected" {% endif %}>No</option>
+		</select>
+	</td>
+	<td>Weeks to go back:</td>
+	<td>
+		<select name="weeks" id="weeks">
+			<option value="0" {% if weeks == "0" %} selected="selected" {% endif %}>All</option>
+			<option value="1" {% if weeks == "1" %} selected="selected" {% endif %}>1</option>
+			<option value="2" {% if weeks == "2" %} selected="selected" {% endif %}>2</option>
+			<option value="3" {% if weeks == "3" %} selected="selected" {% endif %}>3</option>
+			<option value="4" {% if weeks == "4" %} selected="selected" {% endif %}>4</option>
+			<option value="5" {% if weeks == "5" %} selected="selected" {% endif %}>5</option>
+		</select>
+	</td>
+	<td>View Type:</td>
+	<td>
+		<select name="view_type" id="view_type">
+			<option value="0" {% if view_type == "0" %} selected="selected" {% endif %}>Stats</option>
+			<option value="1" {% if view_type == "1" %} selected="selected" {% endif %}>Category</option>
+		</select>
+	</td>
+</tr>
+<tr>
+<td>
+	<td><input type="submit" value="Submit" /></td>
+</tr>
+</table>
+<table class="sortable table table-striped table-nonfluid" id="freeagents_table">
 {% if weeks == "0" %}
         {% if position == "G" %}
                 {% if view_type == "0" %}
@@ -66,8 +91,11 @@
                                 <th>Team</th>
                                 <th>Pos</th>
                                 <th>GP</th>
-                                <th>G</th>
-                                <th>A</th>
+                                
+oze vs. The Blitzkrieg Blades
+Name 	FP 	G 	A 	+/- 	OS 	TG 	Goalie 	SO 	Score 	In Action
+DeKeyser Soze 	2132 	270 	595 	140 	482 	564 	81 	8 	5 	0
+The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                 <th>P</th>
                                 <th>PIM</th>
                                 <th>W</th>
@@ -83,10 +111,10 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.name}}</td>
+                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
-                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.get_position}}</td>
                                         <td>{{f.skater.games}}</td>
                                         <td>{{f.skater.goals}}</td>
                                         <td>{{f.skater.assists}}</td>
@@ -101,7 +129,7 @@
                                         <td>{{f.skater.penshot_ga}}</td>
                                         <td>{{f.skater.saves}}</td>
                                         <td>{{f.skater.goals_against}}</td>
-                                        <td>{{f.skater.fantasy_points}}</td>
+                                        <td>{{f.cat_points.fantasy_points}}</td>
                                 </tr>
                         {% endfor %}
                 {% else %}
@@ -122,12 +150,12 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.name}}</td>
+                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.position}}</td>
                                         <td>{{f.skater.games}}</td>
-                                        <td>{{f.skater.fantasy_points}}</td>
+                                        <td>{{f.cat_points.fantasy_points}}</td>
                                         <td>{{f.cat_points.goals}}</td>
                                         <td>{{f.cat_points.assists}}</td>
                                         <td>{{f.cat_points.plus_minus}}</td>
@@ -172,10 +200,10 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.name}}</td>
+                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
-                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.get_position}}</td>
                                         <td>{{f.skater.games}}</td>
                                         <td>{{f.skater.goals}}</td>
                                         <td>{{f.skater.assists}}</td>
@@ -198,7 +226,7 @@
                                         <td>{{f.skater.fights}}</td>
                                         <td>{{f.skater.shootout_made}}</td>
                                         <td>{{f.skater.shootout_fail}}</td>
-                                        <td>{{f.skater.fantasy_points}}</td>
+                                        <td>{{f.cat_points.fantasy_points}}</td>
                                 </tr>
                         {% endfor %}
                 {% else %}
@@ -219,12 +247,12 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.name}}</td>
+                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
-                                        <td>{{f.skater.position}}</td>
+                                        <td>{{f.skater.get_position}}</td>
                                         <td>{{f.skater.games}}</td>
-                                        <td>{{f.skater.fantasy_points}}</td>
+                                        <td>{{f.cat_points.fantasy_points}}</td>
 					<td>{{f.cat_points.goals}}</td>
 					<td>{{f.cat_points.assists}}</td>
 					<td>{{f.cat_points.plus_minus}}</td>
@@ -254,10 +282,10 @@
         </tr>
         {% for p in free_agents %}
                 <tr>
-                        <td>{{p.skater.name}}</td>
+                        <td>{{p.skater.first_name}} {{f.skater.last_name}}</td>
 			{% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                         <td>{{p.skater.hockey_team}}</td>
-                        <td>{{p.skater.position}}</td>
+                        <td>{{p.skater.get_position}}</td>
                         <td>{{p.skater.games}}</td>
                         <td>{{p.cat_points.fantasy_points}}</td>
                         <td>{{p.cat_points.goals}}</td>

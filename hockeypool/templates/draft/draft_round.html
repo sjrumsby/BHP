@@ -7,10 +7,37 @@
         <h1>Errors</h1>
         <p>{{message}}</p>
 {% else %}
-
-        <p>The following players were picked in week: {{round}}
-                <ul>{% for l in order %}<li>{{l}}</li>{% endfor %}</ul>
+        <p style="text-align:center">Draft round:
+        <a href="/draft/round/1/">1</a> -
+        <a href="/draft/round/2/">2</a> -
+        <a href="/draft/round/3/">3</a> -
+        <a href="/draft/round/4/">4</a> -
+        <a href="/draft/round/5/">5</a> -
+        <a href="/draft/round/6/">6</a> -
+        <a href="/draft/round/7/">7</a> -
+        <a href="/draft/round/8/">8</a> -
+        <a href="/draft/round/9/">9</a> -
+        <a href="/draft/round/10/">10</a> -
+        <a href="/draft/round/11/">11</a> -
+        <a href="/draft/round/12/">12</a> -
+        <a href="/draft/round/13/">13</a> -
+        <a href="/draft/round/14/">14</a> -
+        <a href="/draft/round/15/">15</a> -
+        <a href="/draft/round/16/">16</a> -
+        <a href="/draft/round/17/">17</a> -
+        <a href="/draft/round/18/">18</a> -
+        <a href="/draft/round/19/">19</a> -
+        <a href="/draft/round/20/">20</a>
         </p>
+
+        <p>The following players were picked in round: {{round}}</p>
+	<table class="table table-striped table-nonfluid">
+		<tr>
+			<th>Team</th>
+			<th>Pick</th>
+		</tr>
+		{% autoescape off %}{% for l in order %} <tr><td>{{l.manager}}</td><td>{{l.skater}}</td></tr>{% endfor %}{% endautoescape %}
+	</table>
 </div>
 {% endif %}
 {% endblock %}

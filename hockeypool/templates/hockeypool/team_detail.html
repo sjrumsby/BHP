@@ -10,7 +10,7 @@
                         <th>Name</th>
                         <th>P</th>
                         <th>T</th>
-                        <th>P</th>
+			<th>G</th>
                         <th>FP</th>
                         <th>G</th>
                         <th>A</th>
@@ -24,8 +24,8 @@
         <tbody>
 {% for t in team %}
         <tr>
-                <td><a href="/skater/{{t.skater.nhl_id}}">{{t.skater.name}}</a></td>
-                <td>{{t.skater.position}}</td>
+                <td><a href="/skater/{{t.skater.nhl_id}}">{{t.skater.first_name}} {{t.skater.last_name}}</a></td>
+                <td>{{t.skater.get_position}}</td>
                 <td>{{t.skater.hockey_team}}</td>
                 <td>{{t.skater.games|default_if_none:"0"}}</td>
                 <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>

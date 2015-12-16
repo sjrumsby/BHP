@@ -1,105 +1,100 @@
 {% extends "bootstrap_base.html" %}
 
+{% block page_js %}
+<script src="/scripts/trades/trades.js"></script>
+{% endblock %}
+
+
 {% block primary %}
-<script type="text/javascript">
-        function trade_players() {
-                var own_player = $("#trade_own").val();
-                var other_player = $("#trade_other").val();
-                var postData = {"own_player" : own_player, "other_player" : other_player}
-                $.post("/ajax/tradePlayers", postData, function(data, status) {
-                        var success_html;
-                        if (data.error == 1) {
-                                success_html = "<h1>Error</h1><p>Trades not processed with the following errors:<ul>";
-                        } else {
-                                success_html = "<h1>Success!</h1><p>Your trades were successfully processed</p>>";
-                        }
-                        $("#success_div").html(success_html);
-                });
-        }
-</script>
 <div class="container">
-	<div id="success_div"></div>
-	<div id="current_trades">
-	<h1>Pending Trades</h1>
-	{% if t_in == 1 %}
-		<p>You have the following incoming trades pending:</p>
-		<table class="sortable" id="incoming_trades">
-			<tr>
-				<th>Inc Player</th>
-				<th>Inc Player Team</th>
-				<th>Out Player</th>
-				<th>Out Player Team</th>
-				<th>Accept</th>
-				<th>Cancel</th>
-			<tr>
-			{% for t in in_trades %}
-			<tr>
-				<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.name}}</a></td>
-				<td>{{t.skater1.hockey_team}}</td>
-				<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.name}}</a></td>
-				<td>{{t.skater2.hockey_team}}</td>
-				<td><a href="/trade/accept/{{t.id}}">Accept</a></td>
-				<td><a href="/trade/cancel/{{t.id}}">Cancel</a></td>
-			</tr>
-			{% endfor %}
-		</table>
-	{% else %}
-		<p>No incoming pending trades</p>
-	{% endif%}
+	<div class="col-lg-6">
+		<div id="success_div"></div>
+		<div id="current_trades">
+			<h1>Pending Trades</h1>
+			{% if t_in == 1 %}
+			<p>You have the following incoming trades pending:</p>
+			<table class="table table-striped table-nonfluid sortable" id="incoming_trades">
+				<tr>
+					<th>Inc Player</th>
+					<th>Inc Player Team</th>
+					<th>Out Player</th>
+					<th>Out Player Team</th>
+					<th>Accept</th>
+					<th>Cancel</th>
+				<tr>{% autoescape off %}
+				{% for t in in_trades %}
+				<tr>
+					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.get_name}}</a></td>
+					<td>{{t.skater1.hockey_team}}</td>
+					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.get_name}}</a></td>
+					<td>{{t.skater2.hockey_team}}</td>
+					<td><a href="/trades/accept/{{t.id}}">Accept</a></td>
+					<td><a href="/trades/cancel/{{t.id}}">Cancel</a></td>
+				</tr>
+				{% endfor %}{% endautoescape %}
+			</table>
+			{% else %}
+			<p>No incoming pending trades</p>
+			{% endif%}
 
-	{% if t_out == 1 %}
-		<p>You have the following outgoing trades pending:</p>
-		<table class="sortable" id="outgoing_trades">
-			<tr>
-				<th>Inc Player</th>
-				<th>Inc Player Team</th>
-				<th>Out Player</th>
-				<th>Out Player Team</th>
-				<th>Cancel</th>
-			<tr>
-			{% for t in out_trades %}
-			<tr>
-				<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.name}}</a></td>
-				<td>{{t.skater2.hockey_team}}</td>
-				<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.name}}</a></td>
-				<td>{{t.skater1.hockey_team}}</td>
-				<td><a href="/trade/cancel/{{t.id}}">Cancel</a></td>
-			</tr>
-			{% endfor %}
-		</table>
-	{% else %}
-		<p>No outgoing pending trades</p>
-	{% endif%}
-
-	</div>
-
-	<div id="all_trades">
-		<h1>All Trades</h1>
-		{% if all_trades|length > 0 %}
+			{% if t_out == 1 %}
+			<p>You have the following outgoing trades pending:</p>
+			<table class="sortable table table-striped table-nonfluid" id="outgoing_trades">
+				<tr>
+					<th>Inc Player</th>
+					<th>Inc Player Team</th>
+					<th>Out Player</th>
+					<th>Out Player Team</th>
+					<th>Cancel</th>
+				<tr>{% autoescape off %}
+				{% for t in out_trades %}
+				<tr>
+					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.get_name}}</a></td>
+					<td>{{t.skater2.hockey_team}}</td>
+					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.get_name}}</a></td>
+					<td>{{t.skater1.hockey_team}}</td>
+					<td><a href="/trades/cancel/{{t.id}}">Cancel</a></td>
+				</tr>
+				{% endfor %}{% endautoescape %}
+			</table>
+			{% else %}
+			<p>No outgoing pending trades</p>
+			{% endif%}
+		</div>
+		<div id="all_trades">
+			<h1>All Trades</h1>
+			{% if all_trades|length > 0 %}
 			<p>The following trades have recently been made: </p>
-			<table id="all_trades" class="sortable">
+			<table id="all_trades" class="sortable table table-striped table-nonfluid">
 				<tr>
 					<th>Team</th>
 					<th>Skater</th>
 				</tr>
 				{% for t in all_trades %}<tr><td></td><td></td><td></td><td></td></tr>{% endfor %}
 			</table>
-		{% else %}
+			{% else %}
 			<p>There are no recent trades to report</p>
-		{% endif %}
-	<h1>Trades</h1>
-	<p>Use the following for to trade players</p>
-	<div id="trade_div" class="trade_div">
-		<div id="trade_own_div" class="trade_own_div">
-			<input type="text" id="trade_own" name="trade_own" onkeyup="trade_own_player()"></input>
-			<div id="trade_suggestions_own"></div>
-		</div>
-		<div id="trade_other_div" class="trade_other_div">
-			<input type="text" id="trade_other" name="trade_other" onkeyup="trade_other_player()"></input>
-			<div id="trade_suggestions_other"></div>
+			{% endif %}
 		</div>
 	</div>
-	<button id="trade_players" name="trade_players" onclick="trade_players()">Trade</button>
+	<div class="col-lg-5">
+		<h1>Trades</h1>
+		<p>Use the following for to trade players</p>
+		<div id="trade_div" class="trade_div">
+			<table class="table table-nonfluid">
+				<tr>
+					<td>Your Player</td>
+					<td><input type="text" id="trade_own" name="trade_own" onkeyup="trade_own_player(event, this)"></input><input type="hidden" name="trade_own_id" id="trade_own_id" /></td><td id="suggestions_own"></td>
+					
+				</tr>
+				<tr>
+					<td>Other Player</td>
+					<td><input type="text" id="trade_other" name="trade_other" onkeyup="trade_other_player(event, this)"></input><input type="hidden" name="trade_other_id" id="trade_other_id" /></td><td id="suggestions_other"></td>
+				</tr>
+			</table>
+		</div>
+		<button id="trade_players" name="trade_players" onclick="trade_players()">Trade</button>
+	</div>
 </div>
 {% endblock %}
 

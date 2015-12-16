@@ -65,9 +65,9 @@
 					</tr>
 				{% for h in match.home.team %}
 					<tr>
-						<td>{% if h.active == 1 %}<b>{% endif %}<a href="/skater/{{h.skater.nhl_id}}/">{{h.skater}}</a>{% if h. == 1 %}</b>{% endif %}</td>
+						<td>{% if h.active == 1 %}<b>{% endif %}<a href="/skater/{{h.skater.nhl_id}}/">{{h.skater.first_name}} {{h.skater.last_name}}</a>{% if h. == 1 %}</b>{% endif %}</td>
 						<td>{{h.skater.hockey_team}}</td>
-						<td>{{h.skater.position}}</td>
+						<td>{{h.position.code}}</td>
 						<td>{{h.category_points.fantasy_points|default_if_none:"0"}}</td>
 						<td>{{h.category_points.goals|default_if_none:"0"}}</td>
 						<td>{{h.category_points.assists|default_if_none:"0"}}</td>
@@ -100,9 +100,9 @@
 					</tr>
 				{% for h in match.away.team %}
 					<tr>
-						<td>{% if h.active == 1 %}<b>{% endif %}<a href="/skater/{{h.skater.nhl_id}}/">{{h.skater}}</a>{% if h. == 1 %}</b>{% endif %}</td>
+						<td>{% if h.active == 1 %}<b>{% endif %}<a href="/skater/{{h.skater.nhl_id}}/">{{h.skater.first_name}} {{h.skater.last_name}}</a>{% if h. == 1 %}</b>{% endif %}</td>
 						<td>{{h.skater.hockey_team}}</td>
-						<td>{{h.skater.position}}</td>
+						<td>{{h.position.code}}</td>
 						<td>{{h.category_points.fantasy_points|default_if_none:"0"}}</td>
 						<td>{{h.category_points.goals|default_if_none:"0"}}</td>
 						<td>{{h.category_points.assists|default_if_none:"0"}}</td>

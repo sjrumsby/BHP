@@ -2,22 +2,25 @@
 
 {% block primary %}
 <div class="container">
-<table class="sortable  table table-hover table-striped" id="standings_table">
+<table class="sortable table table-hover table-striped" id="standings_table">
         <tr>
                 <th>Team</th>
-                <th>Conference</th>
-                <th>Wins</th>
-                <th>Loss</th>
+                <th>Conf</th>
+                <th>W</th>
+                <th>L</th>
                 <th>Streak</th>
-                <th>Categories</th>
-                <th>Fantasy</th>
+                <th>Cats</th>
+                <th>FP</th>
                 <th>Goals</th>
                 <th>Assists</th>
                 <th>+/-</th>
-                <th>Specialty</th>
-                <th>True Grit</th>
+                <th>OS</th>
+                <th>TG</th>
                 <th>Goalie</th>
-                <th>Shootout</th>
+                <th>SO</th>
+		<th>FPFPG</th>
+		<th>FPAPG</th>
+		<th>Cats Against</th>
         </tr>
 {% for p in p_data %}
         <tr>
@@ -35,16 +38,19 @@
                 <td>{{p.points.true_grit|default_if_none:"0"}}</td>
                 <td>{{p.points.goalie|default_if_none:"0"}}</td>
                 <td>{{p.points.shootout|default_if_none:"0"}}</td>
+		<td>{{p.points.per_game|default_if_none:"0"}}</td>
+		<td>{{p.points_against.fp_per_game|default_if_none:"0"}}</td>
+		<td>{{p.categories_against|default_if_none:"0"}}</td>
         </tr>
 {% endfor %}
 </table>
 <p>Tie Break Procedure (not yet finalized):
 <ol>
-        <li>1: Greater number of weekly wins</li>
-        <li>2: Greater number of total category wins</li>
-        <li>3: Head to head record</li>
-        <li>4: Total fantasy points</li>
-        <li>5: Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
+        <li>Greater number of weekly wins</li>
+        <li>Greater number of total category wins</li>
+        <li>Head to head record</li>
+        <li>Total fantasy points</li>
+        <li>Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
 </ol>
 </p>
 </div>

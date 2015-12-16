@@ -5,6 +5,7 @@
         <meta charset="utf-8">
         <title>Bitchin' Hockey Pool</title>
         <meta content="width=device-width, initial-scale=1" name="viewport">
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" >
         <link media="screen" href="/styles/bootswatch/bootstrap_sandstone.min.css" rel="stylesheet">
 <!--{{ user.get_theme|default_if_none:"paper" }}.min.css" rel="stylesheet"> -->
         <link media="screen" href="/styles/bootswatch.min.css" rel="stylesheet">
@@ -12,46 +13,10 @@
         <script src="/scripts/bootstrap.min.js"></script>
         <script src="/scripts/bootswatch.js"></script>
 	<script src="/scripts/sortable.js"></script>
-        <style>
-		.navbar {
-		  margin-bottom: 0px;
-		}
-			
-                .navbar .navbar-nav {
-                  display: inline-block;
-                  float: none;
-                  vertical-align: top;
-                }
-
-                .navbar .navbar-collapse {
-                  text-align: center;
-                }
-
-		@media (max-width: 767px){
-		  .navbar {
-		    min-height: 0px;
-		  }
-		}
-		@media (min-width:768px){
-  		  .navbar-nav li {
-		    margin-left: 0px;
-		    margin-right: 0px;
-		  }
-		}
-                @media (min-width:992px){
-                  .navbar-nav li {
-                    margin-left: 14px;
-                    margin-right: 14px;
-                  }
-                }
-                @media (min-width:1200px){
-                  .navbar-nav li {
-                    margin-left: 25px;
-                    margin-right: 25px;
-                  }
-                }
-
-        </style>
+	<script src="/scripts/global.js"></script>
+	<link media="screen" href="/styles/20152016.css" rel="stylesheet">
+	{% block page_js %} {% endblock %}
+	{% block page_css %} {% endblock %}
 </head>
 <body>
         <div class="container">
@@ -132,9 +97,6 @@
 
 										</ul>
 									</li>
-									<li>
-										<a href="/forum">Forum</a>
-									</li>
 									{% if not user.is_authenticated %}
 									<li>
 										<a href="/register">Register</a>
@@ -159,6 +121,7 @@
 		</div>
         </div>
 	<div class="container">
+		<div id="notification_div" class="notification_div"></div>
 		{% block title %} {% endblock %}
 	</div>
 	<br />

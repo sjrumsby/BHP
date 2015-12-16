@@ -3,7 +3,7 @@
 {% block primary %}
 <div class="container">
 <p class="text-center">Bring out yer dead</p>
-<table class="sortable table table-striped table-hover" id="injury_table">
+<table class="sortable table table-striped table-hover table-nonfluid" id="injury_table">
         <tr>
                 <th>Name</th>
                 <th>Team</th>
@@ -13,7 +13,7 @@
         </tr>
         {% for i in injuries %}
         <tr>
-                <td><a href="/skater/{{i.skater.nhl_id}}">{{i.skater.name}}</a></td>
+                <td><a href="/skater/{{i.skater.nhl_id}}">{{i.skater.first_name}} {{i.skater.last_name}}</a></td>
                 <td>{{i.skater.hockey_team}}</td>
                 <td>{{i.date}}</td>
                 <td>{{i.status}}</td>

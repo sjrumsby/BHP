@@ -8,57 +8,68 @@ from django.core.cache import cache
 from hockeypool.models import *
 from match.models import *
 from draft.models import *
+from trades.models import *
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from django.db.models import Sum
 import logging
 
 logger = logging.getLogger(__name__)
 
-def getPlayer(request, player_name):
-        s = Skater.objects.filter(name__icontains=player_name)[:5]
-        data = ""
-        if len(s) >= 1:
-                for i in s:
-                        data = data + '<p><a onclick="replace_draft_text(\'%s\');" href="javascript:void(0)">%s</p>' % (i.name, i.name)
-        else:
-                data = "No results found"
-        return HttpResponse(data)
+def getPlayer(request):
+	player_name = request.POST.get("player_name", False)
+	if player_name:
+		s1 = Skater.objects.filter(full_name__icontains=player_name)[:5]
+		data = ""
+		if len(s1) >= 1:
+			for i in s1:
+				data = data + '<p><a onclick="replace_draft_text(\'%s\', %s);" href="javascript:void(0)">%s</p>' % (i.first_name + " " + i.last_name, i.nhl_id, i.first_name + " " + i.last_name)
+		else:
+			data = "No results found"
+
+		return HttpResponse(data)
+	else:
+		return HttpResponse("No data found");
 
 def getWaiverPlayer(request, player_name):
-        s = Skater.objects.filter(name__icontains=player_name)[:5]
+        s1 = Skater.objects.filter(full_name__icontains=player_name)[:5]
         data = ""
-        if len(s) >= 1:
-                for i in s:
-                        data = data + "<p><a onclick=\"replace_waiver_text('%s', '%s');\" href=\"javascript:void(0)\">%s</p>" % (i.name.replace("'", "\\'"), i.nhl_id, i.name)
+        if len(s1) >= 1:
+                for i in s1:
+                        data = data + "<p><a onclick=\"replace_waiver_text('%s', '%s');\" href=\"javascript:void(0)\">%s</p>" % (i.first_name.replace("'", "\\'") + " " + i.last_name.replace("'", "\\'"), i.nhl_id, i.first_name + " " + i.last_name)
         else:
                 data = "No results found"
         return HttpResponse(data)
 
 def getTradeOwn(request, player_name):
-        s = Skater.objects.filter(name__icontains=player_name)[:5]
+        s = Skater.objects.filter(full_name__icontains=player_name)[:5]
         data = ""
         if len(s) >= 1:
                 for i in s:
-                        data = data + '<p><a onclick="replace_trade_own_text(\'%s\');" href="javascript:void(0)">%s</p>' % (i.name, i.name)
+                        data = data + '<p><a onclick="replace_trade_own_text(\'%s\', \'%s\');" href="javascript:void(0)">%s</p>' % (i.first_name.replace("'", "\\'") + " " + i.last_name.replace("'", "\\'"), i.nhl_id, i.first_name + " " + i.last_name)
         else:
                 data = "No results found"
         return HttpResponse(data)
 
 def getTradeOther(request, player_name):
-        s = Skater.objects.filter(name__icontains=player_name)[:5]
+        s = Skater.objects.filter(full_name__icontains=player_name)[:5]
         data = ""
         if len(s) >= 1:
                 for i in s:
-                        data = data + '<p><a onclick="replace_trade_other_text(\'%s\');" href="javascript:void(0)">%s</p>' % (i.name, i.name)
+                        data = data + '<p><a onclick="replace_trade_other_text(\'%s\', \'%s\');" href="javascript:void(0)">%s</p>' % (i.first_name.replace("'", "\\'") + " " + i.last_name.replace("'", "\\'"), i.nhl_id, i.first_name + " " + i.last_name)
         else:
                 data = "No results found"
         return HttpResponse(data)
 
 def draftUpdate(request):
-        check_draft = Draft_Pick.objects.all().count()
+	p = Pool.objects.get(id=1)
+        check_draft = Draft_Pick.objects.filter(round__year_id=p.current_year_id).count()
 
         if check_draft > 0:
-                null_picks = Draft_Pick.objects.filter(pick__isnull=True).order_by("id")
+                null_picks = Draft_Pick.objects.select_related().filter(round__year_id=p.current_year_id).filter(pick__isnull=True).order_by("id")
+                not_null_picks = Draft_Pick.objects.select_related().filter(round__year_id=p.current_year_id).filter(pick__isnull=False).order_by("id")
                 null_count = len(null_picks)
-                draft_picks = Draft_Pick.objects.select_related().all().order_by("id")
+                draft_picks = Draft_Pick.objects.select_related().filter(round__year_id=p.current_year_id).order_by("id")
                 total_picks = len(draft_picks)
 
                 if null_count != 0:
@@ -86,51 +97,56 @@ def draftUpdate(request):
                         rd = []
                         g = []
 
-                        all_picks = Draft_Pick.objects.select_related().filter(pick__isnull=False).filter(player=request.user)
+                        all_picks = Draft_Pick.objects.select_related().filter(pick__isnull=False).filter(player=request.user.id).filter(round__year_id=p.current_year_id)
 
                         for x in all_picks:
-                                if x.pick.position[0] == "L":
-                                        lw.append(x.pick.name + " (" + x.pick.position + ")")
-                                elif x.pick.position[0] == "C":
-                                        c.append(x.pick.name + " (" + x.pick.position + ")")
-                                elif x.pick.position[0] == "R":
-                                        rw.append(x.pick.name + " (" + x.pick.position + ")")
-                                elif x.pick.position[0] == "D" and (len(ld) <= len(rd)):
-                                        ld.append(x.pick.name + " (" + x.pick.position + ")")
-                                elif x.pick.position[0] == "D":
-                                        rd.append(x.pick.name + " (" + x.pick.position + ")")
-                                elif x.pick.position[0] == "G":
-                                        g.append(x.pick.name + " (" + x.pick.position + ")")
+                                if "L" in x.pick.get_position():
+                                        lw.append({"name" : x.pick.get_draft_name()})
+                                elif "C" in x.pick.get_position():
+                                        c.append({"name" : x.pick.get_draft_name()})
+                                elif "R" in x.pick.get_position():
+                                        rw.append({"name" : x.pick.get_draft_name()})
+                                elif "D" in x.pick.get_position():
+                                        rd.append({"name" : x.pick.get_draft_name()})
+                                elif "G" in x.pick.get_position():
+                                        g.append({"name" : x.pick.get_draft_name()})
 
-                        for x in null_picks:
-                                if x.pick == None:
-                                        next_pick = x
-                                        current_round = x.round.number
-                                        break
+                        current_round = null_picks[0].round.number
+			current_round_picks = draft_picks.filter(round__number=current_round)
+			round_picks = []
 
-                        for x in draft_picks:
-                                if x.round.number == current_round:
-                                        round_picks.append(x)
+                        for x in current_round_picks: 
+				if x.pick is None:
+					round_picks.append({"player" : x.player.name, "pick" : "None"})
+				else:
+					round_picks.append({"player" : x.player.name, "pick" : x.pick.get_name()})
 
-                        for x in round_picks:
-                                if x.pick == None:
-                                        round_order.append(x.player.name)
-                                else:
-                                        round_order.append("%s - %s" % (x.player.name, x.pick.name))
-                        top_picks_array = cache.get('top_picks')
-                        if top_picks_array is None:
-                                top_picks_array = Skater.objects.exclude(id__in = Draft_Pick.objects.filter(pick__isnull=False).values_list("pick_id", flat=True)).exclude(position='G').order_by("-fantasy_points")[0:10]
-                                cache.set('top_picks', top_picks_array, 10)
+			if request.POST["undrafted_sort"] == "goals":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goals=Sum('goals')).order_by("-goals")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "assists":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(assists=Sum('assists')).order_by("-assists")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "plus_minus":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(plus_minus=Sum('plus_minus')).order_by("-plus_minus")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "offensive_special":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(offensive_special=Sum('offensive_special')).order_by("-offensive_special")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "true_grit":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(true_grit=Sum('true_grit_special')).order_by("-true_grit")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "goalie":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goalie=Sum('goalie')).order_by("-goalie")[0:10].values_list("skater_id", flat=True))
+			elif request.POST["undrafted_sort"] == "shootout":
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).exclude(skater_id__in=Skater_Position.objects.filter(position_id=Position.objects.get(code="G")).values_list("skater_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(shootout=Sum('shootout')).order_by("-shootout")[0:10].values_list("skater_id", flat=True))
+			else:
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(fantasy_points=Sum('fantasy_points')).order_by("-fantasy_points")[0:10].values_list("skater_id", flat=True))
 
                         for x in top_picks_array:
-                                top_picks.append([x.nhl_id, x.name, x.position])
+                                top_picks.append({"name" : x.get_name(), "position" : x.get_position()})
 
-                        if next_pick.player.id == request.user.id:
+                        if null_picks[0].player.id == request.user.id:
                                 is_turn = 1
                         else:
                                 is_turn = 0
 
-                        response_data = {'state' : state, 'time_left' : time_left, 'current_round' : current_round, 'round_order' : round_order, 'current_pick' : next_pick.get_pick(), "top_picks" : top_picks, "is_turn" : is_turn, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g }
+                        response_data = {'state' : state, 'time_left' : time_left, 'current_round' : current_round, 'round_order' : round_picks, 'current_pick' : null_picks[0].get_pick(), "top_picks" : top_picks, "is_turn" : is_turn, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g }
                 else:
                         response_data = {'state' : 'finished'}
         else:
@@ -147,25 +163,20 @@ def draftUpdate(request):
         return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def pick_player(request):
+	p = Pool.objects.get(id=1)
         if request.method == "POST":
-                player = request.POST.get("player_name")
-                if Skater.objects.filter(name__exact = player).exists():
-                        draft_picks = Draft_Pick.objects.all().order_by("id")
-                        check = 1
-                        for x in draft_picks:
-                                if x.pick == None:
-                                        current_pick = x
-                                        break
-                                else:
-                                        if x.pick.name == player:
-                                                check = 0
-                                                break
-                        if check == 0:
+                player_id = request.POST.get("player_id")
+                if Skater.objects.filter(nhl_id = player_id).exists():
+			s = Skater.objects.get(nhl_id=player_id)
+			current_pick = Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=True).order_by("id")[0]
+
+
+			check = Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick_id=player_id).count()
+                        if check == 1:
                                 data = {"errors" : 1, "message" : "Player already been drafted"}
                         else:
-                                if x.player.id == request.user.id:
-                                        save_pick = Skater.objects.filter(name__exact = player)
-                                        current_pick.pick = save_pick[0]
+                                if current_pick.player_id == request.user.id:
+					current_pick.pick = s
                                         current_pick.time = datetime.datetime.now()
                                         current_pick.save()
                                         data = {"errors" : 0, "message" : "Player successfully drafted."}
@@ -180,7 +191,7 @@ def pick_player(request):
 def updateStatus(request):
         if request.method == "POST":
                 ready_status = request.POST.get("status")
-                draft_start = Draft_Start.objects.filter(player = request.user)[0]
+                draft_start = Draft_Start.objects.filter(player = request.user.id)[0]
                 draft_start.status = ready_status
                 draft_start.save()
                 errors = 0
@@ -197,8 +208,7 @@ def activateRoster(request):
         error = 0
         msg = []
         p = Pool.objects.get(pk=1)
-        current_week = p.current_week
-        week = Week.objects.get(number = current_week.number + 1)
+        week = Week.objects.filter(number = p.current_week.number).filter(year_id = p.current_year_id)[0]
         date = datetime.datetime.now()
         formed_date = "%s-%s-%s" % (date.year, str(date.month).zfill(2), str(date.day).zfill(2))
 
@@ -210,7 +220,7 @@ def activateRoster(request):
                 if x['id'].isdigit():
                         if Team.objects.filter(player__id = request.user.id, skater__nhl_id = x['id']).count() == 1:
                                 t = Team.objects.get(player__id = request.user.id, skater__nhl_id = x['id'])
-				if x['position'] not in t.skater.position and x['position'] != 'B':
+				if x['position'] not in t.skater.get_position() and x['position'] != 'B':
 					logger.info("Can not activate %s as position %s" % (t.skater, x['position']))
 					error = 1
 				else:
@@ -246,7 +256,7 @@ def activateRoster(request):
 		if d < 6:
 			error = 2
 			msg.append("Too few defense")
-		if g < 1:
+		if g < 2:
 			error = 2
 			msg.append("Too few goalies")
 		if c > 3:
@@ -261,7 +271,7 @@ def activateRoster(request):
 		if d > 6:
 			error = 1
 			msg.append("Too many defense")
-		if g > 1:
+		if g > 2:
 			error = 1
 			msg.append("Too many goaies")
 
@@ -278,7 +288,7 @@ def activateRoster(request):
 			else:
 				a = Activation.objects.create(skater=t[0], player=t[1], week=week, position=t[2])
 				a.save()
-                        logger.info("Skater: %s, position: %s" % (a.skater.name, a.position))
+                        logger.info("Skater: %s, position: %s" % (a.skater.first_name+ ' ' + a.skater.last_name, a.position))
 
         data = {"error" : error, "message" : msg}
         return HttpResponse(json.dumps(data), content_type="application/json")
@@ -286,26 +296,109 @@ def activateRoster(request):
 def tradePlayer(request):
         own_player = request.POST.get("own_player")
         other_player = request.POST.get("other_player")
-        if Team.objects.filter(skater__name = own_player).exists():
-                own_skater = Team.objects.filter(skater__name = own_player)[0]
-                if Team.objects.filter(skater__name = other_player).exists():
-                        other_skater = Team.objects.filter(skater__name = other_player)[0]
-                        logger.info("%s is attempting to trade %s for %s from another player" % (request.user, own_skater.skater.name, other_skater.skater.name))
-                        date = datetime.datetime.utcnow()
-                        if date.year == 2013 and date.month < 8:
-                                weekdate = Week_Dates.objects.get(date = "2013-10-01")
-                        else:
-                                formed_date = "%s-%s-%s" % (date.year, str(date.month).zfill(2), str(date.day).zfill(2))
-                                weekdate = Week_Dates.objects.get(date = formed_date)
-                        Trade.objects.create(player1 = own_skater.player, player2 = other_skater.player, skater1 = own_skater.skater, skater2 = other_skater.skater, week = weekdate.week, state=0)
-                        error = 0
-                        msg = "Trade initiated. Waiting on other player to confirm/deny"
-                else:
-                        error = 1
-                        msg = "No GM owns the other player... cannot initiate trade"
-        else:
-                error = 1
-                msg = "You do not own the player you are trying to trade"
+	pool = Pool.objects.get(pk=1)
+	logger.info("%s is trying to trade %s for %s" % (request.user.id, own_player, other_player))
+	error = 0
+
+	try:
+		own_skater = Team.objects.get(skater_id=own_player, player_id=request.user.id)
+	except Team.DoesNotExist:
+		error = 1
+		data = {"error" : 1, "msg" : "You do not own the player you are trying to tade"}
+
+	try:
+		 other_skater = Team.objects.get(skater_id=other_player)
+	except Team.DoesNotExist:
+		error = 1
+                data = {"error" : 1, "msg" : "The player you are trading for is not owned"}
+
+	if other_skater.player_id == request.user.id:
+		error = 1
+		data = {"error" : 1, "msg" : "You cannot trade for your own player"}
+
+	if error == 0:
+		Trade.objects.create(player1 = own_skater.player, player2 = other_skater.player, skater1 = own_skater.skater, skater2 = other_skater.skater, week = pool.current_week, state=0)
+		msg = "Trade initiated. Waiting on other player to confirm/deny"
+		data = { "error" : error, "msg" : msg }
+
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+def updateTheme(request):
+	data = json.loads(request.body)
+	newTheme = data["new_theme"]
+
+	if newTheme is not None:
+		p = Player.objects.get(id=request.user.id)
+		p.theme = newTheme
+		p.save()
+                error = 0
+                msg = "Successfully updated theme"
+	else:
+		error = 1
+		msg = "Theme cannot be empty"
+
         data = { "error" : error, "msg" : msg }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
+def changePassword(request):
+	user = User.objects.get(id=request.user.id)
+	data = json.loads(request.body)
+	old_pass = data["old_pass"]
+	password1 = data["password1"]
+	password2 = data["password2"]
+
+	if password1 != "" and old_pass != "" and password1 == password2:
+		logger.info("Attempting password reset for user: %s" % request.user)
+		if user.check_password(old_pass):
+			hash_pass = make_password(password1)
+			user.password = hash_pass
+			user.save()
+			logger.info("Successfully changed password")
+			error = 0
+			msg = "Successfully changed password"
+		else:
+			logger.info("Failure: old password did not match")
+			error = 1
+			msg = "Incorrect current password"
+	else:
+		error = 1
+		msg = "Old password and both new passwords must not be empty"
+	
+        data = { "error" : error, "msg" : msg }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+def updateTeamName(request):
+	data = json.loads(request.body)
+	newTeamName = data["new_team_name"]
+	logger.info(newTeamName)
+	logger.info(request)
+
+	if newTeamName != "":
+		p = Player.objects.get(id=request.user.id)
+		p.name = newTeamName
+		p.save()
+		error = 0
+		msg = "Successfully updated team name"
+	else:
+		error = 1
+		msg = "New Team Name must not be empty"
+
+        data = { "error" : error, "msg" : msg }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+def updateUsername(request):
+	data = json.loads(request.body)
+	newUsername = data["new_user_name"]
+
+	if newUsername is not None:
+		u = User.objects.get(id=request.user.id)
+		u.username = newUsername
+		u.save()
+		error = 0
+		msg = "Successfully updated username"
+	else:
+                error = 1
+                msg = "New Username must not be empty"
+
+        data = { "error" : error, "msg" : msg }
+        return HttpResponse(json.dumps(data), content_type="application/json")
