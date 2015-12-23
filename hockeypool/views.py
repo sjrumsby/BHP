@@ -275,8 +275,6 @@ def standings_index(request):
 			else:
 				data = Team_Point.objects.filter(point__game__date__in=Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
 
-			if p.id == 2:
-				logger.info("%s: FPA: %s" % (m, data["fantasy_points"]))
 			if data["fantasy_points"] is not None:
 				player_data['points_against']["fp"] += data["fantasy_points"]
 				player_data['points_against']['games'] += 1

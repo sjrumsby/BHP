@@ -223,7 +223,7 @@ class nhl_game():
                 print "An unkown error occurred: %s, %s" % (player, penalty)
         else:
             drawn_by = None
-        if penalty.find("Fighting \(maj\)") != -1:
+        if penalty.find("Fighting (maj)") != -1:
             fight = True
         else:
             fight = False
@@ -736,7 +736,6 @@ class nhl_game():
                                     self.awayTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
                                 if playData['fight']:
                                     self.homeTeamSkaters[playData['player']]['fights'] += 1
-                                    self.awayTeamSkaters[playData['drawn_by']]['fights'] += 1
                             else:
                                 if playData['player']:
                                     self.awayTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
@@ -744,7 +743,6 @@ class nhl_game():
                                     self.homeTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
                                 if playData['fight']:
                                     self.awayTeamSkaters[playData['player']]['fights'] += 1
-                                    self.homeTeamSkaters[playData['drawn_by']]['fights'] += 1
         
         except Exception as e:
             print "%s: %s" % (self.gameID, x)   

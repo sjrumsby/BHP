@@ -357,7 +357,6 @@ def match_activate(request):
         team_array = []
         pool = Pool.objects.get(pk=1)
         for t in team:
-		logger.info(t)
                 date = datetime.datetime.now()
                 formed_date = "%s-%s-%s" % (date.year, str(date.month).zfill(2), str(date.day).zfill(2))
                 current_week = pool.current_week
@@ -387,6 +386,5 @@ def match_activate(request):
                 tmp_arr['num_games'] = Game.objects.filter(date__in=Week_Date.objects.filter(week__number=next_week).filter(week__year_id=pool.current_year_id).values_list('date', flat="True")).filter(Q(home_team=t.skater.hockey_team)|Q(away_team=t.skater.hockey_team)).count()
                 team_array.append(tmp_arr)
         context = {'page_name' : 'Activate', 'team' : team_array}
-	logger.info(context)
         return render(request, 'match/match_activate.html', context)
 

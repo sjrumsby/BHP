@@ -88,6 +88,7 @@ def parse_game(game):
 
 	for s in n.homeTeamSkaters:
 		if check_skater(n.homeTeamSkaters[s]['nhl_id']):
+			logger.info(n.homeTeamSkaters[s])
 			p = Point.objects.filter(skater_id=n.homeTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 			if len(p) == 0:
 				goals = cat_goals.value*int(n.homeTeamSkaters[s]['goals']) + cat_shg.value*int(n.homeTeamSkaters[s]['shorthandedgoals']) + cat_ppg.value*int(n.homeTeamSkaters[s]['powerplaygoals']) + cat_gwg.value*int(n.homeTeamSkaters[s]['gamewinninggoals']) + cat_psg.value*int(n.homeTeamSkaters[s]['penaltyshotgoals']) + cat_eng.value*int(n.homeTeamSkaters[s]['emptynetgoals'])
@@ -117,6 +118,7 @@ def parse_game(game):
 				print "Error: too many points with (skater_id, game_id) of (%s, %s)" % (n.homeTeamSkaters[s]['nhl_id'], g.id)
 	for s in n.awayTeamSkaters:
 		if check_skater(n.awayTeamSkaters[s]['nhl_id']):
+			logger.info(n.awayTeamSkaters[s])
 			p = Point.objects.filter(skater_id=n.awayTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 
 			if len(p) == 0:

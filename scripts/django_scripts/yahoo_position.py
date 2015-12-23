@@ -67,13 +67,11 @@ for x in players:
 		Skater_Position.objects.filter(skater_id=s.nhl_id).delete()
 		position = x[1].replace("RW", "R").replace("LW", "L").split(",")
 		for p in position:
-			print "%s: %s" % (s.full_name, p)
 			sp = Skater_Position.objects.create(skater_id=s.nhl_id, position=Position.objects.get(code=p))
 			sp.save()
 	else:
 		print "No skater found: %s, %s" % (x[0], x[1])
 		if x[0] == "T.J. Brodie":
-			print "Fixing TJ Brodie"
 			sp = Skater_Position.objects.create(skater_id=8474673, position=Position.objects.get(code='D'))
 			sp.save()
 
@@ -90,6 +88,11 @@ for d in data:
 			s = Skater.objects.create(nhl_id=d["playerId"],first_name=d["playerFirstName"], last_name=d["playerLastName"], full_name=d["playerName"],hockey_team=Hockey_Team.objects.filter(name=d["playerTeamsPlayedFor"].split(", ")[-1])[0])
 			sp = Skater_Position.objects.create(skater=s, position=Position.objects.get(code=d["playerPositionCode"]))
                         sp.save()
+	p = Skater.objects.get(pk=d["playerId"])
+	if p.hockey_team.name != d["playerTeamsPlayedFor"].split(", ")[-1]:
+		print "%s: %s" % (p.full_name, d["playerTeamsPlayedFor"])
+		p.hockey_team = Hockey_Team.objects.filter(name=d["playerTeamsPlayedFor"].split(", ")[-1])[0]
+		p.save()
 
 
 
