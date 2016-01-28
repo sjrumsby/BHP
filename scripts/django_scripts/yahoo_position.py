@@ -72,6 +72,7 @@ for x in players:
 	else:
 		print "No skater found: %s, %s" % (x[0], x[1])
 		if x[0] == "T.J. Brodie":
+			Skater_Position.objects.filter(skater_id=8474673).delete()
 			sp = Skater_Position.objects.create(skater_id=8474673, position=Position.objects.get(code='D'))
 			sp.save()
 

@@ -41,5 +41,6 @@ urlpatterns = patterns('',
 	url(r'^standings/west/$', views.standings_west, name="standings_west"),
 	url(r'^team/(?P<team_id>\d+)/$', views.team_detail, name="team_detail"),
 	url(r'^team/$', views.team_index, name="team_index"),
+	url(r'^keyLogger/$', views.key_log, name="key_log"),
 	url(r'^$', views.index, name='index')
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

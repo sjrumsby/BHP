@@ -27,7 +27,7 @@
                 <td><a href="/skater/{{t.skater.nhl_id}}">{{t.skater.first_name}} {{t.skater.last_name}}</a></td>
                 <td>{{t.skater.get_position}}</td>
                 <td>{{t.skater.hockey_team}}</td>
-                <td>{{t.skater.games|default_if_none:"0"}}</td>
+                <td>{{t.skater.games_played|default_if_none:"0"}}</td>
                 <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
                 <td>{{t.category_points.goals|default_if_none:"0"}}</td>
                 <td>{{t.category_points.assists|default_if_none:"0"}}</td>

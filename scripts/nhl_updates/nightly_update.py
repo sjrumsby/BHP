@@ -6,7 +6,7 @@ import os
 import sys
 import unicodedata
 import urllib2
-from datetime import datetime
+import datetime
 
 if "/var/www/django/bhp" not in sys.path:
         sys.path.append("/var/www/django/bhp")
@@ -81,14 +81,13 @@ cat_second_star = Category_Point.objects.get(id=38)
 cat_third_star = Category_Point.objects.get(id=39)
 
 def parse_game(game):
-	print "Parsing game: %s" % game.nhl_game_id
 	print "%s, %s, %s" % ("02", str(game.nhl_game_id)[6:10], game.year.description)
 
 	n = nhl_game("02", str(game.nhl_game_id)[6:10], game.year.description, True)
 
 	for s in n.homeTeamSkaters:
 		if check_skater(n.homeTeamSkaters[s]['nhl_id']):
-			logger.info(n.homeTeamSkaters[s])
+			print n.homeTeamSkaters[s]
 			p = Point.objects.filter(skater_id=n.homeTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 			if len(p) == 0:
 				goals = cat_goals.value*int(n.homeTeamSkaters[s]['goals']) + cat_shg.value*int(n.homeTeamSkaters[s]['shorthandedgoals']) + cat_ppg.value*int(n.homeTeamSkaters[s]['powerplaygoals']) + cat_gwg.value*int(n.homeTeamSkaters[s]['gamewinninggoals']) + cat_psg.value*int(n.homeTeamSkaters[s]['penaltyshotgoals']) + cat_eng.value*int(n.homeTeamSkaters[s]['emptynetgoals'])
@@ -118,7 +117,7 @@ def parse_game(game):
 				print "Error: too many points with (skater_id, game_id) of (%s, %s)" % (n.homeTeamSkaters[s]['nhl_id'], g.id)
 	for s in n.awayTeamSkaters:
 		if check_skater(n.awayTeamSkaters[s]['nhl_id']):
-			logger.info(n.awayTeamSkaters[s])
+			print n.awayTeamSkaters[s]
 			p = Point.objects.filter(skater_id=n.awayTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 
 			if len(p) == 0:
@@ -150,16 +149,16 @@ def parse_game(game):
 
 
 def daily_update():
-	games = Game.objects.filter(date=datetime.strftime(datetime.now(),"%Y-%m-%d"))
+	games = Game.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
 	for g in games:
 		logger.info("Parsing game: %s" % g.nhl_game_id)
 		parse_game(g)
 
 def weekly_update():
-	current_week = Week_Date.objects.filter(date=datetime.strftime(datetime.now(),"%Y-%m-%d"))
+	current_week = Week_Date.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now() - datetime.timedelta(1),"%Y-%m-%d"))
 	if len(current_week) == 1:
 		current_week = current_week[0]
-		week_dates = Week_Date.objects.filter(week_id=current_week.week_id).filter(date__lte=datetime.strftime(datetime.now(),"%Y-%m-%d"))
+		week_dates = Week_Date.objects.filter(week_id=current_week.week_id).filter(date__lte=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
 		games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
 		for g in games:
 			logger.info("Parsing game: %s" % g.nhl_game_id)
@@ -168,18 +167,35 @@ def weekly_update():
 		print "Error getting week"
 
 def season_update():
-	week_dates = Week_Date.objects.filter(date__lte=datetime.strftime(datetime.now(),"%Y-%m-%d")).filter(week__year_id=2)
-	games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
+	week_dates = Week_Date.objects.filter(date__lte=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d")).filter(week__year_id=2)
+	games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True")).order_by('nhl_game_id')
 	for g in games:
+		logger.info("Parsing game: %s" % g.nhl_game_id)
+		parse_game(g)
+
+def game_update(game_id):
+	try:
+		game_id = int(game_id)
+		g = Game.objects.filter(nhl_game_id=game_id)
+		if g.count() != 1:
+			exit("Error finding game id: %s. %s games were found" % game_id, g.count())
+		g = g[0]
 		logger.info("Parsing game: %s" % g.nhl_game_id)
 		print "Parsing game: %s" % g.nhl_game_id
 		parse_game(g)
 
-if len(sys.argv) != 2:
+	except ValueError:
+		print "Invalid game id. Must be an integer between 1 and 1230 inclusive"
+
+if len(sys.argv) != 2 and not ((sys.argv[1] == "-g" or sys.argv[1] == "--game") and len(sys.argv) == 3):
 	print "Invalid command"
 	exit()
 
-if sys.argv[1] == "-d" or sys.argv[1] == "--daily":
+if sys.argv[1] == "-g" or sys.argv[1] == "--game":
+        #Do some shit to get the current date here
+        game_update(sys.argv[2])
+
+elif sys.argv[1] == "-d" or sys.argv[1] == "--daily":
 	#Do some shit to get the current date here
 	daily_update()
 

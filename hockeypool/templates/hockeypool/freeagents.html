@@ -91,11 +91,6 @@
                                 <th>Team</th>
                                 <th>Pos</th>
                                 <th>GP</th>
-                                
-oze vs. The Blitzkrieg Blades
-Name 	FP 	G 	A 	+/- 	OS 	TG 	Goalie 	SO 	Score 	In Action
-DeKeyser Soze 	2132 	270 	595 	140 	482 	564 	81 	8 	5 	0
-The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                 <th>P</th>
                                 <th>PIM</th>
                                 <th>W</th>
@@ -115,7 +110,7 @@ The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
-                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.games_played}}</td>
                                         <td>{{f.skater.goals}}</td>
                                         <td>{{f.skater.assists}}</td>
                                         <td>{{f.skater.points}}</td>
@@ -154,7 +149,7 @@ The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.position}}</td>
-                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.games_played}}</td>
                                         <td>{{f.cat_points.fantasy_points}}</td>
                                         <td>{{f.cat_points.goals}}</td>
                                         <td>{{f.cat_points.assists}}</td>
@@ -204,7 +199,7 @@ The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
-                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.games_played}}</td>
                                         <td>{{f.skater.goals}}</td>
                                         <td>{{f.skater.assists}}</td>
                                         <td>{{f.skater.points}}</td>
@@ -251,7 +246,7 @@ The Blitzkrieg Blades 	2125 	335 	595 	56 	362 	713 	64 	2 	2 	0
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
-                                        <td>{{f.skater.games}}</td>
+                                        <td>{{f.skater.games_played}}</td>
                                         <td>{{f.cat_points.fantasy_points}}</td>
 					<td>{{f.cat_points.goals}}</td>
 					<td>{{f.cat_points.assists}}</td>

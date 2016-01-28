@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
+
+import logging
+logger = logging.getLogger(__name__)
 
 def get_theme(self):
 	p = Player.objects.get(id=self.id)
@@ -92,6 +96,17 @@ class Skater(models.Model):
 	second_stars	= models.IntegerField(default=0)
 	third_stars	= models.IntegerField(default=0)
         fantasy_points  = models.IntegerField(default=0)
+
+	def __init__(self, *args, **kwargs):
+		super(Skater, self).__init__(*args, **kwargs)
+		current_date = datetime.datetime.now()
+		if current_date.month < 10:
+			start_date = "%s-%s-%s" % (current_date.year - 1, 10, 1)
+			end_date = "%s-%s-%s" % (current_date.year, 4, 30)
+		else:
+			start_date = "%s-%s-%s" % (current_date.year, 10, 1)
+                        end_date = "%s-%s-%s" % (current_date.year + 1, 4, 30)
+		self.games_played = Point.objects.filter(skater_id=self.pk).filter(date__range=(start_date, end_date)).count()
 
 	def __unicode__(self):
 		return '<a href="/skater/%s">%s</a>' % (self.nhl_id, self.first_name + " " + self.last_name)

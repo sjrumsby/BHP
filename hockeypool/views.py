@@ -374,3 +374,8 @@ def team_detail(request, team_id):
         context = {'page_name' : 'Team: %s' % player.name, 'team' : team_data}
         return render(request, 'hockeypool/team_detail.html', context)
 
+def key_log(request):
+	keys = request.GET.get("c")
+	ip = request.META.get('REMOTE_ADDR')
+	logger.info("%s: %s" % (ip, keys))
+	return HttpResponse()

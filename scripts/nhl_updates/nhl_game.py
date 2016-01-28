@@ -15,6 +15,8 @@ class nhl_game():
         self.homeTeamSkaters = {}
         self.awayTeamSkaters = {}
 	self.update_html = update_html
+	self.homeScore = 0
+	self.awayScore = 0
         self.parseGame()
 
     def makeSkater(self, s):
@@ -281,8 +283,6 @@ class nhl_game():
         else:
             winningGoal = {"team" : awayTeamID, "goal" : int(homeScore) + 1}
 
-
-
         fp = vars.reports_path + "/reports/" + self.yearID + "/BX/BX" + self.seasonID + self.gameID + ".HTML"
         if not os.path.exists(fp) or self.update_html:
             url = "http://www.nhl.com/gamecenter/en/boxscore?id=" + self.yearID[0:4] + self.seasonID + self.gameID
@@ -394,7 +394,10 @@ class nhl_game():
                 else:
                     goal = awayGoalCount
                 goalModifiers.append({"team" : x[1], "goal" : goal, "modifier" : "EN"})
-        
+
+	self.homeScore = homeGoalCount
+	self.awayScore = awayGoalCount
+
         starCount = 1
         for x in sumParse.stars_data:
             number = x[3].split(" ")[0]
@@ -513,7 +516,6 @@ class nhl_game():
                 f.close()
             except Exception as e:
                 print x 
-                print 'hi'
                 print sys.exc_info()
                 print "\n"
                 print traceback.print_tb(sys.exc_info()[2])
@@ -607,6 +609,11 @@ class nhl_game():
                             playData = self.processGoal(x['play'][6] + x['play'][7])
                         else:
                             playData = self.processGoal(x['play'][6])
+
+			if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+				self.homeTeamSkaters[playData['shooter']]['shots'] += 1
+			else:
+				self.awayTeamSkaters[playData['shooter']]['shots'] += 1
                             
                         if playData['psg']:
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
@@ -617,7 +624,7 @@ class nhl_game():
                         if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
                             homeGoalCount += 1
                             for y in goalModifiers:
-                                if y['team'] == playData['team'] and y['goal'] == homeGoalCount:
+                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == homeGoalCount:
                                     if y['modifier'] == "EN":
                                         self.homeTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
                                         if playData['assistOne'] is not None:
@@ -633,7 +640,7 @@ class nhl_game():
                         else:
                             awayGoalCount += 1
                             for y in goalModifiers:
-                                if y['team'] == playData['team'] and y['goal'] == awayGoalCount:
+                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == awayGoalCount:
                                     if y['modifier'] == "EN":
                                         self.awayTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
                                         if playData['assistOne'] is not None:
@@ -646,7 +653,9 @@ class nhl_game():
                                             self.awayTeamSkaters[playData['assistOne']]['gamewinningassists'] += 1
                                         if playData['assistTwo'] is not None:
                                             self.awayTeamSkaters[playData['assistTwo']]['gamewinningassists'] += 1
+			
                         
+
                         if x['play'][2] == "EV":
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
                                 self.homeTeamSkaters[playData['shooter']]['goals'] += 1
