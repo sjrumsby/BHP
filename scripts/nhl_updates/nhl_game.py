@@ -7,17 +7,16 @@ import sys
 import traceback
 import vars
 
-class nhl_game():
-    
+class nhl_game(): 
     def __init__(self, season, game, year, update_html = False):
         self.seasonID = season
         self.gameID = game
         self.yearID = year
         self.homeTeamSkaters = {}
         self.awayTeamSkaters = {}
-	self.update_html = update_html
-	self.homeScore = 0
-	self.awayScore = 0
+        self.update_html = update_html
+        self.homeScore = 0
+        self.awayScore = 0
         self.parseGame()
 
     def makeSkater(self, s):
@@ -67,15 +66,15 @@ class nhl_game():
                 }
 
     def pretty(self, d, indent=0):
-       for key, value in d.iteritems():
-          print '\t' * indent + str(key)
-          if isinstance(value, dict):
-             pretty(value, indent+1)
-          else:
-             print '\t\t' * (indent+1) + str(value)
+        for key, value in d.iteritems():
+            print '\t' * indent + str(key)
+            if isinstance(value, dict):
+                self.pretty(value, indent+1)
+            else:
+                print '\t\t' * (indent+1) + str(value)
 
     def print_to_file(self, homeTeamSkaters, awayTeamSkaters):
-        fp = "JSON/" + yearID + "/" + gameID + "_home.json"
+        fp = "JSON/" + self.yearID + "/" + self.gameID + "_home.json"
         f = open(fp, 'w')
         f.write('{ \n')
         for key, value in homeTeamSkaters.iteritems():
@@ -86,7 +85,7 @@ class nhl_game():
                 f.write( '\t\n},')
         f.write( '}\n')
         
-        fp = "JSON/" + yearID + "/" + gameID + "_away.json"
+        fp = "JSON/" + self.yearID + "/" + self.gameID + "_away.json"
         f = open(fp, 'w')
         f.write('{ \n')
         for key, value in awayTeamSkaters.iteritems():
@@ -243,23 +242,23 @@ class nhl_game():
                 for x in sum_html:
                     f.write(x)
                 f.close()
-                    
+                
             except:
                 print url
-		return
+                return
         else:
             f = open(fp, 'r')
             sum_html = f.read()
             f.close()
-
+        
         sumParse = summaryParser()
         sumParse.feed(sum_html)
-
+        
         homeTeam = sumParse.home_team_data[2].strip()
         homeTeamShortName = vars.longNameToShortName[homeTeam]
         homeTeamID = vars.longNameToID[homeTeam]
         homeScore = sumParse.home_team_data[1]
-
+        
         awayTeam = sumParse.away_team_data[2].strip()
         awayTeamShortName = vars.longNameToShortName[awayTeam]
         awayTeamID = vars.longNameToID[awayTeam]
@@ -304,378 +303,361 @@ class nhl_game():
         boxParse = boxParser()
         boxParse.feed(box_html)
 
-	boxJsonURL = 'http://statsapi.web.nhl.com/api/v1/game/%s/feed/live?site=en_nhl' % (self.yearID[0:4] + self.seasonID + self.gameID)
-	print boxJsonURL
-
-	try:
-                req = urlopen(boxJsonURL)
-                boxJSON = req.read()
-		boxData = json.loads(boxJSON)
+        boxJsonURL = 'http://statsapi.web.nhl.com/api/v1/game/%s/feed/live?site=en_nhl' % (self.yearID[0:4] + self.seasonID + self.gameID)
+        print boxJsonURL
+        
+        try:
+            req = urlopen(boxJsonURL)
+            boxJSON = req.read()
+            boxData = json.loads(boxJSON)
         except Exception:
-		import traceback
-		print "Exception %s" % traceback.format_exc()
+            import traceback
+            print "Exception %s" % traceback.format_exc()
 
-	for t in boxData['liveData']['boxscore']['teams']['away']['players']:
-		currentPlayer = boxData['liveData']['boxscore']['teams']['away']['players'][t]
-		self.awayTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
-		if currentPlayer['position']['code'] == 'G':
-			self.awayTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
-			self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
-
-			if self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
-			else:
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
-
-			if currentPlayer['stats']['goalieStats']['decision'] == 'W':
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
-			else:
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
-
-			if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
-			else:
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
-			
-		else:
-			print currentPlayer['stats']
-			if currentPlayer['stats'] != {}:
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
-				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
+        for t in boxData['liveData']['boxscore']['teams']['away']['players']:
+            currentPlayer = boxData['liveData']['boxscore']['teams']['away']['players'][t]
+            self.awayTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
+            if currentPlayer['position']['code'] == 'G':
+                self.awayTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
+                self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
+            
+                if self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
+                else:
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
+                
+                if currentPlayer['stats']['goalieStats']['decision'] == 'W':
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
+                else:
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
+                
+                if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
+                else:
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
+            
+            else:
+                print currentPlayer['stats']
+                if currentPlayer['stats'] != {}:
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
+                    self.awayTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
 
         for t in boxData['liveData']['boxscore']['teams']['home']['players']:
-                currentPlayer = boxData['liveData']['boxscore']['teams']['home']['players'][t]
-                self.homeTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
-                if currentPlayer['position']['code'] == 'G':
-                        self.homeTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
-                        self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
-
-                        if self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
-                        else:
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
-
-                        if currentPlayer['stats']['goalieStats']['decision'] == 'W':
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
-                        else:
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
-
-                        if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
-                        else:
-                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
-
+            currentPlayer = boxData['liveData']['boxscore']['teams']['home']['players'][t]
+            self.homeTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
+            if currentPlayer['position']['code'] == 'G':
+                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
+                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
+                
+                if self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
                 else:
-			if currentPlayer['stats'] != {}:
-				self.homeTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
-				self.homeTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
+                
+                if currentPlayer['stats']['goalieStats']['decision'] == 'W':
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
+                else:
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
+                
+                if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
+                else:
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
+
+            else:
+                if currentPlayer['stats'] != {}:
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
+                    self.homeTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
 
         homeGoalCount = 0
         awayGoalCount = 0
         goalModifiers = []
 
-	for t in boxData['liveData']['plays']['scoringPlays']:
-		if boxData['liveData']['plays']['allPlays'][t]['team']['id'] == homeTeamID:
-			homeGoalCount += 1
-			if winningGoal['team'] == homeTeamID:
-				goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
-		else:
-                        awayGoalCount += 1
-                        if winningGoal['team'] == awayTeamID:
-                                goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
+        for t in boxData['liveData']['plays']['scoringPlays']:
+            if boxData['liveData']['plays']['allPlays'][t]['team']['id'] == homeTeamID:
+                homeGoalCount += 1
+                if winningGoal['team'] == homeTeamID:
+                    goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
+                else:
+                    awayGoalCount += 1
+                if winningGoal['team'] == awayTeamID:
+                    goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
+    
+        self.homeScore = homeGoalCount
+        self.awayScore = awayGoalCount
 
-	self.homeScore = homeGoalCount
-	self.awayScore = awayGoalCount
-'''
-	for t in boxData['liveData']['decisions']['firstStar']:
-		for p in self.homeTeamSkaters:
-			if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
-				self.homeTeamSkaters[p]['firststars'] += 1
-
-	for t in  boxData['liveData']['decisions']['secondStar']:
-                for p in self.homeTeamSkaters:
-                        if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
-                                self.homeTeamSkaters[p]['secondstars'] += 1
-
-	for t in boxData['liveData']['decisions']['thirdStar']:
-                for p in self.homeTeamSkaters:
-                        if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
-                                self.homeTeamSkaters[p]['thirdstars'] += 1
-'''
-	if sumParse.goal_row != []:
-		if "SO" in sumParse.goal_row[-1] and len(sumParse.goal_row[-1]) == 4:
-		    try:
-			fp = vars.reports_path + "/reports/" + self.yearID + "/SO/SO" + self.seasonID + self.gameID.zfill(4) + ".HTML"
-			if not os.path.exists(fp) or self.update_html:
-			    url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/SO" + self.seasonID + self.gameID + ".HTM"
-			    print url
-			    req = urlopen(url)
-			    shootout_html = req.read()
-			    f = open(fp, 'w')
-			    for line in shootout_html:
-				f.write(line)
-			    f.close()
-			else:
-			    f = open(fp, 'r')
-			    shootout_html = f.read()
-			    f.close()
-			    
-			shootoutParse = shootoutParser()
-			shootoutParse.feed(shootout_html)
-		    
-			for x in shootoutParse.shots:
-			    if vars.shortNameToID[self.convertHockeyTeamName(x[1])] == homeTeamID:
-				if x[5] == 'G':
-				    if x[3].split(" ")[0]:
-					self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
-				    else:
-					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-				    if x[4].split(" ")[0]:  
-					self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
-				    else:
-					if len(boxParse.away_goalies) == 1:
-					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
-					else:
-					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-				else:
-				    if x[3].split(" ")[0]:
-					self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
-				    else:
-					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-				    if x[4].split(" ")[0]:
-					self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
-				    else:
-					if len(boxParse.away_goalies) == 1:
-					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
-					else:
-					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-				    
-			    else:
-				if x[5] == 'G':
-				    if x[3].split(" ")[0]:
-					self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
-				    else:
-					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-				    if x[4].split(" ")[0]:
-					self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
-				    else:
-					if len(boxParse.home_goalies) == 1:
-					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
-					else:
-					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-				else:
-				    if x[3].split(" ")[0]:
-					self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
-				    else:
-					print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
-				    if x[4].split(" ")[0]:
-					self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
-				    else:
-					if len(boxParse.home_goalies) == 1:
-					    self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
-					else:
-					    print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
-					
-		    except Exception as e:
-			print x 
-			print sys.exc_info()
-			print "\n"
-			print traceback.print_tb(sys.exc_info()[2])
-			print "\n"
-		
-        fp = vars.reports_path + "/reports/" + self.yearID + "/PL/PL" + self.seasonID + self.gameID + ".HTML"
-
-        if not os.path.exists(fp) or self.update_html:
-            url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/PL" + self.seasonID + self.gameID + ".HTM"
-            try:
-                req = urlopen(url)
-                play_html = req.read()
-                f = open(fp, 'w')
-                for line in play_html:
-                    f.write(line)
+        if sumParse.goal_row != []:
+            if "SO" in sumParse.goal_row[-1] and len(sumParse.goal_row[-1]) == 4:
+                try:
+                    fp = vars.reports_path + "/reports/" + self.yearID + "/SO/SO" + self.seasonID + self.gameID.zfill(4) + ".HTML"
+                    if not os.path.exists(fp) or self.update_html:
+                        url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/SO" + self.seasonID + self.gameID + ".HTM"
+                        print url
+                        req = urlopen(url)
+                        shootout_html = req.read()
+                        f = open(fp, 'w')
+                        for line in shootout_html:
+                            f.write(line)
+                            f.close()
+                    else:
+                        f = open(fp, 'r')
+                        shootout_html = f.read()
+                        f.close()
+                        
+                    shootoutParse = shootoutParser()
+                    shootoutParse.feed(shootout_html)
+                    
+                    for x in shootoutParse.shots:
+                        if vars.shortNameToID[self.convertHockeyTeamName(x[1])] == homeTeamID:
+                            if x[5] == 'G':
+                                if x[3].split(" ")[0]:
+                                    self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
+                                else:
+                                    print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+                                if x[4].split(" ")[0]:  
+                                    self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
+                                else:
+                                    if len(boxParse.away_goalies) == 1:
+                                        self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
+                                    else:
+                                        print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+                            else:
+                                if x[3].split(" ")[0]:
+                                    self.homeTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
+                                else:
+                                    print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+                                if x[4].split(" ")[0]:
+                                    self.awayTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
+                                else:
+                                    if len(boxParse.away_goalies) == 1:
+                                        self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
+                                    else:
+                                        print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+                        else:
+                            if x[5] == 'G':
+                                if x[3].split(" ")[0]:
+                                    self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutgoals'] += 1
+                                else:
+                                    print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+                                if x[4].split(" ")[0]:
+                                    self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutgoalsagainst'] += 1
+                                else:
+                                    if len(boxParse.home_goalies) == 1:
+                                        self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutgoalsagainst'] += 1
+                                    else:
+                                        print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+                            else:
+                                if x[3].split(" ")[0]:
+                                    self.awayTeamSkaters[x[3].split(" ")[0].strip()]['shootoutmisses'] += 1
+                                else:
+                                    print "An unknown error occurred: %s - %s" % (self.seasonID, self.gameID)
+                                if x[4].split(" ")[0]:
+                                    self.homeTeamSkaters[x[4].split(" ")[0].strip()]['shootoutsaves'] += 1
+                                else:
+                                    if len(boxParse.home_goalies) == 1:
+                                        self.awayTeamSkaters[boxParse.away_goalies[0][0]]['shootoutsaves'] += 1
+                                    else:
+                                        print "An unknown error occurred: %s - %s"  % (self.seasonID, self.gameID)
+                        
+                except Exception as e:
+                    print x 
+                    print sys.exc_info()
+                    print "\n"
+                    print traceback.print_tb(sys.exc_info()[2])
+                    print "\n"
+            
+            fp = vars.reports_path + "/reports/" + self.yearID + "/PL/PL" + self.seasonID + self.gameID + ".HTML"
+    
+            if not os.path.exists(fp) or self.update_html:
+                url = "http://www.nhl.com/scores/htmlreports/" + self.yearID + "/PL" + self.seasonID + self.gameID + ".HTM"
+                try:
+                    req = urlopen(url)
+                    play_html = req.read()
+                    f = open(fp, 'w')
+                    for line in play_html:
+                        f.write(line)
+                    f.close()
+                except Exception as e:
+                    print x 
+                    print sys.exc_info()
+                    print "\n"
+                    print traceback.print_tb(sys.exc_info()[2])
+                    print "\n"
+                    return
+            else:
+                f = open(fp, 'r')
+                play_html = f.read()
                 f.close()
-            except Exception as e:
-                print x 
-                print sys.exc_info()
-                print "\n"
-                print traceback.print_tb(sys.exc_info()[2])
-                print "\n"
-		return
-        else:
-            f = open(fp, 'r')
-            play_html = f.read()
-            f.close()
-
-        playParse = playParser()
-        playParse.feed(play_html)
-        
-        homeGoalCount = 0
-        awayGoalCount = 0
-        try:
-            for x in playParse.plays:
-                if x['play'][4] not in ['GOFF', 'STOP', 'EGT', 'EGPID', 'PSTR', 'PEND', 'GEND', 'SOC', 'EISTR', 'EIEND']:
-                    if x['play'][5] == 'SHOT':
-                        playData = self.processShot(x['play'][6])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            self.homeTeamSkaters[playData['player']]['shots'] += 1;
-                        else:
-                            self.awayTeamSkaters[playData['player']]['shots'] += 1;
+    
+            playParse = playParser()
+            playParse.feed(play_html)
+            
+            homeGoalCount = 0
+            awayGoalCount = 0
+            try:
+                for x in playParse.plays:
+                    if x['play'][4] not in ['GOFF', 'STOP', 'EGT', 'EGPID', 'PSTR', 'PEND', 'GEND', 'SOC', 'EISTR', 'EIEND']:
+                        if x['play'][5] == 'SHOT':
+                            playData = self.processShot(x['play'][6])
+                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                self.homeTeamSkaters[playData['player']]['shots'] += 1;
+                            else:
+                                self.awayTeamSkaters[playData['player']]['shots'] += 1;
+                            
+                            if playData['psg']:
+                                if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                    self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
+                                else:
+                                    self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
+                                
+                        elif x['play'][5] == 'BLOCK':
+                            playData = self.processBlock(x['play'][6])
+                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                if playData['player']:
+                                    self.homeTeamSkaters[playData['player']]['blocks'] += 1;
+                                if playData['shooter']:
+                                    self.awayTeamSkaters[playData['shooter']]['blockedshots'] += 1
+                            else:
+                                if playData['player']:
+                                    self.awayTeamSkaters[playData['player']]['blocks'] += 1;
+                                if playData['shooter']:
+                                    self.homeTeamSkaters[playData['shooter']]['blockedshots'] += 1
+    
+                        elif x['play'][5] == 'GIVE':
+                            playData = self.processGiveaway(x['play'][6], x['play'][7])
+                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                self.homeTeamSkaters[playData['player']]['giveaways'] += 1;
+                            else:
+                                self.awayTeamSkaters[playData['player']]['giveaways'] += 1;
+                                
+                        elif x['play'][5] == 'TAKE':
+                            playData = self.processTakeaway(x['play'][6], x['play'][7])
+                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                self.homeTeamSkaters[playData['player']]['takeaways'] += 1;
+                            else:
+                                self.awayTeamSkaters[playData['player']]['takeaways'] += 1;
                         
-                        if playData['psg']:
+                        elif x['play'][5] == 'HIT':
+                            playData = self.processHit(x['play'][6])
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
+                                if playData['player']:
+                                    self.homeTeamSkaters[playData['player']]['hits'] += 1;
+                                if playData['receiver']:
+                                    self.awayTeamSkaters[playData['receiver']]['hitstaken'] += 1;
                             else:
-                                self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
-                            
-                    elif x['play'][5] == 'BLOCK':
-                        playData = self.processBlock(x['play'][6])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            if playData['player']:
-                                self.homeTeamSkaters[playData['player']]['blocks'] += 1;
-                            if playData['shooter']:
-                                self.awayTeamSkaters[playData['shooter']]['blockedshots'] += 1
-                        else:
-                            if playData['player']:
-                                self.awayTeamSkaters[playData['player']]['blocks'] += 1;
-                            if playData['shooter']:
-                                self.homeTeamSkaters[playData['shooter']]['blockedshots'] += 1
-
-                    elif x['play'][5] == 'GIVE':
-                        playData = self.processGiveaway(x['play'][6], x['play'][7])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            self.homeTeamSkaters[playData['player']]['giveaways'] += 1;
-                        else:
-                            self.awayTeamSkaters[playData['player']]['giveaways'] += 1;
-                            
-                    elif x['play'][5] == 'TAKE':
-                        playData = self.processTakeaway(x['play'][6], x['play'][7])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            self.homeTeamSkaters[playData['player']]['takeaways'] += 1;
-                        else:
-                            self.awayTeamSkaters[playData['player']]['takeaways'] += 1;
-                    
-                    elif x['play'][5] == 'HIT':
-                        playData = self.processHit(x['play'][6])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            if playData['player']:
-                                self.homeTeamSkaters[playData['player']]['hits'] += 1;
-                            if playData['receiver']:
-                                self.awayTeamSkaters[playData['receiver']]['hitstaken'] += 1;
-                        else:
-                            if playData['player']:
-                                self.awayTeamSkaters[playData['player']]['hits'] += 1;
-                            if playData['receiver']:
-                                self.homeTeamSkaters[playData['receiver']]['hitstaken'] += 1;
-                            
-                    elif x['play'][5] == 'FAC':
-                        playData = self.processFaceOff(x['play'][6])
-                        if playData['playerOneTeam'] == playData['winnerTeam']:
-                            if vars.shortNameToID[self.convertHockeyTeamName(playData['winnerTeam'])] == homeTeamID:
-                                self.homeTeamSkaters[playData['playerOne']]['faceoffwins'] += 1;
-                                self.awayTeamSkaters[playData['playerTwo']]['faceofflosses'] += 1;
+                                if playData['player']:
+                                    self.awayTeamSkaters[playData['player']]['hits'] += 1;
+                                if playData['receiver']:
+                                    self.homeTeamSkaters[playData['receiver']]['hitstaken'] += 1;
+                                
+                        elif x['play'][5] == 'FAC':
+                            playData = self.processFaceOff(x['play'][6])
+                            if playData['playerOneTeam'] == playData['winnerTeam']:
+                                if vars.shortNameToID[self.convertHockeyTeamName(playData['winnerTeam'])] == homeTeamID:
+                                    self.homeTeamSkaters[playData['playerOne']]['faceoffwins'] += 1;
+                                    self.awayTeamSkaters[playData['playerTwo']]['faceofflosses'] += 1;
+                                else:
+                                    self.awayTeamSkaters[playData['playerOne']]['faceoffwins'] += 1;
+                                    self.homeTeamSkaters[playData['playerTwo']]['faceofflosses'] += 1;
                             else:
-                                self.awayTeamSkaters[playData['playerOne']]['faceoffwins'] += 1;
-                                self.homeTeamSkaters[playData['playerTwo']]['faceofflosses'] += 1;
-                        else:
-                            if vars.shortNameToID[self.convertHockeyTeamName(playData['winnerTeam'])] == homeTeamID:
-                                self.homeTeamSkaters[playData['playerTwo']]['faceoffwins'] += 1;
-                                self.awayTeamSkaters[playData['playerOne']]['faceofflosses'] += 1;
-                            else:
-                                self.awayTeamSkaters[playData['playerTwo']]['faceoffwins'] += 1;
-                                self.homeTeamSkaters[playData['playerOne']]['faceofflosses'] += 1;
-                    
-                    elif x['play'][5] == 'GOAL':
-                        if len(x['play']) == 8:
-                            playData = self.processGoal(x['play'][6] + x['play'][7])
-                        else:
-                            playData = self.processGoal(x['play'][6])
-
-			if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-				self.homeTeamSkaters[playData['shooter']]['shots'] += 1
-			else:
-				self.awayTeamSkaters[playData['shooter']]['shots'] += 1
-                            
-                        if playData['psg']:
-                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
-                            else:
-                                self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
+                                if vars.shortNameToID[self.convertHockeyTeamName(playData['winnerTeam'])] == homeTeamID:
+                                    self.homeTeamSkaters[playData['playerTwo']]['faceoffwins'] += 1;
+                                    self.awayTeamSkaters[playData['playerOne']]['faceofflosses'] += 1;
+                                else:
+                                    self.awayTeamSkaters[playData['playerTwo']]['faceoffwins'] += 1;
+                                    self.homeTeamSkaters[playData['playerOne']]['faceofflosses'] += 1;
                         
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            homeGoalCount += 1
-                            for y in goalModifiers:
-                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == homeGoalCount:
-                                    if y['modifier'] == "EN":
-                                        self.homeTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
-                                        if playData['assistOne'] is not None:
-                                            self.homeTeamSkaters[playData['assistOne']]['emptynetassists'] += 1
-                                        if playData['assistTwo'] is not None:
-                                            self.homeTeamSkaters[playData['assistTwo']]['emptynetassists'] += 1
-                                    if y['modifier'] == "GW":
-                                        self.homeTeamSkaters[playData['shooter']]['gamewinninggoals'] += 1
-                                        if playData['assistOne'] is not None:
-                                            self.homeTeamSkaters[playData['assistOne']]['gamewinningassists'] += 1
-                                        if playData['assistTwo'] is not None:
-                                            self.homeTeamSkaters[playData['assistTwo']]['gamewinningassists'] += 1
-                        else:
-                            awayGoalCount += 1
-                            for y in goalModifiers:
-                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == awayGoalCount:
-                                    if y['modifier'] == "EN":
-                                        self.awayTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
-                                        if playData['assistOne'] is not None:
-                                            self.awayTeamSkaters[playData['assistOne']]['emptynetassists'] += 1
-                                        if playData['assistTwo'] is not None:
-                                            self.awayTeamSkaters[playData['assistTwo']]['emptynetassists'] += 1
-                                    if y['modifier'] == "GW":
-                                        self.awayTeamSkaters[playData['shooter']]['gamewinninggoals'] += 1
-                                        if playData['assistOne'] is not None:
-                                            self.awayTeamSkaters[playData['assistOne']]['gamewinningassists'] += 1
-                                        if playData['assistTwo'] is not None:
-                                            self.awayTeamSkaters[playData['assistTwo']]['gamewinningassists'] += 1
-			
-                        
-
-                        if x['play'][2] == "EV":
-                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                self.homeTeamSkaters[playData['shooter']]['goals'] += 1
-                                if playData['psg']:
-                                    self.homeTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
-                                if playData['assistOne'] is not None:
-                                    self.homeTeamSkaters[playData['assistOne']]['assists'] += 1
-                                if playData['assistTwo'] is not None:
-                                    self.homeTeamSkaters[playData['assistTwo']]['assists'] += 1
+                        elif x['play'][5] == 'GOAL':
+                            if len(x['play']) == 8:
+                                playData = self.processGoal(x['play'][6] + x['play'][7])
                             else:
-                                self.awayTeamSkaters[playData['shooter']]['goals'] += 1
-                                if playData['psg']:
-                                    self.awayTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
-                                if playData['assistOne'] is not None:
-                                    self.awayTeamSkaters[playData['assistOne']]['assists'] += 1
-                                if playData['assistTwo'] is not None:
-                                    self.awayTeamSkaters[playData['assistTwo']]['assists'] += 1
-                        elif x['play'][2] == "PP":
+                                playData = self.processGoal(x['play'][6])
+    
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                self.homeTeamSkaters[playData['shooter']]['goals'] += 1
-                                self.homeTeamSkaters[playData['shooter']]['powerplaygoals'] += 1
-                                if playData['psg']:
-                                    self.homeTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
-                                if playData['assistOne'] is not None:
-                                    self.homeTeamSkaters[playData['assistOne']]['assists'] += 1
-                                    self.homeTeamSkaters[playData['assistOne']]['powerplayassists'] += 1
-                                if playData['assistTwo'] is not None:
-                                    self.homeTeamSkaters[playData['assistTwo']]['assists'] += 1
-                                    self.homeTeamSkaters[playData['assistTwo']]['powerplayassists'] += 1
+                                self.homeTeamSkaters[playData['shooter']]['shots'] += 1
                             else:
-                                self.awayTeamSkaters[playData['shooter']]['goals'] += 1
-                                self.awayTeamSkaters[playData['shooter']]['powerplaygoals'] += 1
+                                self.awayTeamSkaters[playData['shooter']]['shots'] += 1
                                 if playData['psg']:
-                                    self.awayTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
-                                if playData['assistOne'] is not None:
-                                    self.awayTeamSkaters[playData['assistOne']]['assists'] += 1
-                                    self.awayTeamSkaters[playData['assistOne']]['powerplayassists'] += 1
-                                if playData['assistTwo'] is not None:
-                                    self.awayTeamSkaters[playData['assistTwo']]['assists'] += 1
-                                    self.awayTeamSkaters[playData['assistTwo']]['powerplayassists'] += 1
+                                    if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                        self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
+                                    else:
+                                        self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
+                                        
+                                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                            homeGoalCount += 1
+                                            for y in goalModifiers:
+                                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == homeGoalCount:
+                                                    if y['modifier'] == "EN":
+                                                        self.homeTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
+                                                        if playData['assistOne'] is not None:
+                                                            self.homeTeamSkaters[playData['assistOne']]['emptynetassists'] += 1
+                                                        if playData['assistTwo'] is not None:
+                                                            self.homeTeamSkaters[playData['assistTwo']]['emptynetassists'] += 1
+                                                    if y['modifier'] == "GW":
+                                                        self.homeTeamSkaters[playData['shooter']]['gamewinninggoals'] += 1
+                                                        if playData['assistOne'] is not None:
+                                                            self.homeTeamSkaters[playData['assistOne']]['gamewinningassists'] += 1
+                                                        if playData['assistTwo'] is not None:
+                                                            self.homeTeamSkaters[playData['assistTwo']]['gamewinningassists'] += 1
+                                        else:
+                                            awayGoalCount += 1
+                                            for y in goalModifiers:
+                                                if y['team'] == self.convertHockeyTeamName(playData['team']) and y['goal'] == awayGoalCount:
+                                                    if y['modifier'] == "EN":
+                                                        self.awayTeamSkaters[playData['shooter']]['emptynetgoals'] += 1
+                                                        if playData['assistOne'] is not None:
+                                                            self.awayTeamSkaters[playData['assistOne']]['emptynetassists'] += 1
+                                                        if playData['assistTwo'] is not None:
+                                                            self.awayTeamSkaters[playData['assistTwo']]['emptynetassists'] += 1
+                                                    if y['modifier'] == "GW":
+                                                        self.awayTeamSkaters[playData['shooter']]['gamewinninggoals'] += 1
+                                                        if playData['assistOne'] is not None:
+                                                            self.awayTeamSkaters[playData['assistOne']]['gamewinningassists'] += 1
+                                                        if playData['assistTwo'] is not None:
+                                                            self.awayTeamSkaters[playData['assistTwo']]['gamewinningassists'] += 1
+                            
+                                        
+                
+                                        if x['play'][2] == "EV":
+                                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                                self.homeTeamSkaters[playData['shooter']]['goals'] += 1
+                                                if playData['psg']:
+                                                    self.homeTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
+                                                if playData['assistOne'] is not None:
+                                                    self.homeTeamSkaters[playData['assistOne']]['assists'] += 1
+                                                if playData['assistTwo'] is not None:
+                                                    self.homeTeamSkaters[playData['assistTwo']]['assists'] += 1
+                                            else:
+                                                self.awayTeamSkaters[playData['shooter']]['goals'] += 1
+                                                if playData['psg']:
+                                                    self.awayTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
+                                                if playData['assistOne'] is not None:
+                                                    self.awayTeamSkaters[playData['assistOne']]['assists'] += 1
+                                                if playData['assistTwo'] is not None:
+                                                    self.awayTeamSkaters[playData['assistTwo']]['assists'] += 1
+                                        elif x['play'][2] == "PP":
+                                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                                self.homeTeamSkaters[playData['shooter']]['goals'] += 1
+                                                self.homeTeamSkaters[playData['shooter']]['powerplaygoals'] += 1
+                                                if playData['psg']:
+                                                    self.homeTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
+                                                if playData['assistOne'] is not None:
+                                                    self.homeTeamSkaters[playData['assistOne']]['assists'] += 1
+                                                    self.homeTeamSkaters[playData['assistOne']]['powerplayassists'] += 1
+                                                if playData['assistTwo'] is not None:
+                                                    self.homeTeamSkaters[playData['assistTwo']]['assists'] += 1
+                                                    self.homeTeamSkaters[playData['assistTwo']]['powerplayassists'] += 1
+                                            else:
+                                                self.awayTeamSkaters[playData['shooter']]['goals'] += 1
+                                                self.awayTeamSkaters[playData['shooter']]['powerplaygoals'] += 1
+                                                if playData['psg']:
+                                                    self.awayTeamSkaters[playData['shooter']]['penaltyshotgoals'] += 1
+                                                if playData['assistOne'] is not None:
+                                                    self.awayTeamSkaters[playData['assistOne']]['assists'] += 1
+                                                    self.awayTeamSkaters[playData['assistOne']]['powerplayassists'] += 1
+                                                if playData['assistTwo'] is not None:
+                                                    self.awayTeamSkaters[playData['assistTwo']]['assists'] += 1
+                                                    self.awayTeamSkaters[playData['assistTwo']]['powerplayassists'] += 1
                         elif x['play'][2] == "SH":
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
                                 self.homeTeamSkaters[playData['shooter']]['goals'] += 1
@@ -699,43 +681,43 @@ class nhl_game():
                                 if playData['assistTwo'] is not None:
                                     self.awayTeamSkaters[playData['assistTwo']]['assists'] += 1
                                     self.awayTeamSkaters[playData['assistTwo']]['shorthandedassists'] += 1
-                        else:
-                            print "Whoops: %s" % x['play']
-                        
-                    elif x['play'][5] == 'MISS':
-                        playData = self.processMiss(x['play'][6])
-                        if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                            self.homeTeamSkaters[playData['player']]['misses'] += 1
-                        else:
-                            self.awayTeamSkaters[playData['player']]['misses'] += 1
+                                else:
+                                    print "Whoops: %s" % x['play']
                             
-                        if playData['psg']:
+                        elif x['play'][5] == 'MISS':
+                            playData = self.processMiss(x['play'][6])
                             if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
+                                self.homeTeamSkaters[playData['player']]['misses'] += 1
                             else:
-                                self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
-                            
-                    elif x['play'][5] == 'PENL':
-                        playData = self.processPenalty(x['play'][6], x['play'][7])
-                        if playData['player'] != "Team":
-                            if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
-                                if playData['player']:
-                                    self.homeTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
-                                if playData['drawn_by']:
-                                    self.awayTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
-                                if playData['fight']:
-                                    self.homeTeamSkaters[playData['player']]['fights'] += 1
-                            else:
-                                if playData['player']:
-                                    self.awayTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
-                                if playData['drawn_by']:
-                                    self.homeTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
-                                if playData['fight']:
-                                    self.awayTeamSkaters[playData['player']]['fights'] += 1
-        
-        except Exception as e:
-            print "%s: %s" % (self.gameID, x)   
-            print sys.exc_info()
-            print "\n"
-            print traceback.print_tb(sys.exc_info()[2])
-            print "\n"
+                                self.awayTeamSkaters[playData['player']]['misses'] += 1
+                                
+                            if playData['psg']:
+                                if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                    self.awayTeamSkaters[x['away'][0]]['penaltyshotgoalsagainst'] += 1
+                                else:
+                                    self.homeTeamSkaters[x['home'][0]]['penaltyshotgoalsagainst'] += 1
+                                
+                        elif x['play'][5] == 'PENL':
+                            playData = self.processPenalty(x['play'][6], x['play'][7])
+                            if playData['player'] != "Team":
+                                if vars.shortNameToID[self.convertHockeyTeamName(playData['team'])] == homeTeamID:
+                                    if playData['player']:
+                                        self.homeTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    if playData['drawn_by']:
+                                        self.awayTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    if playData['fight']:
+                                        self.homeTeamSkaters[playData['player']]['fights'] += 1
+                                else:
+                                    if playData['player']:
+                                        self.awayTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    if playData['drawn_by']:
+                                        self.homeTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    if playData['fight']:
+                                        self.awayTeamSkaters[playData['player']]['fights'] += 1
+            
+            except Exception as e:
+                print "%s: %s" % (self.gameID, x)   
+                print sys.exc_info()
+                print "\n"
+                print traceback.print_tb(sys.exc_info()[2])
+                print "\n"
