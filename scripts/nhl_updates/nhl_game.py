@@ -1,5 +1,6 @@
 from urllib2 import urlopen
 from parsers import *
+import json
 import os
 import re
 import sys
@@ -303,125 +304,104 @@ class nhl_game():
         boxParse = boxParser()
         boxParse.feed(box_html)
 
-        teamInsert = []
+	boxJsonURL = 'http://statsapi.web.nhl.com/api/v1/game/%s/feed/live?site=en_nhl' % (self.yearID[0:4] + self.seasonID + self.gameID)
+	print boxJsonURL
 
-        for t in boxParse.away_skaters:
-            self.awayTeamSkaters[t[0]] =  self.makeSkater(t[1])
-            self.awayTeamSkaters[t[0]]['plusminus'] = t[7]
-            self.awayTeamSkaters[t[0]]['timeonice'] = t[-1]
+	try:
+                req = urlopen(boxJsonURL)
+                boxJSON = req.read()
+		boxData = json.loads(boxJSON)
+        except Exception:
+		import traceback
+		print "Exception %s" % traceback.format_exc()
 
-        for t in boxParse.away_goalies:
-            if len(t) > 8:
-		    shots = t[7].split(" - ")
-		    saves = shots[0].strip()
-		    goals_against = str(int(shots[1].strip()) - int(saves))
-            else:
-                    shots = t[4].split(" - ")
-                    saves = shots[0].strip()
-                    goals_against = str(int(shots[1].strip()) - int(saves))
+	for t in boxData['liveData']['boxscore']['teams']['away']['players']:
+		currentPlayer = boxData['liveData']['boxscore']['teams']['away']['players'][t]
+		self.awayTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
+		if currentPlayer['position']['code'] == 'G':
+			self.awayTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
+			self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
 
-            self.awayTeamSkaters[t[0]] =  self.makeSkater(t[1])
-            self.awayTeamSkaters[t[0]]['saves'] = saves
-            self.awayTeamSkaters[t[0]]['goalsagainst'] = goals_against
-            
-            if len(boxParse.home_goalies) == 1 and t[8] == '1.000' and goals_against == 0:
-                self.awayTeamSkaters[t[0]]['shutouts'] = 1
+			if self.awayTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
+			else:
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
 
-            if t[3].find("(W)") != -1:
-                self.awayTeamSkaters[t[0]]['wins'] = 1
-            elif boxParse.overtime:
-                self.awayTeamSkaters[t[0]]['otlosses'] = 1
-            else:
-                self.awayTeamSkaters[t[0]]['losses'] = 1
-            
-            self.awayTeamSkaters[t[0]]['timeonice'] = t[-1]
+			if currentPlayer['stats']['goalieStats']['decision'] == 'W':
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
+			else:
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
 
-        for t in boxParse.home_skaters:
-            self.homeTeamSkaters[t[0]] =  self.makeSkater(t[1])
-            self.homeTeamSkaters[t[0]]['plusminus'] = t[7]
-            self.homeTeamSkaters[t[0]]['timeonice'] = t[-1]
+			if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
+			else:
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
+			
+		else:
+			print currentPlayer['stats']
+			if currentPlayer['stats'] != {}:
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
+				self.awayTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
 
-        for t in boxParse.home_goalies:
-            if len(t) > 8:
-                    shots = t[7].split(" - ")
-                    saves = shots[0].strip()
-                    goals_against = str(int(shots[1].strip()) - int(saves))
-            else:
-                    shots = t[4].split(" - ")
-                    saves = shots[0].strip()
-                    goals_against = str(int(shots[1].strip()) - int(saves))
-            self.homeTeamSkaters[t[0]] =  self.makeSkater(t[1])
-            self.homeTeamSkaters[t[0]]['saves'] = saves
-            self.homeTeamSkaters[t[0]]['goalsagainst'] = goals_against
-            
-            if len(boxParse.home_goalies) == 1 and t[8] == '1.000' and goals_against == 0:
-                self.homeTeamSkaters[t[0]]['shutouts'] = 1
+        for t in boxData['liveData']['boxscore']['teams']['home']['players']:
+                currentPlayer = boxData['liveData']['boxscore']['teams']['home']['players'][t]
+                self.homeTeamSkaters[currentPlayer['jerseyNumber']] = self.makeSkater(currentPlayer['person']['id'])
+                if currentPlayer['position']['code'] == 'G':
+                        self.homeTeamSkaters[currentPlayer['jerseyNumber']]['saves'] = currentPlayer['stats']['goalieStats']['saves']
+                        self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] = currentPlayer['stats']['goalieStats']['shots'] - currentPlayer['stats']['goalieStats']['saves']
 
-            if t[3].find("(W)") != -1:
-                self.homeTeamSkaters[t[0]]['wins'] = 1
-            elif boxParse.overtime:
-                self.homeTeamSkaters[t[0]]['otlosses'] = 1
-            else:
-                self.homeTeamSkaters[t[0]]['losses'] = 1
-            
-            self.homeTeamSkaters[t[0]]['timeonice'] = t[-1]
-        
+                        if self.homeTeamSkaters[currentPlayer['jerseyNumber']]['goalsagainst'] == 0:
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 1
+                        else:
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['shutouts'] = 0
+
+                        if currentPlayer['stats']['goalieStats']['decision'] == 'W':
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 1
+                        else:
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['wins'] = 0
+
+                        if currentPlayer['stats']['goalieStats']['decision'] == 'OTL':
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 1
+                        else:
+                                self.homeTeamSkaters[currentPlayer['jerseyNumber']]['otlosses'] = 0
+
+                else:
+			if currentPlayer['stats'] != {}:
+				self.homeTeamSkaters[currentPlayer['jerseyNumber']]['plusminus'] = currentPlayer['stats']['skaterStats']['plusMinus']
+				self.homeTeamSkaters[currentPlayer['jerseyNumber']]['timeonice'] = currentPlayer['stats']['skaterStats']['timeOnIce']
+
         homeGoalCount = 0
         awayGoalCount = 0
         goalModifiers = []
-        
-        for x in boxParse.goals_data:
-            if vars.shortNameToID[x[1]] == homeTeamID:
-                homeGoalCount += 1
-                if winningGoal['team'] == homeTeamID:
-                    if homeGoalCount == winningGoal['goal']:
-                        goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
-            else:
-                awayGoalCount += 1
-                if winningGoal['team'] == awayTeamID:
-                    if awayGoalCount == winningGoal['goal']:
-                        goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
-                        
-            if "PS" in x[2]:
-                if vars.shortNameToID[x[1]] == homeTeamID:
-                    goal = homeGoalCount
-                else:
-                    goal = awayGoalCount
-                goalModifiers.append({"team" : x[1], "goal" : goal, "modifier" : "PS"})
-            if "EN"  in x[2]:
-                if vars.shortNameToID[x[1]] == homeTeamID:
-                    goal = homeGoalCount
-                else:
-                    goal = awayGoalCount
-                goalModifiers.append({"team" : x[1], "goal" : goal, "modifier" : "EN"})
+
+	for t in boxData['liveData']['plays']['scoringPlays']:
+		if boxData['liveData']['plays']['allPlays'][t]['team']['id'] == homeTeamID:
+			homeGoalCount += 1
+			if winningGoal['team'] == homeTeamID:
+				goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
+		else:
+                        awayGoalCount += 1
+                        if winningGoal['team'] == awayTeamID:
+                                goalModifiers.append({"team" : vars.idToShortName[winningGoal['team'] ], "goal" : winningGoal['goal'], "modifier" : "GW"})
 
 	self.homeScore = homeGoalCount
 	self.awayScore = awayGoalCount
+'''
+	for t in boxData['liveData']['decisions']['firstStar']:
+		for p in self.homeTeamSkaters:
+			if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
+				self.homeTeamSkaters[p]['firststars'] += 1
 
-        starCount = 1
-        for x in sumParse.stars_data:
-            number = x[3].split(" ")[0]
-            hockey_team_name = self.convertHockeyTeamName(x[1])
+	for t in  boxData['liveData']['decisions']['secondStar']:
+                for p in self.homeTeamSkaters:
+                        if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
+                                self.homeTeamSkaters[p]['secondstars'] += 1
 
-            if homeTeamID == vars.shortNameToID[hockey_team_name]:
-                if starCount == 1:
-                    self.homeTeamSkaters[number]['firststars'] += 1;
-                elif starCount == 2:
-                    self.homeTeamSkaters[number]['secondstars'] += 1;
-                elif starCount == 3:
-                    self.homeTeamSkaters[number]['thirdstars'] += 1;
-                else:
-                    print "Whoops: %s" % x
-            else:
-                if starCount == 1:
-                    self.awayTeamSkaters[number]['firststars'] += 1;
-                elif starCount == 2:
-                    self.awayTeamSkaters[number]['secondstars'] += 1;
-                elif starCount == 3:
-                    self.awayTeamSkaters[number]['thirdstars'] += 1;
-                else:
-                    print "Whoops: %s" % x
-            starCount += 1
+	for t in boxData['liveData']['decisions']['thirdStar']:
+                for p in self.homeTeamSkaters:
+                        if self.homeTeamSkaters[p]['nhl_id'] == boxData['liveData']['decisions']['firstStar'][t]['id']:
+                                self.homeTeamSkaters[p]['thirdstars'] += 1
+'''
 	if sumParse.goal_row != []:
 		if "SO" in sumParse.goal_row[-1] and len(sumParse.goal_row[-1]) == 4:
 		    try:
@@ -502,7 +482,7 @@ class nhl_game():
 			print "\n"
 			print traceback.print_tb(sys.exc_info()[2])
 			print "\n"
-        
+		
         fp = vars.reports_path + "/reports/" + self.yearID + "/PL/PL" + self.seasonID + self.gameID + ".HTML"
 
         if not os.path.exists(fp) or self.update_html:
