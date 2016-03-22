@@ -7,6 +7,9 @@
 
 {% block primary %}
 <div class="container">
+{% if passed == 1 %}
+    <h1>Trade deadline has passed</h1>
+{% else %}
 	<div class="col-lg-6">
 		<div id="success_div"></div>
 		<div id="current_trades">
@@ -69,8 +72,11 @@
 				<tr>
 					<th>Team</th>
 					<th>Skater</th>
+					<th>Team</th>
+					<th>Skater</th>
 				</tr>
-				{% for t in all_trades %}<tr><td></td><td></td><td></td><td></td></tr>{% endfor %}
+                {% autoescape off %}
+				{% for t in all_trades %}<tr><td>{{t.player1.name}}</td><td>{{t.skater1.get_name}}</td><td>{{t.player2.name}}</td><td>{{t.skater2.get_name}}</td></tr>{% endfor %}{% endautoescape %}
 			</table>
 			{% else %}
 			<p>There are no recent trades to report</p>
@@ -96,5 +102,6 @@
 		<button id="trade_players" name="trade_players" onclick="trade_players()">Trade</button>
 	</div>
 </div>
+{% endif %}
 {% endblock %}
 

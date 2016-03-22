@@ -4,6 +4,7 @@ from django.shortcuts import render
 from hockeypool.models import *
 from trades.models import *
 import logging
+import datetime
 logger = logging.getLogger(__name__)
 
 @login_required
@@ -20,7 +21,14 @@ def index(request):
         else:
                 t_out = 0
         all_trades = Trade.objects.filter(state=1)
-        context = {'t_in' : t_in, 't_out' : t_out, 'in_trades' : in_trades, 'out_trades' : out_trades, 'page_name' : 'Trades', 'all_trades' : all_trades}
+        now = datetime.datetime.now()
+        logger.info(now)
+        deadline = datetime.datetime.strptime('2016-02-29 18:00:00', '%Y-%m-%d %H:%M:%S')
+        if now > deadline:
+            passed = 1
+        else:
+            passed = 0
+        context = {'t_in' : t_in, 't_out' : t_out, 'in_trades' : in_trades, 'out_trades' : out_trades, 'page_name' : 'Trades', 'all_trades' : all_trades, 'passed' : passed}
         return render(request, 'trades/index.html', context)
 
 @login_required

@@ -87,7 +87,6 @@ def parse_game(game):
 
 	for s in n.homeTeamSkaters:
 		if check_skater(n.homeTeamSkaters[s]['nhl_id']):
-			print n.homeTeamSkaters[s]
 			p = Point.objects.filter(skater_id=n.homeTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 			if len(p) == 0:
 				goals = cat_goals.value*int(n.homeTeamSkaters[s]['goals']) + cat_shg.value*int(n.homeTeamSkaters[s]['shorthandedgoals']) + cat_ppg.value*int(n.homeTeamSkaters[s]['powerplaygoals']) + cat_gwg.value*int(n.homeTeamSkaters[s]['gamewinninggoals']) + cat_psg.value*int(n.homeTeamSkaters[s]['penaltyshotgoals']) + cat_eng.value*int(n.homeTeamSkaters[s]['emptynetgoals'])
@@ -117,7 +116,6 @@ def parse_game(game):
 				print "Error: too many points with (skater_id, game_id) of (%s, %s)" % (n.homeTeamSkaters[s]['nhl_id'], g.id)
 	for s in n.awayTeamSkaters:
 		if check_skater(n.awayTeamSkaters[s]['nhl_id']):
-			print n.awayTeamSkaters[s]
 			p = Point.objects.filter(skater_id=n.awayTeamSkaters[s]['nhl_id']).filter(game_id=game.id)
 
 			if len(p) == 0:
@@ -148,23 +146,41 @@ def parse_game(game):
 				print "Error: too many points with (skater_id, game_id) of (%s, %s)" % (n.awayTeamSkaters[s]['nhl_id'], g.id)
 
 
-def daily_update():
-	games = Game.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
-	for g in games:
-		logger.info("Parsing game: %s" % g.nhl_game_id)
-		parse_game(g)
+def daily_update(day=None):
+    if day is None:
+            games = Game.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
+    else:
+            games = Game.objects.filter(date=day)
+    for g in games:
+        logger.info("Parsing game: %s" % g.nhl_game_id)
+        parse_game(g)
 
-def weekly_update():
-	current_week = Week_Date.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now() - datetime.timedelta(1),"%Y-%m-%d"))
-	if len(current_week) == 1:
-		current_week = current_week[0]
-		week_dates = Week_Date.objects.filter(week_id=current_week.week_id).filter(date__lte=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
-		games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
-		for g in games:
-			logger.info("Parsing game: %s" % g.nhl_game_id)
-			parse_game(g)
-	else:
-		print "Error getting week"
+def weekly_update(week_id=None):
+    if week_id is None:
+        current_week = Week_Date.objects.filter(date=datetime.datetime.strftime(datetime.datetime.now() - datetime.timedelta(1),"%Y-%m-%d"))
+        if len(current_week) == 1:
+            current_week = current_week[0]
+            week_dates = Week_Date.objects.filter(week_id=current_week.week_id).filter(date__lte=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"))
+            games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
+            for g in games:
+                logger.info("Parsing game: %s" % g.nhl_game_id)
+                try:
+                    parse_game(g)
+                except:
+                    logger.error("Error parsing game: %s" % g.nhl_game_id)
+    else:
+        try:
+            week_dates = Week_Date.objects.filter(week=Week.objects.get(id=week_id))
+            games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
+            print games
+            for g in games:
+                logger.info("Parsing game: %s" % g.nhl_game_id)
+                try:
+                    parse_game(g)
+                except:
+                    logger.error("Error parsing game: %s" % g.nhl_game_id)
+        except Week.DoesNotExist:
+            logger.error("Does not exist")
 
 def season_update():
 	week_dates = Week_Date.objects.filter(date__lte=datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d")).filter(week__year_id=2)
@@ -187,7 +203,7 @@ def game_update(game_id):
 	except ValueError:
 		print "Invalid game id. Must be an integer between 1 and 1230 inclusive"
 
-if len(sys.argv) != 2 and not ((sys.argv[1] == "-g" or sys.argv[1] == "--game") and len(sys.argv) == 3):
+if len(sys.argv) != 2 and not ((sys.argv[1] in ["-g", "--game", "-d", "--daily", "-w", "--weekly"]) and len(sys.argv) == 3):
 	print "Invalid command"
 	exit()
 
@@ -196,12 +212,18 @@ if sys.argv[1] == "-g" or sys.argv[1] == "--game":
         game_update(sys.argv[2])
 
 elif sys.argv[1] == "-d" or sys.argv[1] == "--daily":
-	#Do some shit to get the current date here
-	daily_update()
+    if len(sys.argv) == 3:
+        #Do some shit to get the current date here
+        daily_update(sys.argv[2])
+    else:
+        daily_update()
 
 elif sys.argv[1] == "-w" or sys.argv[1] == "--weekly":
 	#Do some shit to get the current date here
-	weekly_update()
+    if len(sys.argv) == 3:
+        weekly_update(sys.argv[2])
+    else:
+        weekly_update()
 
 elif sys.argv[1] == "-f" or sys.argv[1] == "--full":
 	#Do some shit to get the current date here
