@@ -172,7 +172,6 @@ def weekly_update(week_id=None):
         try:
             week_dates = Week_Date.objects.filter(week=Week.objects.get(id=week_id))
             games = Game.objects.filter(date__in=week_dates.values_list('date', flat="True"))
-            print games
             for g in games:
                 logger.info("Parsing game: %s" % g.nhl_game_id)
                 try:

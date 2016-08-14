@@ -356,21 +356,30 @@ class nhl_game():
         goalModifiers = []
 
         if not boxData['liveData']['linescore']['hasShootout']:
-            winningGoalPlay = boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['scoringPlays'][-1]]
-            for player in winningGoalPlay['players']:
-                try:
-                    if player['playerType'] == 'Scorer':
-                        self.homeTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
-                    else:
-                        self.homeTeamSkaters[player['player']['id']]['gamewinningassists'] += 1
-                except:
-                    if player['playerType'] == 'Scorer':
-                        self.awayTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
-                    else:
-                        self.awayTeamSkaters[player['player']['id']]['gamewinningassists'] += 1
+            try:
+                winningGoalPlay = boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['scoringPlays'][-1]]
+                for player in winningGoalPlay['players']:
+                    try:
+                        if player['playerType'] == 'Scorer':
+                            self.homeTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
+                        else:
+                            self.homeTeamSkaters[player['player']['id']]['gamewinningassists'] += 1
+                    except:
+                        if player['playerType'] == 'Scorer':
+                            self.awayTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
+                        else:
+                            self.awayTeamSkaters[player['player']['id']]['gamewinningassists'] += 1
+            except:
+                pass
         else:
-            winnerGoalie = boxData['liveData']['decisions']['winner']['id']
-            loserGoalie = boxData['liveData']['decisions']['loser']['id']
+            try:
+                    winnerGoalie = boxData['liveData']['decisions']['winner']['id']
+            except:
+                winnerGoalie = ''
+            try:
+                    loserGoalie = boxData['liveData']['decisions']['loser']['id']
+            except:
+                loserGoalie = ''
             for x in boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['playsByPeriod'][-1]['startIndex']::]:
                 if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END']:
                     if x['result']['eventTypeId'] == 'GOAL':
@@ -380,13 +389,13 @@ class nhl_game():
                                     self.homeTeamSkaters[p['player']['id']]['shootoutgoals'] += 1
                                     if winnerGoalie in self.awayTeamSkaters:
                                         self.awayTeamSkaters[winnerGoalie]['shootoutgoalsagainst'] += 1
-                                    else:
+                                    elif winnerGoalie in self.awayTeamSkaters:
                                         self.awayTeamSkaters[loserGoalie]['shootoutgoalsagainst'] += 1
                                 else:
                                     self.awayTeamSkaters[p['player']['id']]['shootoutgoals'] += 1
                                     if winnerGoalie in self.homeTeamSkaters:
                                         self.homeTeamSkaters[winnerGoalie]['shootoutgoalsagainst'] += 1
-                                    else:
+                                    elif winnerGoalie in self.awayTeamSkaters:
                                         self.homeTeamSkaters[loserGoalie]['shootoutgoalsagainst'] += 1
                     else:
                         for p in x['players']:
@@ -395,13 +404,13 @@ class nhl_game():
                                     self.homeTeamSkaters[p['player']['id']]['shootoutmisses'] += 1
                                     if winnerGoalie in self.awayTeamSkaters:
                                         self.awayTeamSkaters[winnerGoalie]['shootoutsaves'] += 1
-                                    else:
+                                    elif winnerGoalie in self.awayTeamSkaters:
                                         self.awayTeamSkaters[loserGoalie]['shootoutsaves'] += 1
                                 else:
                                     self.awayTeamSkaters[p['player']['id']]['shootoutmisses'] += 1
                                     if winnerGoalie in self.homeTeamSkaters:
                                         self.homeTeamSkaters[winnerGoalie]['shootoutsaves'] += 1
-                                    else:
+                                    elif winnerGoalie in self.awayTeamSkaters:
                                         self.homeTeamSkaters[loserGoalie]['shootoutsaves'] += 1
         try:
             for x in boxData['liveData']['plays']['allPlays']:
