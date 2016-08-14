@@ -1,20 +1,17 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls  import url, include
+from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
-
-
-
 
 from django.contrib import admin
 admin.autodiscover()
 
 from hockeypool import views
 
-urlpatterns = patterns('',
+urlpatterns = [
 
-	url(r'^admin/', include(admin.site.urls)),
+#	url(r'^admin/', include(admin.site.urls)),
 	url(r'^ajax/', include('ajax.urls')),
-	url(r'^forum/', include('forum.urls')),
 	url(r'^draft/', include('draft.urls')),
 	url(r'^match/', include('match.urls')),
 	url(r'^waivers/', include('waivers.urls')),
@@ -23,10 +20,7 @@ urlpatterns = patterns('',
 
 #Temporary URL for Safe Walk iPhone testing
 
-	url(r'^iphone/', include('iphone.urls')),
-	url(r'^maps/', include('maps.urls')),
-
-	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+	url(r'^accounts/login/$', auth_views.login, {'template_name': 'login.html'}, name="login"),
 	url(r'^logout/$', views.logout_page, name="logout_page"),
 	url(r'^profile/$', views.profile_index, name="profile_index"),
 	url(r'^accounts/profile/$', views.profile_index, name="profile_index"),
@@ -41,6 +35,5 @@ urlpatterns = patterns('',
 	url(r'^standings/west/$', views.standings_west, name="standings_west"),
 	url(r'^team/(?P<team_id>\d+)/$', views.team_detail, name="team_detail"),
 	url(r'^team/$', views.team_index, name="team_index"),
-	url(r'^keyLogger/$', views.key_log, name="key_log"),
-	url(r'^$', views.index, name='index')
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	url(r'^$', views.index, name='index')]
+#	static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)]

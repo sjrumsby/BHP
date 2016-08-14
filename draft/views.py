@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from django.db.models import Sum
 
-from forum.models import *
 from hockeypool.models import *
 from draft.models import *
 

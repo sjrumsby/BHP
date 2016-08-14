@@ -1,8 +1,7 @@
-from django.conf.urls import patterns, url
-
+from django.conf.urls  import url, include
 from ajax import views
 
-urlpatterns = patterns('',
+urlpatterns = [
 	url(r'^getPlayer$', views.getPlayer, name="getPlayer"),
 	url(r'^getWaiverPlayer/(?P<player_name>[a-zA-Z ]*)/$', views.getWaiverPlayer, name="getWaiverPlayer"),
 	url(r'^getTradeOwn/(?P<player_name>[a-zA-Z ]*)/$', views.getTradeOwn, name="getTradeOwn"),
@@ -16,5 +15,5 @@ urlpatterns = patterns('',
 	url(r'^changePassword$', views.changePassword, name="changePassword"),
 	url(r'^updateTeamName$', views.updateTeamName, name="updateTeamName"),
 	url(r'^updateUsername$', views.updateUsername, name="updateUsername"),
-)
+]
 

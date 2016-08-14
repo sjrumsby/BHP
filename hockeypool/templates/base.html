@@ -68,7 +68,9 @@
                                                 <div class="dropdownContain">
                                                         <div class="dropOut">
                                                                 <div class="triangle"></div>
-								{% print_teams %}
+								{% autoescape off%}
+									{% get_teams %}
+								{% endautoescape %}
                                                         </div>
                                                 </div>
                                         </li>
