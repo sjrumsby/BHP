@@ -27,9 +27,9 @@
 				<tr>{% autoescape off %}
 				{% for t in in_trades %}
 				<tr>
-					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.get_name}}</a></td>
+					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1|safe}}</a></td>
 					<td>{{t.skater1.hockey_team}}</td>
-					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.get_name}}</a></td>
+					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2|safe}}</a></td>
 					<td>{{t.skater2.hockey_team}}</td>
 					<td><a href="/trades/accept/{{t.id}}">Accept</a></td>
 					<td><a href="/trades/cancel/{{t.id}}">Cancel</a></td>
@@ -52,9 +52,9 @@
 				<tr>{% autoescape off %}
 				{% for t in out_trades %}
 				<tr>
-					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2.get_name}}</a></td>
+					<td><a href="/skater/{{t.skater2.nhl_id}}">{{t.skater2|safe}}</a></td>
 					<td>{{t.skater2.hockey_team}}</td>
-					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1.get_name}}</a></td>
+					<td><a href="/skater/{{t.skater1.nhl_id}}">{{t.skater1|safe}}</a></td>
 					<td>{{t.skater1.hockey_team}}</td>
 					<td><a href="/trades/cancel/{{t.id}}">Cancel</a></td>
 				</tr>
@@ -76,7 +76,7 @@
 					<th>Skater</th>
 				</tr>
                 {% autoescape off %}
-				{% for t in all_trades %}<tr><td>{{t.player1.name}}</td><td>{{t.skater1.get_name}}</td><td>{{t.player2.name}}</td><td>{{t.skater2.get_name}}</td></tr>{% endfor %}{% endautoescape %}
+				{% for t in all_trades %}<tr><td>{{t.player1.name}}</td><td>{{t.skater1|safe}}</td><td>{{t.player2.name}}</td><td>{{t.skater2|safe}}</td></tr>{% endfor %}{% endautoescape %}
 			</table>
 			{% else %}
 			<p>There are no recent trades to report</p>

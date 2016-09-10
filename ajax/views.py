@@ -11,7 +11,8 @@ from draft.models import *
 from trades.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from django.db.models import Sum
+from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Sum, Q
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,87 @@ def getPlayer(request):
 		return HttpResponse(data)
 	else:
 		return HttpResponse("No data found");
+
+def getPlayerPopup(request, playerID):
+	p = Player.objects.get(id=playerID)
+	c = p.get_player_popup_data()
+	pool = Pool.objects.get(pk=1)
+
+	matches = Match.objects.select_related().filter(Q(home_player_id=p.id)|Q(away_player_id=p.id)).filter(week__number__gt=pool.current_week.number)
+
+	response_data = {
+		'name': p.name,
+		'record': {
+			'wins': 0,
+			'losses': 0
+		},
+		'current_week': {
+			'vs': 'Someone',
+			'location': '',
+			'scores': {
+				'home': {
+					'fp': 0
+				},
+				'away': {
+					'fp': 0
+				}
+			}
+		},
+		'upcoming_weeks': []
+	}
+
+	for m in matches[:3]:
+		tmpMatch = {}
+		if m.home_player_id == p.id:
+			tmpMatch['vs'] = m.away_player.name
+		else:
+			tmpMatch['vs'] = m.home_player.name
+		tmpMatch['week'] = m.week.number
+		response_data['upcoming_weeks'].append(tmpMatch)
+
+	if pool.current_week.number == 0:
+		response_data['current_week']['vs'] = 'No match this week'
+
+	return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+def getSkater(request, nhlID):
+	s = Skater.objects.get(nhl_id=nhlID)
+	c = s.get_skater_category_data()
+	pool = Pool.objects.get(pk=1)
+
+	games = Game.objects.filter(date__gt=datetime.datetime.now()).filter(Q(home_team=s.hockey_team)|Q(away_team=s.hockey_team))
+	upcomingGames = []
+
+	for g in games:
+		if g.home_team_id == s.hockey_team:
+			opponent = g.away_team
+		else:
+			opponent = g.home_team
+		upcomingGames.append({'opponent': opponent.name, 'date': g.date.strftime('%Y-%m-%d'), 'week': 1})
+		if len(upcomingGames) >= 5:
+			break
+
+	response_data = {
+		'categories': {
+			'fantasy_points': c['categories']['fantasy_points'],
+			'goals': c['categories']['goals'],
+			'assists': c['categories']['assists'],
+			'plus_minus': c['categories']['plus_minus'],
+			'specialty': c['categories']['specialty'],
+			'true_grit': c['categories']['true_grit'],
+			'goalie': c['categories']['goalie'],
+			'shootout': c['categories']['shootout']
+		},
+		'nhl_id': s.nhl_id,
+		'name': s.get_name(),
+		'games': s.games_played,
+		'owner': s.get_owner(),
+		'position': s.get_position(),
+		'team': s.hockey_team.name,
+		'upcomingGames': upcomingGames
+	}
+
+	return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def getWaiverPlayer(request, player_name):
         s1 = Skater.objects.filter(full_name__icontains=player_name)[:5]
@@ -78,6 +160,8 @@ def draftUpdate(request):
                                 draft_swap = Draft_Swap.objects.filter(pick = draft_picks[total_picks - null_count]).order_by("-id")[0]
                                 before = draft_swap.time
                         else:
+				logger.info(total_picks)
+				logger.info(null_count)
 				if total_picks - null_count - 1 >= 0:
 					before = draft_picks[total_picks - null_count - 1].time
 				else:
@@ -117,29 +201,34 @@ def draftUpdate(request):
 
                         for x in current_round_picks: 
 				if x.pick is None:
-					round_picks.append({"player" : x.player.name, "pick" : "None"})
+					round_picks.append({"player" : x.player.name, "pick" : "None", "id" : x.player.id})
 				else:
-					round_picks.append({"player" : x.player.name, "pick" : x.pick.get_name()})
+					round_picks.append({"player" : x.player.name, "pick" : x.pick.full_name, "id" : x.player.id})
 
-			if request.POST["undrafted_sort"] == "goals":
+			try:
+				undrafted_sort = request.POST["undrafted_sort"]
+			except MultiValueDictKeyError :
+				undrafted_sort = "fantasy_points"
+
+			if undrafted_sort == "goals":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goals=Sum('goals')).order_by("-goals")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "assists":
+			elif undrafted_sort == "assists":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(assists=Sum('assists')).order_by("-assists")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "plus_minus":
+			elif undrafted_sort == "plus_minus":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(plus_minus=Sum('plus_minus')).order_by("-plus_minus")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "offensive_special":
+			elif undrafted_sort == "offensive_special":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(offensive_special=Sum('offensive_special')).order_by("-offensive_special")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "true_grit":
+			elif undrafted_sort == "true_grit":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(true_grit=Sum('true_grit_special')).order_by("-true_grit")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "goalie":
+			elif undrafted_sort == "goalie":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goalie=Sum('goalie')).order_by("-goalie")[0:10].values_list("skater_id", flat=True))
-			elif request.POST["undrafted_sort"] == "shootout":
+			elif undrafted_sort == "shootout":
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).exclude(skater_id__in=Skater_Position.objects.filter(position_id=Position.objects.get(code="G")).values_list("skater_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(shootout=Sum('shootout')).order_by("-shootout")[0:10].values_list("skater_id", flat=True))
 			else:
 				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(fantasy_points=Sum('fantasy_points')).order_by("-fantasy_points")[0:10].values_list("skater_id", flat=True))
 
                         for x in top_picks_array:
-                                top_picks.append({"name" : x.get_name(), "position" : x.get_position()})
+                                top_picks.append({"name" : x.full_name, "position" : x.get_position(), "id" : x.nhl_id})
 
                         if null_picks[0].player.id == request.user.id:
                                 is_turn = 1
@@ -147,6 +236,7 @@ def draftUpdate(request):
                                 is_turn = 0
 
                         response_data = {'state' : state, 'time_left' : time_left, 'current_round' : current_round, 'round_order' : round_picks, 'current_pick' : null_picks[0].get_pick(), "top_picks" : top_picks, "is_turn" : is_turn, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g }
+			logger.info(response_data)
                 else:
                         response_data = {'state' : 'finished'}
         else:

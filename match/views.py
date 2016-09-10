@@ -18,6 +18,9 @@ def index(request):
         pool = Pool.objects.get(pk=1)
         week = pool.current_week
 
+	if week.number == 0:
+		week = Week.objects.get(year=pool.current_year, number=1)
+
         match = Match.objects.filter(week = week)
         game_ids = []
         match_data = []

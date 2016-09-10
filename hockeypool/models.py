@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
 import datetime
 
 import logging
@@ -109,13 +110,13 @@ class Skater(models.Model):
 		self.games_played = Point.objects.filter(skater_id=self.pk).filter(date__range=(start_date, end_date)).count()
 
 	def __unicode__(self):
-		return '<a href="/skater/%s">%s</a>' % (self.nhl_id, self.first_name + " " + self.last_name)
+		return '<span id="skater-%s" nhl_id="%s" class="skaterPopUp"><a href="#">%s</a></span>' % (self.nhl_id, self.nhl_id, self.first_name + " " + self.last_name)
 
 	def get_draft_name(self):
 		return '<a href="/skater/%s">%s (%s)</a>' % (self.nhl_id, self.first_name + " " + self.last_name, self.get_position())
 
 	def get_name(self):
-		return '<a href="/skater/%s">%s</a>' % (self.nhl_id, self.first_name + " " + self.last_name)
+		return "%s %s" % (self.first_name, self.last_name)
 
 	def get_owner(self):
 		t = Team.objects.filter(skater_id=self.nhl_id)
@@ -133,6 +134,43 @@ class Skater(models.Model):
 
 		return ', '.join(positions)
 
+	def get_skater_category_data(self):
+		date = datetime.datetime.now()
+
+#Jan 1 + 305 days = ~ October 3. Good enough.
+
+		date = date - datetime.timedelta(days=305)
+		season = "%s%s" % (date.year, date.year + 1)
+		year = Year.objects.get(description=season)
+		p = Point.objects.filter(game__year=year, skater_id=self.nhl_id).values('skater_id').annotate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+
+		if len(p) == 1:
+			return {'categories': {
+					'fantasy_points': p[0]['fantasy_points'], 
+					'goals': p[0]['goals'], 
+					'assists': p[0]['assists'],
+					'plus_minus': p[0]['plus_minus'],
+					'specialty': p[0]['offensive_special'],
+					'true_grit': p[0]['true_grit'],
+					'goalie': p[0]['goalie'],
+					'shootout': p[0]['shootout']
+				},
+				'error': 0
+			}
+		else:
+                        return {'categories': {
+                                        'fantasy_points': 0,
+                                        'goals': 0,
+                                        'assists': 0,
+                                        'plus_minus': 0, 
+                                        'specialty': 0,
+                                        'true_grit': 0,
+                                        'goalie': 0,
+                                        'shootout': 0 
+                                },
+                                'error': -1
+                        }
+
 class Skater_Position(models.Model):
 	skater = models.ForeignKey(Skater)
 	position = models.ForeignKey(Position)
@@ -144,7 +182,10 @@ class Player(models.Model):
 	pool		= models.ForeignKey(Pool)
 
         def __unicode__(self):
-                return self.name
+                return '<span class="playerPopUp" id="player-%s" player_id="%s"><a href="#">%s</a></span>' % (self.id, self.id, self.name)
+
+	def get_player_popup_data(self):
+		return {}
 
 class Team(models.Model):
         skater          = models.ForeignKey(Skater)

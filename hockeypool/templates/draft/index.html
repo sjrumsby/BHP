@@ -24,7 +24,7 @@
                         <tr>
                         {% for x in statuses %}
                         <tr>
-                                <td>{{x.player}}</td><td>{% if x.status == 0 %}Not Ready{% else %}Ready{% endif %}</td>
+                                <td>{{x.player|safe}}</td><td>{% if x.status == 0 %}Not Ready{% else %}Ready{% endif %}</td>
                         </tr>
                         {%endfor%}
                 </table>

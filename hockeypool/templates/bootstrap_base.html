@@ -14,6 +14,7 @@
         <script src="/scripts/bootswatch.js"></script>
 	<script src="/scripts/sortable.js"></script>
 	<script src="/scripts/global.js"></script>
+	<script src="/scripts/hockeypool.js"></script>
 	<link media="screen" href="/styles/20152016.css" rel="stylesheet">
 	{% block page_js %} {% endblock %}
 	{% block page_css %} {% endblock %}
@@ -72,7 +73,7 @@
 									<li class="dropdown">
 										<a class="dropdown-toggle" data-toggle="dropdown" href="#">Teams<b class="caret"></b></a>
 										<ul class="dropdown-menu">
-										{% get_teams|safe %}
+										{% autoescape off %} {% get_teams %} {% endautoescape %}
 										</ul>
 									</li>
 									<li class="dropdown">

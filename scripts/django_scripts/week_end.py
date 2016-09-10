@@ -34,7 +34,7 @@ logger.info("Adding all new activations")
 a = Activation.objects.all()
 
 for x in a:
-	logger.info("Adding %s to %s, with position: %s" % (x.skater.get_name(), x.player.name, x.position))
+	logger.info("Adding %s to %s, with position: %s" % (x.skater, x.player.name, x.position))
 	new_at = Activated_Team.objects.create(skater = x.skater, player = x.player, week=Week.objects.filter(number=p.current_week.number+1).filter(year_id=p.current_year_id)[0], position=Position.objects.get(code=x.position))
 	new_at.save()
 

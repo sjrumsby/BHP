@@ -4,12 +4,13 @@ import django
 import sys
 import os
 
-if "/django/BHP" not in sys.path:
-        sys.path.append("/django/BHP")
+if "/var/www/django/bhp" not in sys.path:
+        sys.path.append("/var/www/django/bhp")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
+django.setup()
 
-from BHP import settings
+from bhp import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 

@@ -106,7 +106,7 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
+                                        <td>{{f.skater|safe}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
@@ -145,7 +145,7 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
+                                        <td>{{f.skater|safe}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.position}}</td>
@@ -195,7 +195,7 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
+                                        <td>{{f.skater|safe}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
@@ -242,7 +242,7 @@
                         </tr>
                         {% for f in free_agents %}
                                 <tr>
-                                        <td>{{f.skater.first_name}} {{f.skater.last_name}}</td>
+                                        <td>{{f.skater|safe}}</td>
                                         {% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                                         <td>{{f.skater.hockey_team}}</td>
                                         <td>{{f.skater.get_position}}</td>
@@ -277,7 +277,7 @@
         </tr>
         {% for p in free_agents %}
                 <tr>
-                        <td>{{p.skater.first_name}} {{f.skater.last_name}}</td>
+                        <td>{{p.skater|safe}}</td>
 			{% if only_freeagents == "1" %}<td>{{f.skater.get_owner}}</td>{% endif %}
                         <td>{{p.skater.hockey_team}}</td>
                         <td>{{p.skater.get_position}}</td>

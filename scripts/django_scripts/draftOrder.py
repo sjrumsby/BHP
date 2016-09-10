@@ -8,9 +8,11 @@ import logging
 from math import floor
 from random import random
 
-if "/django/BHP" not in sys.path:
-	sys.path.append("/django/BHP")
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "BHP.settings")
+if "/var/www/django.bhp" not in sys.path:
+	sys.path.append("/var/www/django/bhp")
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
+django.setup()
 
 from django.conf import settings
 from hockeypool.models import *
@@ -31,11 +33,15 @@ while(1):
 
 for x in draftOrder:
 	print x
-
+p = Pool.objects.get(pk=1)
+r = Draft_Round.objects.filter(year_id=p.current_year_id).order_by("number")[0]
+num = 1
 for i in range(0,19):
 	if i%2 == 0:
 		for x in draftOrder:
-			Draft_Pick.objects.create(player = players[int(x)], round_id=i+1)
+			Draft_Pick.objects.create(player = players[int(x)], round_id=i+r.id, number=num)
+			num += 1
 	else:
 		for x in reversed(draftOrder):
-			Draft_Pick.objects.create(player = players[int(x)], round_id=i+1)
+			Draft_Pick.objects.create(player = players[int(x)], round_id=i+r.id, number=num)
+			num += 1

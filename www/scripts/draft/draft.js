@@ -15,7 +15,7 @@ function getCookie(name) {
 }
 
 setInterval(function(){reduceTimer()},1000);
-setInterval(function(){pageUpdate()},10000);
+setInterval(function(){pageUpdate()},5000);
 
 function reduceTimer() {
 	curr_time = $('#time_remaining_text').html().match(/[-\d]+/)
@@ -32,12 +32,18 @@ function pageUpdate() {
 			var current_round_html = "The current round is: <b>" + data.current_round + "</b>";
 			var round_order_html = '<tr><th>Pick</th><th>Team</th><th>Player</th></tr>';
 			for(var i = 0; i < data.round_order.length; i++){
-				pick = i+1;
-				round_order_html += "<tr><td>" + pick + "</td><td>" + data.round_order[i].player + "</td><td>" + data.round_order[i].pick + "</td></tr>";
+				pick = 8*(data.current_round - 1) + i + 1;
+				round_order_html += "<tr><td>" + pick + "</td><td><span class='playerPopUp' id='player-" + data.round_order[i].id + "' player_id='" + data.round_order[i].id + "'><a href='#'>" + data.round_order[i].player + "</a></span></td>"
+				if (data.round_order[i].pick != "None") {
+					round_order_html += "<td><span class='skaterPopUp' id='skater-" + data.round_order[i].id + "' nhl_id='" + data.round_order[i].id + "'><a href='#'>" + data.round_order[i].pick + "</a></span></td>"
+				} else {
+					round_order_html += "<td>No pick yet</td>";
+				}
+				round_order_html += "</tr>";
 			}
 			var top_player_html = "";
 			for(var i = 0; i < data.top_picks.length; i++){
-				top_player_html += '<tr><td>' + data.top_picks[i]['position'] + "</td><td>" + data.top_picks[i]['name']  + '</td></tr>';
+				top_player_html += '<tr><td>' +  data.top_picks[i]['position']  + '</td><td><span id="skater-' + data.top_picks[i]['id'] + '" class="skaterPopUp" nhl_id="' + data.top_picks[i]['id'] + '"><a href="#">' + data.top_picks[i]['name'] + '</a></span></td></tr>';
 			}
 
 			var left_wing_html = "";
@@ -79,7 +85,9 @@ function pageUpdate() {
 			$("#goalie ol").html(goalie_html);
 
 			if (data.is_turn == 1) {
-				$('#draft_pick_button').html('<table><tr><td>Its your turn. Draft a player:  </td><td><form><input id="draft_pick" type="text" onkeyup="draft_player()" name="draft_pick" value=""><input id="draft_pick_id" type="hidden" name="draft_pick_id" value=""></form><div id="draft_suggestions"></div></td><td><button id="pick_player" onclick="select_player()">Pick!</button></td></tr></table>');
+				if ($("#draft_pick_button").find("table").length == 0) {
+					$('#draft_pick_button').html('<table><tr><td>Its your turn. Draft a player:  </td><td><form><input id="draft_pick" type="text" onkeyup="draft_player()" name="draft_pick" value=""><input id="draft_pick_id" type="hidden" name="draft_pick_id" value=""></form><div id="draft_suggestions"></div></td><td><button id="pick_player" onclick="select_player()">Pick!</button></td></tr></table>');
+				}
 			} else{
 				$("#draft_player_select").html('<p>It is not currently your turn</p><div id="time_remaining"><h1 id="time_remaining_text">Time remaining: 60</h1></div>');
 				$("#draft_suggestions").html("");
@@ -88,6 +96,17 @@ function pageUpdate() {
 			$("#current_round_p").html(current_round_html);
 			$("#draft_order_table").html(round_order_html);
 			$("#top_player_list").html(top_player_html);
+
+			$('.skaterPopUp').on('click', function(e) { 
+				e.preventDefault();
+				nhlID = $(this).attr("nhl_id")
+				loadSkaterPopUp(nhlID) 
+			});
+			$('.playerPopUp').on('click', function(e) { 
+				e.preventDefault();
+				playerID = $(this).attr("player_id")
+				loadPlayerPopUp(playerID) 
+			});
 		} else if (data.state == "ready") {
 			var status_html = '<tr><th>Team</th><th>Status</th></tr>';
 			for (var i = 0; i < data.player_status.length; i++) {

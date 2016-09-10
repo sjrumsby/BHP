@@ -31,7 +31,7 @@ def index(request):
                 draft_picks = Draft_Pick.objects.filter(round__year_id=p.current_year_id).order_by("id")
                 total_picks = len(draft_picks)
                 if null_count != 0:
-                        now = datetime.utcnow().replace(tzinfo=utc)
+                        now = datetime.datetime.utcnow().replace(tzinfo=utc)
 			if total_picks - null_count - 1 >= 0:
 				before = draft_picks[total_picks - null_count - 1].time
 			else:
@@ -84,7 +84,13 @@ def index(request):
                                 if x.round.id == current_round:
                                         order.append(x)
 
-			top_picks = Skater.objects.filter(nhl_id__in=Point.objects.filter(game__year_id=1).values('skater_id').annotate(fp=Sum('fantasy_points')).order_by("-fp")[0:10].values_list("skater_id", flat=True))
+			tops = Skater.objects.filter(nhl_id__in=Point.objects.filter(game__year_id=1).values('skater_id').annotate(fp=Sum('fantasy_points')).order_by("-fp")[0:10].values_list("skater_id", flat=True))
+			top_picks = []
+
+			for t in top_picks:
+				top_picks.append(t.__str__)
+
+			logger.info(top_picks)
 
                         over = 0
                         context = {'page_name' : "Draft", "current_round" : pick.round.number, "is_turn" : is_turn, "round_order" : order, "top_picks" : top_picks, "time_left" : time_left, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g, 'over' : over}
