@@ -90,7 +90,7 @@
                 <td>{{t.skater.skater|safe}}</td>
                 <td><select>{% for p in t.positions %} <option {% if t.position == p %} selected="selected" {% endif %}>{{ p }}</option> {% endfor %}{% if 'G' not in t.positions %}<option {% if t.position == 'B' %} selected="selected" {% endif %}>B</option>{% endif %}</select></td>
                 <td>{{t.skater.skater.hockey_team}}</td>
-                <td>{{t.skater.skater.games}}</td>
+                <td>{{t.skater.skater.games_played}}</td>
                 <td>{{t.category_points.fantasy_points|default_if_none:"0"}}</td>
                 <td>{{t.category_points.goals|default_if_none:"0"}}</td>
                 <td>{{t.category_points.assists|default_if_none:"0"}}</td>

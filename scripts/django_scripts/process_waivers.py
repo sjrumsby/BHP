@@ -17,7 +17,6 @@ from waivers.models import *
 import logging
 logger = logging.getLogger(__name__)
 
-print "Pancakes"
 logger.info("Process waivers")
 waivers = Waiver.objects.all()
 

@@ -25,11 +25,11 @@
 					  </thead>
 					  <tbody>
 					    <tr>
-					      <td style="padding:2px;">{{m.match.home_player}}</td>
+					      <td style="padding:2px;">{{m.match.home_player|safe}}</td>
 					      <td style="padding:2px;">{{m.home.score}}</td>
 					    </tr>
                                             <tr>
-                                              <td style="padding:2px;">{{m.match.away_player}}</td>
+                                              <td style="padding:2px;">{{m.match.away_player|safe}}</td>
                                               <td style="padding:2px;">{{m.away.score}}</td>
                                             </tr>
 					  </tbody>

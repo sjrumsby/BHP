@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 Team.objects.all().delete()
 
-drafts = Draft_Pick.objects.filter(round__year_id=2)
+drafts = Draft_Pick.objects.filter(round__year_id=6)
 
 for x in drafts:
 	t = Team.objects.create(player=x.player, skater=x.pick)

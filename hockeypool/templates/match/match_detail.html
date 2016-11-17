@@ -4,7 +4,7 @@
 <div class="container">
         <div class="match container col-lg-12">
 		<div class="col-lg-7">
-		<h2><b>{{ match.match.home_player }} vs. {{ match.match.away_player }}</b></h2>
+		<h2><b>{{ match.match.home_player|safe }} vs. {{ match.match.away_player|safe }}</b></h2>
 			<table class="sortable  table table-striped table-hover" id="match_outline_table" name="match_outline_table">
 				<tr>
 					<th>Name</th>
@@ -20,7 +20,7 @@
 					<th>In Action</th>
 				</tr>
 				<tr>
-					<td>{{match.match.home_player}}</td>
+					<td>{{match.match.home_player|safe}}</td>
 					<td>{{match.home.category_points.fantasy_points|default_if_none:"0"}}</td>
 					<td>{{match.home.category_points.goals|default_if_none:"0"}}</td>
 					<td>{{match.home.category_points.assists|default_if_none:"0"}}</td>
@@ -33,7 +33,7 @@
 					<td>{{match.home.in_action}}</td>
 				</tr>
 				<tr>
-					<td>{{match.match.away_player}}</td>
+					<td>{{match.match.away_player|safe}}</td>
 					<td>{{match.away.category_points.fantasy_points|default_if_none:"0"}}</td>
 					<td>{{match.away.category_points.goals|default_if_none:"0"}}</td>
 					<td>{{match.away.category_points.assists|default_if_none:"0"}}</td>
@@ -126,13 +126,13 @@
 					{% for x in match.home.daily_action %}<th>Day {{forloop.counter}}</th>{% endfor %}
 				</tr>
 				<tr>
-					<td>{{match.match.home_player}}</td>
+					<td>{{match.match.home_player|safe}}</td>
 					{% for x in match.home.daily_action %}
 						<td>{{x}}</td>
 					{% endfor %}
 				</tr>
 				<tr>
-					<td>{{match.match.away_player}}</td>
+					<td>{{match.match.away_player|safe}}</td>
 					{% for x in match.away.daily_action %}
 						<td>{{x}}</td>
 					{% endfor %}
@@ -155,7 +155,7 @@
 						<th>Score</th>
 					</tr>
 					<tr>
-						<td>{{match.match.home_player}}</td>
+						<td>{{match.match.home_player|safe}}</td>
 						<td>{{match.home.expected.category_points.fantasy_points|default_if_none:"0"}}</td>
 						<td>{{match.home.expected.category_points.goals|default_if_none:"0"}}</td>
 						<td>{{match.home.expected.category_points.assists|default_if_none:"0"}}</td>
@@ -167,7 +167,7 @@
 						<td>{{match.home.expected.score}}</td>
 					</tr>
 					<tr>
-						<td>{{match.match.away_player}}</td>
+						<td>{{match.match.away_player|safe}}</td>
 						<td>{{match.away.expected.category_points.fantasy_points|default_if_none:"0"}}</td>
 						<td>{{match.away.expected.category_points.goals|default_if_none:"0"}}</td>
 						<td>{{match.away.expected.category_points.assists|default_if_none:"0"}}</td>

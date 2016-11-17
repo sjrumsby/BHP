@@ -15,7 +15,7 @@ function getCookie(name) {
 }
 
 setInterval(function(){reduceTimer()},1000);
-setInterval(function(){pageUpdate()},5000);
+setInterval(function(){pageUpdate()},10000);
 
 function reduceTimer() {
 	curr_time = $('#time_remaining_text').html().match(/[-\d]+/)
@@ -26,7 +26,7 @@ function reduceTimer() {
 }
 
 function pageUpdate() {
-	$.post("/ajax/draftUpdate",{'undrafted_sort' : $('#undrafted_sort_by').val(), 'csrfmiddlewaretoken' : getCookie('csrftoken')},function(data, textStatus, jqXHR){
+	$.post("/ajax/draftUpdate",{'undrafted_sort' : $('#undrafted_sort_by').val(), 'undrafted_position': $('#undrafted_position').val(), 'csrfmiddlewaretoken' : getCookie('csrftoken')},function(data, textStatus, jqXHR){
 		if (data.state == "draft") {
 			var time_html = "Time remaining: " + data.time_left;
 			var current_round_html = "The current round is: <b>" + data.current_round + "</b>";

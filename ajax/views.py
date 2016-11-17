@@ -37,6 +37,8 @@ def getPlayerPopup(request, playerID):
 	c = p.get_player_popup_data()
 	pool = Pool.objects.get(pk=1)
 
+	picks = Draft_Pick.objects.filter(player=p).filter(pick__isnull=False).order_by("-time")[0:5]
+
 	matches = Match.objects.select_related().filter(Q(home_player_id=p.id)|Q(away_player_id=p.id)).filter(week__number__gt=pool.current_week.number)
 
 	response_data = {
@@ -57,8 +59,12 @@ def getPlayerPopup(request, playerID):
 				}
 			}
 		},
-		'upcoming_weeks': []
+		'upcoming_weeks': [],
+		'picks': []
 	}
+
+	for p in picks:
+		response_data['picks'].append({"name": p.pick.full_name})
 
 	for m in matches[:3]:
 		tmpMatch = {}
@@ -160,8 +166,6 @@ def draftUpdate(request):
                                 draft_swap = Draft_Swap.objects.filter(pick = draft_picks[total_picks - null_count]).order_by("-id")[0]
                                 before = draft_swap.time
                         else:
-				logger.info(total_picks)
-				logger.info(null_count)
 				if total_picks - null_count - 1 >= 0:
 					before = draft_picks[total_picks - null_count - 1].time
 				else:
@@ -210,25 +214,32 @@ def draftUpdate(request):
 			except MultiValueDictKeyError :
 				undrafted_sort = "fantasy_points"
 
+			try:
+				undrafted_position = request.POST["undrafted_position"]
+			except MultiValueDictKeyError :
+				undrafted_position = "C"
+
 			if undrafted_sort == "goals":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goals=Sum('goals')).order_by("-goals")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goals=Sum('goals')).order_by("-goals")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "assists":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(assists=Sum('assists')).order_by("-assists")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(assists=Sum('assists')).order_by("-assists")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "plus_minus":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(plus_minus=Sum('plus_minus')).order_by("-plus_minus")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(plus_minus=Sum('plus_minus')).order_by("-plus_minus")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "offensive_special":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(offensive_special=Sum('offensive_special')).order_by("-offensive_special")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(offensive_special=Sum('offensive_special')).order_by("-offensive_special")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "true_grit":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(true_grit=Sum('true_grit_special')).order_by("-true_grit")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(true_grit=Sum('true_grit_special')).order_by("-true_grit")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "goalie":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(goalie=Sum('goalie')).order_by("-goalie")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(goalie=Sum('goalie')).order_by("-goalie")[0:100].values_list("skater_id", flat=True))
 			elif undrafted_sort == "shootout":
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).exclude(skater_id__in=Skater_Position.objects.filter(position_id=Position.objects.get(code="G")).values_list("skater_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(shootout=Sum('shootout')).order_by("-shootout")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).exclude(skater_id__in=Skater_Position.objects.filter(position_id=Position.objects.get(code="G")).values_list("skater_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(shootout=Sum('shootout')).order_by("-shootout")[0:100].values_list("skater_id", flat=True))
 			else:
-				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=1).values('skater_id').annotate(fantasy_points=Sum('fantasy_points')).order_by("-fantasy_points")[0:10].values_list("skater_id", flat=True))
+				top_picks_array = Skater.objects.filter(nhl_id__in=Point.objects.exclude(skater_id__in=Draft_Pick.objects.filter(round__year_id=p.current_year_id).filter(pick__isnull=False).values_list("pick_id", flat=True)).filter(game__year_id=2).values('skater_id').annotate(fantasy_points=Sum('fantasy_points')).order_by("-fantasy_points")[0:100].values_list("skater_id", flat=True))
 
                         for x in top_picks_array:
-                                top_picks.append({"name" : x.full_name, "position" : x.get_position(), "id" : x.nhl_id})
+				if len(top_picks) <= 8:
+					if undrafted_position in x.get_position():
+						top_picks.append({"name" : x.full_name, "position" : x.get_position(), "id" : x.nhl_id})
 
                         if null_picks[0].player.id == request.user.id:
                                 is_turn = 1
@@ -236,7 +247,6 @@ def draftUpdate(request):
                                 is_turn = 0
 
                         response_data = {'state' : state, 'time_left' : time_left, 'current_round' : current_round, 'round_order' : round_picks, 'current_pick' : null_picks[0].get_pick(), "top_picks" : top_picks, "is_turn" : is_turn, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g }
-			logger.info(response_data)
                 else:
                         response_data = {'state' : 'finished'}
         else:

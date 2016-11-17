@@ -243,7 +243,7 @@ class nhl_game():
                     if p['player']['id'] not in self.awayTeamSkaters:
                         drawn_by = p['player']['id']
 
-        if play['result']['description'].find("Fighting (maj)") != -1:
+        if play['result']['secondaryType'] == "Fighting":
             fight = True
         else:
             fight = False
@@ -357,8 +357,21 @@ class nhl_game():
 
         if not boxData['liveData']['linescore']['hasShootout']:
             try:
-                winningGoalPlay = boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['scoringPlays'][-1]]
+                for x in boxData['liveData']['plays']['scoringPlays']:
+                    if boxData['liveData']['plays']['allPlays'][x]['team']['id'] == self.homeTeamID:
+                        homeGoalCount += 1
+                    else:
+                        awayGoalCount += 1
+                    if self.homeScore > self.awayScore and homeGoalCount == (self.awayScore + 1):
+                        winningGoalPlay = boxData['liveData']['plays']['allPlays'][x]
+                        break
+
+                    if self.awayScore > self.homeScore and awayGoalCount == (self.homeScore + 1):
+                        winningGoalPlay = boxData['liveData']['plays']['allPlays'][x]
+                        break
+
                 for player in winningGoalPlay['players']:
+                    print player
                     try:
                         if player['playerType'] == 'Scorer':
                             self.homeTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
@@ -373,15 +386,15 @@ class nhl_game():
                 pass
         else:
             try:
-                    winnerGoalie = boxData['liveData']['decisions']['winner']['id']
+                winnerGoalie = boxData['liveData']['decisions']['winner']['id']
             except:
                 winnerGoalie = ''
             try:
-                    loserGoalie = boxData['liveData']['decisions']['loser']['id']
+                loserGoalie = boxData['liveData']['decisions']['loser']['id']
             except:
                 loserGoalie = ''
             for x in boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['playsByPeriod'][-1]['startIndex']::]:
-                if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END']:
+                if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END', 'STOP']:
                     if x['result']['eventTypeId'] == 'GOAL':
                         for p in x['players']:
                             if p['playerType'] == 'Shooter':
@@ -555,7 +568,6 @@ class nhl_game():
                                 if playData['fight']:
                                     self.awayTeamSkaters[playData['player']]['fights'] += 1
 
-
         except Exception as e:
                     import traceback
                     print "%s: %s" % (self.gameID, x)   
@@ -563,3 +575,6 @@ class nhl_game():
                     print "\n"
                     print traceback.print_tb(sys.exc_info()[2])
                     print "\n"
+        if 8467950 in self.awayTeamSkaters:
+		print self.awayTeamSkaters[8467950]['wins']
+		print self.awayTeamSkaters[8467950]['shutouts']

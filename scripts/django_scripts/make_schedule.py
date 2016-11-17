@@ -3,7 +3,7 @@
 import django
 import os
 import sys
-import HTMLParser, urllib2, re, time
+import HTMLParser, urllib2, re, time, json
 import logging
 
 if "/var/www/django.bhp" not in sys.path:
@@ -14,10 +14,6 @@ django.setup()
 
 from django.conf import settings
 from hockeypool.models import *
-
-f = open('201617.csv', 'r')
-
-lines = f.readlines()
 
 teams = {
 		"Anaheim Ducks": "Anaheim",
@@ -51,33 +47,27 @@ teams = {
 		"Washington Capitals":"Washington",
 		"Winnipeg Jets": "Winnipeg"
 	}
+p = Pool.objects.get(pk=1)
+weeks = Week.objects.filter(year_id=p.current_year_id).filter(number__gt=0)
 
-months = {
-		"Oct": "10",
-		"Nov": "11",
-		"Dec": "12",
-		"Jan": "01",
-		"Feb": "02",
-		"Mar": "03",
-		"Apr": "04",
-	}
+week_dates = Week_Date.objects.filter(week_id__in=weeks.values_list('id', flat=True))
 
-c = 2016020001
+for w in week_dates:
+	uri = "http://statsapi.web.nhl.com/api/v1/schedule?startDate=%s&endDate=%s" % (w.date, w.date)
+	response = urllib2.urlopen(uri)
+	data = response.read()
+	jsonData = json.loads(data)
+	if len(jsonData["dates"]) == 0:
+		continue
+	for g in jsonData["dates"][0]["games"]:
+		
+		awayTeam = Hockey_Team.objects.get(name=g["teams"]["away"]["team"]["triCode"])
+		homeTeam = Hockey_Team.objects.get(name=g["teams"]["home"]["team"]["triCode"])
+		print "%s (%s @ %s)" % (g["gamePk"], awayTeam, homeTeam)
+		g = Game.objects.filter(nhl_game_id=g["gamePk"])
+		if len(g) == 0:
+			Game.objects.create(date=w.date, home_team=homeTeam, away_team=awayTeam, nhl_game_id=g["gamePk"], year_id=p.current_year_id, time="00:00:00")
 
-for x in lines:
-	y = x.replace("\r", "").replace("\n","")
-	y = y.replace("New York", "NY")
-	y = y.replace("St.Louis", "St. Louis")
-	y = y.split(",")
-	print y
-	a1 = teams[y[1]]
-	a2 = teams[y[2]]
-	
-	h = Hockey_Team.objects.get(full_name=a1)
-	a = Hockey_Team.objects.get(full_name=a2)
 
-	d = y[0].split("-")
-	d = d[-1] + "-" + months[d[1]] + "-" + d[0]
 
-	g = Game.objects.create(date=d, home_team=h, away_team=a, time="00:00:00", nhl_game_id=c, year_id=6)
-	c += 1
+

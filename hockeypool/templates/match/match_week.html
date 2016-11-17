@@ -55,7 +55,7 @@
                                         <th>In Action</th>
                                 </tr>
                                 <tr>
-                                        <td>{{m.match.home_player}}</td>
+                                        <td>{{m.match.home_player|safe}}</td>
                                         <td>{{m.home.category_points.fantasy_points|default_if_none:"0"}}</td>
                                         <td>{{m.home.category_points.goals|default_if_none:"0"}}</td>
                                         <td>{{m.home.category_points.assists|default_if_none:"0"}}</td>
@@ -68,7 +68,7 @@
                                         <td>{{m.home.in_action}}</td>
                                 </tr>
                                 <tr>
-                                        <td>{{m.match.away_player}}</td>
+                                        <td>{{m.match.away_player|safe}}</td>
                                         <td>{{m.away.category_points.fantasy_points|default_if_none:"0"}}</td>
                                         <td>{{m.away.category_points.goals|default_if_none:"0"}}</td>
                                         <td>{{m.away.category_points.assists|default_if_none:"0"}}</td>

@@ -14,7 +14,6 @@ if "/var/www/django/bhp" not in sys.path:
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
 django.setup()
 
-import vars
 from parsers import *
 from hockeypool.models import *
 from match.models import *
@@ -167,6 +166,9 @@ def weekly_update(week_id=None):
                 try:
                     parse_game(g)
                 except:
+                    import sys, traceback
+                    traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+                    traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
                     logger.error("Error parsing game: %s" % g.nhl_game_id)
     else:
         try:

@@ -91,7 +91,6 @@ def freeagents_index(request):
         only_freeagents = "0"
         view_type = "1"
         weeks = "0"
-	season = 2
 
         if request.method == 'POST':
                 position = request.POST.get('position')
@@ -106,7 +105,7 @@ def freeagents_index(request):
 	current_week = pool.current_week.id
 	free_agents = []
 
-	cat_points = Point.objects.filter(game__year_id=season)
+	cat_points = Point.objects.filter(game__year_id=pool.current_year_id)
 
 	if only_freeagents == "0":
 		cat_points = cat_points.exclude(skater_id__in=Team.objects.all().values_list('skater_id', flat=True))
@@ -141,7 +140,7 @@ def freeagents_index(request):
 		tmp_dict['skater'] = Skater.objects.get(nhl_id=x['skater_id'])
 		free_agents.append(tmp_dict)
 
-        context = {'page_name' : 'Free Agents', 'free_agents' : free_agents, 'position' : position, 'sortby' : sortby, 'sortnumber' : sortnumber, 'only_freeagents' : only_freeagents, 'view_type' : view_type, 'weeks' : weeks, 'season' : season}
+        context = {'page_name' : 'Free Agents', 'free_agents' : free_agents, 'position' : position, 'sortby' : sortby, 'sortnumber' : sortnumber, 'only_freeagents' : only_freeagents, 'view_type' : view_type, 'weeks' : weeks, 'season' : pool.current_year_id}
 
         return render(request, 'hockeypool/freeagents.html', context)
 
@@ -364,10 +363,11 @@ def team_index(request):
 def team_detail(request, team_id):
         team = Team.objects.filter(player_id=team_id)
         player = Player.objects.filter(id=team_id)[0]
+	pool = Pool.objects.get(pk=1)
         team_data = []
         for t in team:
                 skater_data = {'skater' : t.skater}
-                skater_data['category_points'] = Point.objects.filter(game__year_id=2).filter(skater = t.skater).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
+                skater_data['category_points'] = Point.objects.filter(game__year_id=pool.current_year_id).filter(skater = t.skater).aggregate(fantasy_points=Sum('fantasy_points'), goals=Sum('goals'), assists=Sum('assists'), shootout=Sum('shootout'), plus_minus=Sum('plus_minus'), offensive_special=Sum('offensive_special'), true_grit=Sum('true_grit_special'), goalie=Sum('goalie'))
 		if skater_data['category_points']['goals'] is not None:
 			skater_data['category_points']['fantasy_points'] = skater_data['category_points']['goals'] + skater_data['category_points']['assists'] + skater_data['category_points']['plus_minus'] + skater_data['category_points']['offensive_special'] + skater_data['category_points']['true_grit'] + skater_data['category_points']['goalie']
                 team_data.append(skater_data)	

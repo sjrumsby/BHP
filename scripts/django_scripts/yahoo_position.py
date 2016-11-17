@@ -56,7 +56,10 @@ for i in range(0,6):
 		players.append([x[5], x[7].split(" - ")[-1]])
 
 #Use nhl.com position code as fallback
-url = "http://www.nhl.com/stats/rest/grouped/skaters/season/skatersummary?cayenneExp=seasonId=20152016%20and%20gameTypeId=2"
+p = Pool.objects.get(pk=1)
+y = Year.objects.get(pk=p.current_year_id)
+
+url = "http://www.nhl.com/stats/rest/grouped/skaters/season/skatersummary?cayenneExp=seasonId=" + y.description + "%20and%20gameTypeId=2"
 req = urlopen(url)
 data = json.loads(req.read())["data"]
 
