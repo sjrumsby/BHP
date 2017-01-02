@@ -90,23 +90,28 @@ def index(request):
 			for t in top_picks:
 				top_picks.append(t.__str__)
 
-			logger.info(top_picks)
-
                         over = 0
                         context = {'page_name' : "Draft", "current_round" : pick.round.number, "is_turn" : is_turn, "round_order" : order, "top_picks" : top_picks, "time_left" : time_left, "lw" : lw, "c" : c, "rw" : rw, "ld" : ld, "rd" : rd, "g" : g, 'over' : over}
                 else:
                         over = 1
                         context = {'page_name' : "Draft", 'over' : over}
+		logger.info("testing")
                 return render(request, 'draft/index.html', context)
 
 @login_required
 def draft_round(request, draft_round):
-        num_picks = Draft_Pick.objects.filter(round__year_id=2).count()
+	p = Pool.objects.get(id=1)
+	try: 
+		year_id = request.GET["year_id"]
+	except KeyError:
+		year_id = p.current_year_id
+
+	num_picks = Draft_Pick.objects.filter(round__year_id=year_id).count()
         if num_picks <= 0:
                 context = {'page_name' : "Draft Round", 'round' : draft_round, "errors" : 1, "message" : "The draft has not yet started... you cannot yet view this page"}
-                return render(request, 'hockeypool/draft_round.html', context)
+                return render(request, 'draft/draft_round.html', context)
         else:
-                picks = Draft_Pick.objects.filter(number__in=[8*(int(draft_round) - 1) + i for i in range(1,9)]).filter(round__year_id=2).order_by("id")
+                picks = Draft_Pick.objects.filter(number__in=[8*(int(draft_round) - 1) + i for i in range(1,9)]).filter(round__year_id=year_id).order_by("id")
                 pick_order = []
                 for x in picks:
                         pick_order.append({"manager" : x.player, "skater" : x.pick})
