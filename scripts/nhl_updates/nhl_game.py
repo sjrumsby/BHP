@@ -371,7 +371,6 @@ class nhl_game():
                         break
 
                 for player in winningGoalPlay['players']:
-                    print player
                     try:
                         if player['playerType'] == 'Scorer':
                             self.homeTeamSkaters[player['player']['id']]['gamewinninggoals'] += 1
@@ -394,7 +393,7 @@ class nhl_game():
             except:
                 loserGoalie = ''
             for x in boxData['liveData']['plays']['allPlays'][boxData['liveData']['plays']['playsByPeriod'][-1]['startIndex']::]:
-                if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END', 'STOP']:
+                if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END', 'STOP', 'GAME_OFFICIAL']:
                     if x['result']['eventTypeId'] == 'GOAL':
                         for p in x['players']:
                             if p['playerType'] == 'Shooter':
@@ -553,20 +552,39 @@ class nhl_game():
                     elif x['result']['eventTypeId'] == 'PENALTY':
                         playData = self.processPenalty(x)
                         if playData['player'] != "Team":
+                            print x['players']
                             if playData['team'] == self.homeTeamID:
                                 if playData['player']:
-                                    self.homeTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    try:
+                                        self.homeTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
                                 if playData['drawn_by']:
-                                    self.awayTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    try:
+                                        self.awayTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
                                 if playData['fight']:
-                                    self.homeTeamSkaters[playData['player']]['fights'] += 1
-                            else:
+                                    try:
+                                        self.homeTeamSkaters[playData['player']]['fights'] += 1
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
+                            elif playData['team'] == self.awayTeamID:
                                 if playData['player']:
-                                    self.awayTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    try:
+                                        self.awayTeamSkaters[playData['player']]['pims'] += int(playData['minutes'])
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
                                 if playData['drawn_by']:
-                                    self.homeTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    try:
+                                        self.homeTeamSkaters[playData['drawn_by']]['pimsdrawn'] += int(playData['minutes'])
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
                                 if playData['fight']:
-                                    self.awayTeamSkaters[playData['player']]['fights'] += 1
+                                    try:
+                                        self.awayTeamSkaters[playData['player']]['fights'] += 1
+                                    except KeyError:
+                                        logger.error("Invalid skater ID found for play: %s" % str(x))
 
         except Exception as e:
                     import traceback
@@ -575,6 +593,4 @@ class nhl_game():
                     print "\n"
                     print traceback.print_tb(sys.exc_info()[2])
                     print "\n"
-        if 8467950 in self.awayTeamSkaters:
-		print self.awayTeamSkaters[8467950]['wins']
-		print self.awayTeamSkaters[8467950]['shutouts']
+                    logger.crit("Error processing nhl_game_id: %s. Play data: %s" % (self.gameID, str(x)))
