@@ -24,7 +24,7 @@
         </tr>
 {% for p in p_data %}
         <tr>
-                <td>{{p.name}}</td>
+                <td>{% if p.clinch %}({{p.clinch}}){% endif %} {{p.name}}</td>
                 <td>{{p.conference}}</td>
                 <td>{{p.wins|default_if_none:"0"}}</td>
                 <td>{{p.loss|default_if_none:"0"}}</td>
@@ -44,15 +44,25 @@
         </tr>
 {% endfor %}
 </table>
-<p>Tie Break Procedure (not yet finalized):
-<ol>
-        <li>Greater number of weekly wins</li>
-        <li>Greater number of total category wins</li>
-        <li>Head to head record</li>
-        <li>Total fantasy points</li>
-        <li>Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
-</ol>
-</p>
+<div class="col-lg-6">
+    <p>Tie Break Procedure (not yet finalized):
+    <ol>
+            <li>Greater number of weekly wins</li>
+            <li>Greater number of total category wins</li>
+            <li>Head to head record</li>
+            <li>Total fantasy points</li>
+            <li>Greatest number of goals, assist, points, plus minus... in order til a winner is found</li>
+    </ol>
+    </p>
+</div>
+<div class="col-lg-6">
+<p>Notations:</p>
+<ul>
+    <li>x: Clinch a playoff spot</li>
+    <li>y: Clinched first round playoff bye</li>
+    <li>z: Clinched regular season championships</li>
+</ul>
+</div>
 </div>
 {% endblock %}
 

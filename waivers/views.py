@@ -75,6 +75,7 @@ def waiver_add(request):
 	error = 0
         if request.method == "POST":
                 p = Player.objects.get(id = request.user.id)
+                logger.info("%s is trying to claim %s (%s) off of waivers" % (p.name, request.POST.get("waiver_add_id"), request.POST.get('waiver_add')))
                 nhl_id = request.POST.get("waiver_add_id")
 
 		if not nhl_id.isnumeric():
@@ -82,9 +83,16 @@ def waiver_add(request):
 			if Skater.objects.filter(full_name=name).count() == 1:
 				s = Skater.objects.get(full_name=name)
 				nhl_id = s.nhl_id
+				logger.info("Found player nhl_id: %s from name: %s" % (nhl_id, name))
 			else:
-			 	error = 1
-				error_msg = "No player found with name: %s" % name
+				if Skater.objects.filter(full_name__iexact=name).count() == 1:
+					s = Skater.objects.get(full_name__iexact=name)
+					nhl_id = s.nhl_id
+					logger.info("Found player nhl_id: %s from name: %s" % (nhl_id, name))
+				else:
+					error = 1
+					error_msg = "No player found with name: %s" % name
+					logger.info("No player found with name: %s" % name)
 
 		if error != 1:
 			if Skater.objects.filter(nhl_id = nhl_id).exists():

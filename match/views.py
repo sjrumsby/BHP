@@ -192,93 +192,84 @@ def match_detail(request, match_id):
                         tmp_dict['num_games'] = Game.objects.filter(date__in=Week_Date.objects.filter(week=match.week).values_list('date', flat="True")).filter(Q(home_team=h.skater.hockey_team)|Q(away_team=h.skater.hockey_team)).count()
                         m_info['away']['team'].append(tmp_dict)
 
-#                home_expect = Team_Point.objects.filter(player=match.home_player).values('game_id').annotate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'), shootout=Sum('point__shootout'))
-#                away_expect = Team_Point.objects.filter(player=match.away_player).values('game_id').annotate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'), shootout=Sum('point__shootout'))
-#
-#                pool = Pool.objects.get(pk=1)
-#                week = pool.current_week.number
-#                start_week = max(0, week-3)
-#                end_week = min(week, match.week.number)
-#                week_length = end_week - start_week
-#                nums = range(0, end_week)
-#
-#                for i in nums[start_week-1:end_week-1]:
-#                        if i < len(home_expect):
-#                                m_info['home']['expected']['category_points']['fantasy_points'] += home_expect[i]['fantasy_points']
-#                                m_info['home']['expected']['category_points']['goals'] += home_expect[i]['goals']
-#                                m_info['home']['expected']['category_points']['assists'] += home_expect[i]['assists']
-#                                m_info['home']['expected']['category_points']['plus_minus'] += home_expect[i]['plus_minus']
-#                                m_info['home']['expected']['category_points']['offensive_special'] += home_expect[i]['offensive_special']
-#                                m_info['home']['expected']['category_points']['true_grit'] += home_expect[i]['true_grit']
-#                                m_info['home']['expected']['category_points']['goalie'] += home_expect[i]['goalie']
-#                                m_info['home']['expected']['category_points']['shootout'] += home_expect[i]['shootout']
-#                                m_info['away']['expected']['category_points']['fantasy_points'] += away_expect[i]['fantasy_points']
-#                                m_info['away']['expected']['category_points']['goals'] += away_expect[i]['goals']
-#                                m_info['away']['expected']['category_points']['assists'] += away_expect[i]['assists']
-#                                m_info['away']['expected']['category_points']['plus_minus'] += away_expect[i]['plus_minus']
-#                                m_info['away']['expected']['category_points']['offensive_special'] += away_expect[i]['offensive_special']
-#                                m_info['away']['expected']['category_points']['true_grit'] += away_expect[i]['true_grit']
-#                                m_info['away']['expected']['category_points']['goalie'] += away_expect[i]['goalie']
-#                                m_info['away']['expected']['category_points']['shootout'] += away_expect[i]['shootout']
-#
-#                m_info['home']['expected']['category_points']['fantasy_points'] /= week_length
-#                m_info['home']['expected']['category_points']['goals'] /= week_length
-#                m_info['home']['expected']['category_points']['assists'] /=week_length
-#                m_info['home']['expected']['category_points']['plus_minus'] /= week_length
-#                m_info['home']['expected']['category_points']['offensive_special'] /= week_length
-#                m_info['home']['expected']['category_points']['true_grit'] /= week_length
-#                m_info['home']['expected']['category_points']['goalie'] /= week_length
-#                m_info['home']['expected']['category_points']['shootout'] /= week_length
-#                m_info['away']['expected']['category_points']['fantasy_points'] /= week_length
-#                m_info['away']['expected']['category_points']['goals'] /= week_length
-#                m_info['away']['expected']['category_points']['assists'] /= week_length
-#                m_info['away']['expected']['category_points']['plus_minus'] /= week_length
-#                m_info['away']['expected']['category_points']['offensive_special'] /= week_length
-#                m_info['away']['expected']['category_points']['true_grit'] /= week_length
-#                m_info['away']['expected']['category_points']['goalie'] /= week_length
-#                m_info['away']['expected']['category_points']['shootout'] /= week_length
-#
-#                if m_info['home']['expected']['category_points']['fantasy_points'] > m_info['away']['expected']['category_points']['fantasy_points']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 2
-#                elif m_info['home']['expected']['category_points']['fantasy_points'] <  m_info['away']['expected']['category_points']['fantasy_points']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 2
-#
-#                if m_info['home']['expected']['category_points']['goals'] > m_info['away']['expected']['category_points']['goals']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['goals'] <  m_info['away']['expected']['category_points']['goals']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['category_points']['assists'] > m_info['away']['expected']['category_points']['assists']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['assists'] <  m_info['away']['expected']['category_points']['assists']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['category_points']['plus_minus'] > m_info['away']['expected']['category_points']['plus_minus']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['plus_minus'] <  m_info['away']['expected']['category_points']['plus_minus']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['category_points']['offensive_special'] > m_info['away']['expected']['category_points']['offensive_special']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['offensive_special'] <  m_info['away']['expected']['category_points']['offensive_special']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['category_points']['true_grit'] > m_info['away']['expected']['category_points']['true_grit']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['true_grit'] <  m_info['away']['expected']['category_points']['true_grit']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['category_points']['goalie'] > m_info['away']['expected']['category_points']['goalie']:
-#                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                elif m_info['home']['expected']['category_points']['goalie'] <  m_info['away']['expected']['category_points']['goalie']:
-#                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
-#                if m_info['home']['expected']['score'] == m_info['away']['expected']['score']:
-#                        if m_info['home']['expected']['category_points']['shootout'] > m_info['away']['expected']['category_points']['shootout']:
-#                                m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
-#                        elif m_info['home']['expected']['category_points']['shootout'] <  m_info['away']['expected']['category_points']['shootout']:
-#                                m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
-#
+#                home_expect = Team_Point.objects.filter(player=match.home_player).values('point__game_id').annotate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'), shootout=Sum('point__shootout'))
+#                away_expect = Team_Point.objects.filter(player=match.away_player).values('point__game_id').annotate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'), shootout=Sum('point__shootout'))
+
+                pool = Pool.objects.get(pk=1)
+                week = pool.current_week.number
+                start_week = max(0, week-3)
+                end_week = min(week, match.week.number)
+                week_length = end_week - start_week
+                nums = range(0, end_week)
+
+		logger.info(Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True))
+
+                home_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=home_team_ids).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                away_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=away_team_ids).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+
+		home_expect['fantasy_points'] /= week_length
+		home_expect['goals'] /= week_length
+		home_expect['assists'] /= week_length
+		home_expect['plus_minus'] /= week_length
+		home_expect['offensive_special'] /= week_length
+		home_expect['true_grit'] /= week_length
+		home_expect['goalie'] /= week_length
+		home_expect['shootout'] /= week_length
+		away_expect['fantasy_points'] /= week_length
+		away_expect['goals'] /= week_length
+		away_expect['assists'] /= week_length
+		away_expect['plus_minus'] /= week_length
+		away_expect['offensive_special'] /= week_length
+		away_expect['true_grit'] /= week_length
+		away_expect['goalie'] /= week_length
+		away_expect['shootout'] /= week_length
+
+		m_info['home']['expected'] = {'category_points': home_expect}
+		m_info['home']['expected']['score'] = 0
+		m_info['away']['expected'] = {'category_points': away_expect}
+		m_info['away']['expected']['score'] = 0
+
+                if m_info['home']['expected']['category_points']['fantasy_points'] > m_info['away']['expected']['category_points']['fantasy_points']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 2
+                elif m_info['home']['expected']['category_points']['fantasy_points'] <  m_info['away']['expected']['category_points']['fantasy_points']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 2
+
+                if m_info['home']['expected']['category_points']['goals'] > m_info['away']['expected']['category_points']['goals']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['goals'] <  m_info['away']['expected']['category_points']['goals']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['category_points']['assists'] > m_info['away']['expected']['category_points']['assists']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['assists'] <  m_info['away']['expected']['category_points']['assists']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['category_points']['plus_minus'] > m_info['away']['expected']['category_points']['plus_minus']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['plus_minus'] <  m_info['away']['expected']['category_points']['plus_minus']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['category_points']['offensive_special'] > m_info['away']['expected']['category_points']['offensive_special']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['offensive_special'] <  m_info['away']['expected']['category_points']['offensive_special']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['category_points']['true_grit'] > m_info['away']['expected']['category_points']['true_grit']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['true_grit'] <  m_info['away']['expected']['category_points']['true_grit']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['category_points']['goalie'] > m_info['away']['expected']['category_points']['goalie']:
+                        m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                elif m_info['home']['expected']['category_points']['goalie'] <  m_info['away']['expected']['category_points']['goalie']:
+                        m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
+                if m_info['home']['expected']['score'] == m_info['away']['expected']['score']:
+                        if m_info['home']['expected']['category_points']['shootout'] > m_info['away']['expected']['category_points']['shootout']:
+                                m_info['home']['expected']['score'] = m_info['home']['expected']['score'] + 1
+                        elif m_info['home']['expected']['category_points']['shootout'] <  m_info['away']['expected']['category_points']['shootout']:
+                                m_info['away']['expected']['score'] = m_info['away']['expected']['score'] + 1
+
 
         context = {'page_name' : 'Match: %s' % match_id, 'match' : m_info }
         return render(request, 'match/match_detail.html', context)

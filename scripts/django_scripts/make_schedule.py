@@ -32,10 +32,13 @@ teams = {
 		"Los Angeles Kings":"Los Angeles",
 		"Minnesota Wild": "Minnesota",
 		"Montreal Canadiens":"Montreal",
+		u"Montr\xe9al Canadiens":"Montreal",
 		"Nashville Predators":"Nashville",
 		"New Jersey Devils":"New Jersey",
 		"NY Rangers":"NY Rangers",
+		"New York Rangers":"NY Rangers",
 		"NY Islanders":"NY Islanders",
+		"New York Islanders":"NY Islanders",
 		"Ottawa Senators":"Ottawa" ,
 		"Philadelphia Flyers":"Philadelphia",
 		"Pittsburgh Penguins":"Pittsburgh",
@@ -60,13 +63,21 @@ for w in week_dates:
 	if len(jsonData["dates"]) == 0:
 		continue
 	for g in jsonData["dates"][0]["games"]:
+		awayTeamName =  teams[g["teams"]["away"]["team"]["name"]]
+		homeTeamName =  teams[g["teams"]["home"]["team"]["name"]]
 		
-		awayTeam = Hockey_Team.objects.get(name=g["teams"]["away"]["team"]["triCode"])
-		homeTeam = Hockey_Team.objects.get(name=g["teams"]["home"]["team"]["triCode"])
-		print "%s (%s @ %s)" % (g["gamePk"], awayTeam, homeTeam)
-		g = Game.objects.filter(nhl_game_id=g["gamePk"])
+		awayTeam = Hockey_Team.objects.get(full_name=awayTeamName)
+		homeTeam = Hockey_Team.objects.get(full_name=homeTeamName)
+		nhl_game_id = g["gamePk"]
+
+		print "%s (%s @ %s)" % (nhl_game_id, awayTeam, homeTeam)
+		g = Game.objects.filter(nhl_game_id=nhl_game_id)
+
 		if len(g) == 0:
-			Game.objects.create(date=w.date, home_team=homeTeam, away_team=awayTeam, nhl_game_id=g["gamePk"], year_id=p.current_year_id, time="00:00:00")
+			print "Adding game: %s" % nhl_game_id
+#			Game.objects.create(date=w.date, home_team=homeTeam, away_team=awayTeam, nhl_game_id=g["gamePk"], year_id=p.current_year_id, time="00:00:00")
+		else:
+			print "Game already exists: %s" % nhl_game_id
 
 
 

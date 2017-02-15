@@ -229,7 +229,7 @@ def standings_index(request):
     current_week = pool.current_week
     all_dates = Week_Date.objects.select_related().filter(week__in=Week.objects.filter(year_id=pool.current_year_id).filter(number__lt=pool.current_week.number)).values_list('date', flat=True)
     for p in players:
-        player_data = {'name' : p.name, 'conference' : p.conference}
+        player_data = {'name' : p.name, 'conference' : p.conference, "player_id" : p.id}
         player_data['wins'] = Match.objects.filter(winner_player = p).filter(week__year_id=pool.current_year_id).count()
         player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
         away_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('away_cat'))
@@ -282,7 +282,23 @@ def standings_index(request):
         standings_data.append(player_data)
 
     s_data = standings_sort(standings_data)
-    context = {'page_name' : 'Standings', 'p_data' : s_data}
+    clinches = [
+        {"player_id": 2, "clinch": 'x'},
+        {"player_id": 4, "clinch": 'x'},
+        {"player_id": 6, "clinch": 'x'},
+        {"player_id": 7, "clinch": 'x'},
+        {"player_id": 8, "clinch": 'x'},
+        {"player_id": 9, "clinch": 'x'},
+        {"player_id": 5, "clinch": ''},
+        {"player_id": 11, "clinch": ''},
+    ]
+
+    for s in s_data:
+        for c in clinches:
+            if s["player_id"] == c["player_id"]:
+                s["clinch"] = c["clinch"]
+
+    context = {'page_name' : 'Standings', 'p_data' : s_data }
     return render(request, 'hockeypool/standings_index.html', context)
 
 @login_required
