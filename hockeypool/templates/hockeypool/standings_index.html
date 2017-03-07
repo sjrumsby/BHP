@@ -23,8 +23,8 @@
 		<th>Cats Against</th>
         </tr>
 {% for p in p_data %}
-        <tr>
-                <td>{% if p.clinch %}({{p.clinch}}){% endif %} {{p.name}}</td>
+        <tr {% if p.conference_lead %}class="strong"{% endif %}>
+                <td>{% if p.clinch %}({{p.clinch}}){% endif %}&nbsp;{{p.name}}</td>
                 <td>{{p.conference}}</td>
                 <td>{{p.wins|default_if_none:"0"}}</td>
                 <td>{{p.loss|default_if_none:"0"}}</td>

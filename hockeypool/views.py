@@ -19,6 +19,17 @@ from re import match
 import logging
 logger = logging.getLogger(__name__)
 
+clinches = [
+        {"player_id": 2, "clinch": 'x'},
+        {"player_id": 4, "clinch": ''},
+        {"player_id": 6, "clinch": 'x'},
+        {"player_id": 7, "clinch": ''},
+        {"player_id": 8, "clinch": 'x'},
+        {"player_id": 9, "clinch": 'x'},
+        {"player_id": 5, "clinch": ''},
+        {"player_id": 11, "clinch": ''},
+    ]
+
 def standings_sort(data):
         return sorted(data, key = lambda x: (x['wins'], x['categories'], x['points']['fantasy_points'], x['categories_against']), reverse=True)
 
@@ -222,6 +233,144 @@ def skater_detail(request, skater_id):
                 context = {'page_name' : 'Player Stats', 'error' : error}
                 return render(request, 'hockeypool/player_detail.html', context)
 
+def standings_west(request):
+    players = Player.objects.filter(conference='West')
+    standings_data = []
+    pool = Pool.objects.get(pk=1)
+    current_week = pool.current_week
+    all_dates = Week_Date.objects.select_related().filter(week__in=Week.objects.filter(year_id=pool.current_year_id).filter(number__lt=pool.current_week.number)).values_list('date', flat=True)
+    for p in players:
+        player_data = {'name' : p.name, 'conference' : p.conference, "player_id" : p.id}
+        player_data['wins'] = Match.objects.filter(winner_player = p).filter(week__year_id=pool.current_year_id).count()
+        player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
+        away_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('away_cat'))
+        home_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('home_cat'))
+        away_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('home_cat'))
+        home_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('away_cat'))
+
+        if away_cats['away_cat__sum'] == None:
+            away_cats['away_cat__sum'] = 0
+        if home_cats['home_cat__sum'] == None:
+            home_cats['home_cat__sum'] = 0
+
+        if away_cats['away_cat__sum'] == None:
+            away_cats['away_cat__sum'] = 0
+        if home_cats['home_cat__sum'] == None:
+            home_cats['home_cat__sum'] = 0
+
+        player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
+        player_data['categories_against'] = away_cats_against['home_cat__sum'] + home_cats_against['away_cat__sum']
+        streak_data = Match.objects.filter(week__year_id=pool.current_year_id).filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
+        streak = 0
+
+        for s in streak_data:
+            if s.winner_player == p:
+                if streak >= 0:
+                    streak = streak + 1
+                else:
+                    break
+            else:
+                if streak > 0:
+                    break
+                else:
+                    streak = streak - 1
+        player_data['streak'] = streak
+
+        player_data['points'] = Team_Point.objects.filter(player=p).filter(point__game__date__in=all_dates).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+        player_data['points_against'] = {"fp" : 0, "g" : 0, "a" : 0, "plus_minus" : 0, "os" : 0, "tg" : 0, "goalie" : 0, "so" : 0, "games" : 0}
+
+        for m in Match.objects.filter(week_id__in=Week.objects.filter(year_id=pool.current_year_id)).filter(winner_player_id__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('week'):
+            if m.home_player == p:
+                data = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+            else:
+                data = Team_Point.objects.filter(point__game__date__in=Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+
+            if data["fantasy_points"] is not None:
+                player_data['points_against']["fp"] += data["fantasy_points"]
+                player_data['points_against']['games'] += 1
+                player_data["points"]["per_game"] = player_data["points"]["fantasy_points"]/(pool.current_week.number - 1)
+                player_data["points_against"]["fp_per_game"] = player_data['points_against']["fp"] / player_data['points_against']['games']
+        standings_data.append(player_data)
+
+    s_data = standings_sort(standings_data)
+
+    for s in s_data:
+        for c in clinches:
+            if s["player_id"] == c["player_id"]:
+                s["clinch"] = c["clinch"]
+
+    context = {'page_name' : 'Standings', 'p_data' : s_data }
+    return render(request, 'hockeypool/standings_index.html', context)
+
+def standings_east(request):
+    players = Player.objects.filter(conference='East')
+    standings_data = []
+    pool = Pool.objects.get(pk=1)
+    current_week = pool.current_week
+    all_dates = Week_Date.objects.select_related().filter(week__in=Week.objects.filter(year_id=pool.current_year_id).filter(number__lt=pool.current_week.number)).values_list('date', flat=True)
+    for p in players:
+        player_data = {'name' : p.name, 'conference' : p.conference, "player_id" : p.id}
+        player_data['wins'] = Match.objects.filter(winner_player = p).filter(week__year_id=pool.current_year_id).count()
+        player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
+        away_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('away_cat'))
+        home_cats = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('home_cat'))
+        away_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(away_player=p).aggregate(Sum('home_cat'))
+        home_cats_against = Match.objects.filter(week__year_id=pool.current_year_id).filter(home_player=p).aggregate(Sum('away_cat'))
+
+        if away_cats['away_cat__sum'] == None:
+            away_cats['away_cat__sum'] = 0
+        if home_cats['home_cat__sum'] == None:
+            home_cats['home_cat__sum'] = 0
+
+        if away_cats['away_cat__sum'] == None:
+            away_cats['away_cat__sum'] = 0
+        if home_cats['home_cat__sum'] == None:
+            home_cats['home_cat__sum'] = 0
+
+        player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
+        player_data['categories_against'] = away_cats_against['home_cat__sum'] + home_cats_against['away_cat__sum']
+        streak_data = Match.objects.filter(week__year_id=pool.current_year_id).filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
+        streak = 0
+
+        for s in streak_data:
+            if s.winner_player == p:
+                if streak >= 0:
+                    streak = streak + 1
+                else:
+                    break
+            else:
+                if streak > 0:
+                    break
+                else:
+                    streak = streak - 1
+        player_data['streak'] = streak
+
+        player_data['points'] = Team_Point.objects.filter(player=p).filter(point__game__date__in=all_dates).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+        player_data['points_against'] = {"fp" : 0, "g" : 0, "a" : 0, "plus_minus" : 0, "os" : 0, "tg" : 0, "goalie" : 0, "so" : 0, "games" : 0}
+
+        for m in Match.objects.filter(week_id__in=Week.objects.filter(year_id=pool.current_year_id)).filter(winner_player_id__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('week'):
+            if m.home_player == p:
+                data = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+            else:
+                data = Team_Point.objects.filter(point__game__date__in=Week_Date.objects.filter(week=m.week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'))
+
+            if data["fantasy_points"] is not None:
+                player_data['points_against']["fp"] += data["fantasy_points"]
+                player_data['points_against']['games'] += 1
+                player_data["points"]["per_game"] = player_data["points"]["fantasy_points"]/(pool.current_week.number - 1)
+                player_data["points_against"]["fp_per_game"] = player_data['points_against']["fp"] / player_data['points_against']['games']
+        standings_data.append(player_data)
+
+    s_data = standings_sort(standings_data)
+
+    for s in s_data:
+        for c in clinches:
+            if s["player_id"] == c["player_id"]:
+                s["clinch"] = c["clinch"]
+
+    context = {'page_name' : 'Standings', 'p_data' : s_data }
+    return render(request, 'hockeypool/standings_index.html', context)
+
 def standings_index(request):
     players = Player.objects.all()
     standings_data = []
@@ -282,93 +431,24 @@ def standings_index(request):
         standings_data.append(player_data)
 
     s_data = standings_sort(standings_data)
-    clinches = [
-        {"player_id": 2, "clinch": 'x'},
-        {"player_id": 4, "clinch": 'x'},
-        {"player_id": 6, "clinch": 'x'},
-        {"player_id": 7, "clinch": 'x'},
-        {"player_id": 8, "clinch": 'x'},
-        {"player_id": 9, "clinch": 'x'},
-        {"player_id": 5, "clinch": ''},
-        {"player_id": 11, "clinch": ''},
-    ]
 
     for s in s_data:
         for c in clinches:
             if s["player_id"] == c["player_id"]:
                 s["clinch"] = c["clinch"]
 
+    west_found = 0 
+    east_found = 0
+    for s in s_data:
+        if s['conference'] == 'West' and not west_found:
+            west_found = 1
+            s['conference_lead'] = 1
+        if s['conference'] == 'East' and not east_found:
+            east_found = 1
+            s['conference_lead'] = 1
+
     context = {'page_name' : 'Standings', 'p_data' : s_data }
     return render(request, 'hockeypool/standings_index.html', context)
-
-@login_required
-def standings_west(request):
-        players = Player.objects.filter(conference='West')
-        standings_data = []
-        pool = Pool.objects.get(pk=1)
-        for p in players:
-                player_data = {'name' : p.name, 'conference' : p.conference}
-                player_data['wins'] = Match.objects.filter(winner_player = p).count()
-                player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
-                away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
-                home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
-                player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
-                streak_data = Match.objects.filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
-                streak = 0
-
-                for s in streak_data:
-                        if s.winner_player == p:
-                                if streak >= 0:
-                                        streak = streak + 1
-                                else:
-                                        break
-                        else:
-                                if streak > 0:
-                                        break
-                                else:
-                                        streak = streak - 1
-                player_data['streak'] = streak
-
-                player_data['points'] = Team_Point.objects.filter(player=p).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                standings_data.append(player_data)
-        s_data = standings_sort(standings_data)
-        context = {'page_name' : 'Standings', 'p_data' : s_data}
-        return render(request, 'hockeypool/standings_west.html', context)
-
-@login_required
-def standings_east(request):
-        players = Player.objects.filter(conference='East')
-        standings_data = []
-        pool = Pool.objects.get(pk=1)
-        for p in players:
-                player_data = {'name' : p.name, 'conference' : p.conference}
-                player_data['wins'] = Match.objects.filter(winner_player = p).count()
-                player_data['loss'] = pool.current_week.number - player_data['wins'] - 1
-                away_cats = Match.objects.filter(away_player=p).aggregate(Sum('away_cat'))
-                home_cats = Match.objects.filter(home_player=p).aggregate(Sum('home_cat'))
-                player_data['categories'] = away_cats['away_cat__sum'] + home_cats['home_cat__sum']
-                streak_data = Match.objects.filter(winner_player__isnull=False).filter(Q(home_player=p)|Q(away_player=p)).order_by('-week')
-                streak = 0
-
-                for s in streak_data:
-                        if s.winner_player == p:
-                                if streak >= 0:
-                                        streak = streak + 1
-                                else:
-                                        break
-                        else:
-                                if streak > 0:
-                                        break
-                                else:
-                                        streak = streak - 1
-                player_data['streak'] = streak
-
-                player_data['points'] = Team_Point.objects.filter(player=p).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                standings_data.append(player_data)
-        s_data = standings_sort(standings_data)
-        context = {'page_name' : 'Standings', 'p_data' : s_data}
-
-        return render(request, 'hockeypool/standings_east.html', context)
 
 @login_required
 def team_index(request):

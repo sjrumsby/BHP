@@ -25,11 +25,19 @@
 					  </thead>
 					  <tbody>
 					    <tr>
-					      <td style="padding:2px;">{{m.match.home_player|safe}}</td>
+					      <td style="padding:2px;">
+{% if m.home.score > m.away.score or m.home.score == m.away.score and m.home.category_points.fantasy_points > m.away.category_points.fantasy_points %}<strong>{% endif %}
+	{{m.match.home_player|safe}}
+{% if m.home.score > m.away.score or m.home.score == m.away.score and m.home.category_points.fantasy_points > m.away.category_points.fantasy_points %}</strong>{% endif %}
+                                              </td>
 					      <td style="padding:2px;">{{m.home.score}}</td>
 					    </tr>
                                             <tr>
-                                              <td style="padding:2px;">{{m.match.away_player|safe}}</td>
+                                              <td style="padding:2px;">
+{% if m.home.score < m.away.score or m.home.score == m.away.score and m.home.category_points.fantasy_points < m.away.category_points.fantasy_points %}<strong>{% endif %}
+{{m.match.away_player|safe}}
+{% if m.home.score < m.away.score or m.home.score == m.away.score and m.home.category_points.fantasy_points < m.away.category_points.fantasy_points %}<strong>{% endif %}
+                                              </td>
                                               <td style="padding:2px;">{{m.away.score}}</td>
                                             </tr>
 					  </tbody>

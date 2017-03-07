@@ -115,3 +115,7 @@ div.skaterPopUp div.skaterPopUpFooter {
   border-radius: 0 0 5px 5px;
   padding-bottom: 15px;
 }
+
+tr.strong td {
+    font-weight: bold;
+}
