@@ -396,7 +396,7 @@ class nhl_game():
                 if x['result']['eventTypeId'] not in ['PERIOD_READY', 'PERIOD_START', 'SHOOTOUT_COMPLETE', 'PERIOD_END', 'PERIOD_OFFICIAL', 'GAME_END', 'STOP', 'GAME_OFFICIAL']:
                     if x['result']['eventTypeId'] == 'GOAL':
                         for p in x['players']:
-                            if p['playerType'] == 'Shooter':
+                            if p['playerType'] == 'Shooter' or p['playerType'] == "Scorer":
                                 if p['player']['id'] in self.homeTeamSkaters:
                                     self.homeTeamSkaters[p['player']['id']]['shootoutgoals'] += 1
                                     if winnerGoalie in self.awayTeamSkaters:
@@ -552,7 +552,6 @@ class nhl_game():
                     elif x['result']['eventTypeId'] == 'PENALTY':
                         playData = self.processPenalty(x)
                         if playData['player'] != "Team":
-                            print x['players']
                             if playData['team'] == self.homeTeamID:
                                 if playData['player']:
                                     try:
