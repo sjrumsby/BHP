@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 
 clinches = [
         {"player_id": 2, "clinch": 'x'},
-        {"player_id": 4, "clinch": ''},
+        {"player_id": 4, "clinch": 'x'},
         {"player_id": 6, "clinch": 'x'},
-        {"player_id": 7, "clinch": ''},
-        {"player_id": 8, "clinch": 'x'},
+        {"player_id": 7, "clinch": 'x'},
+        {"player_id": 8, "clinch": 'y'},
         {"player_id": 9, "clinch": 'x'},
         {"player_id": 5, "clinch": ''},
         {"player_id": 11, "clinch": ''},

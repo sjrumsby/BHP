@@ -1,8 +1,8 @@
 import datetime, time
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.db.models import Sum
-from django.db.models import Q
+from django.db.models import Sum, Q
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from hockeypool.models import *
@@ -33,8 +33,8 @@ def index(request):
         if len(match) > 0:
                 for m in match:
                         tmp_arr = { 'match' : m, 'home' : { 'score' : 0 }, 'away' : { 'score' : 0 } }
-                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                        tmp_arr['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.home_player).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
+                        tmp_arr['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week=week).values_list('date', flat=True), player=m.away_player).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
                         tmp_arr['home']['in_action'] = Activated_Team.objects.filter(player=m.home_player).exclude(position=6).filter(skater__hockey_team__in=game_ids).filter(week_id=week.id).count()
                         tmp_arr['away']['in_action'] = Activated_Team.objects.filter(player=m.away_player).exclude(position=6).filter(skater__hockey_team__in=game_ids).filter(week_id=week.id).count()
 
@@ -107,13 +107,8 @@ def index(request):
                     weeks.append({"number": i, "type": "playoff", "display": "League Championships"})
 
         context["weeks"] = weeks
-        logger.info(weeks)
                 
         return render(request, 'match/match.html', context)
-
-
-
-
 
 @login_required
 def match_detail(request, match_id):
@@ -130,13 +125,17 @@ def match_detail(request, match_id):
         for g in Game.objects.filter(date=formed_date).values_list('away_team', flat="True"):
                 game_ids.append(g)
 
+        for g in game_ids:
+            logger.info(g)
+
         if len(match) > 0:
                 match = match[0]
                 match_info = []
                 week = match.week.number
                 m_info = { 'match' : match, 'home' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } }, 'away' : { 'score' : 0, 'expected' : {'category_points' : {'fantasy_points' : 0, 'goals' : 0, 'assists' : 0, 'plus_minus' : 0, 'offensive_special' : 0, 'true_grit' : 0, 'goalie' : 0, 'shootout' : 0}, 'score' : 0 } } }
-                m_info['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number=week).filter(week__year=p.current_year).values_list('date', flat=True), player=match.home_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                m_info['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number=week).filter(week__year=p.current_year).values_list('date', flat=True), player=match.away_player).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+
+                m_info['home']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number=week).filter(week__year=p.current_year).values_list('date', flat=True), player=match.home_player).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
+                m_info['away']['category_points'] = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number=week).filter(week__year=p.current_year).values_list('date', flat=True), player=match.away_player).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
                 m_info['home']['in_action'] = Activated_Team.objects.filter(player=match.home_player).filter(week__year=p.current_year).filter(week__number=week).filter(skater__hockey_team__in=game_ids).count()
                 m_info['away']['in_action'] = Activated_Team.objects.filter(player=match.away_player).filter(week__year=p.current_year).filter(week__number=week).filter(skater__hockey_team__in=game_ids).count()
 
@@ -229,12 +228,18 @@ def match_detail(request, match_id):
                 pool = Pool.objects.get(pk=1)
                 week = pool.current_week.number
                 start_week = max(0, week-3)
-                end_week = min(week, match.week.number)
+                end_week = max(week, match.week.number)
                 week_length = end_week - start_week
                 nums = range(0, end_week)
 
-                home_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=home_team_ids).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
-                away_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=away_team_ids).aggregate(fantasy_points=Sum('point__fantasy_points'), goals=Sum('point__goals'), assists=Sum('point__assists'), shootout=Sum('point__shootout'), plus_minus=Sum('point__plus_minus'), offensive_special=Sum('point__offensive_special'), true_grit=Sum('point__true_grit_special'), goalie=Sum('point__goalie'))
+                home_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=home_team_ids).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
+                away_expect = Team_Point.objects.filter(point__game__date__in = Week_Date.objects.filter(week__number__in=range(start_week, end_week)).filter(week__year=p.current_year).values_list('date', flat=True)).filter(point__skater_id__in=away_team_ids).aggregate(fantasy_points=Coalesce(Sum('point__fantasy_points'),0), goals=Coalesce(Sum('point__goals'),0), assists=Coalesce(Sum('point__assists'),0), shootout=Coalesce(Sum('point__shootout'),0), plus_minus=Coalesce(Sum('point__plus_minus'),0), offensive_special=Coalesce(Sum('point__offensive_special'),0), true_grit=Coalesce(Sum('point__true_grit_special'),0), goalie=Coalesce(Sum('point__goalie'),0))
+
+                for x in ['fantasy_points', 'goals', 'assists', 'plus_minus', 'offensive_special', 'true_grit', 'goalie', 'shootout']:
+                    if home_expect[x] == None:
+                        home_expect[x] = 0
+                    if away_expect[x] == None:
+                        away_expect[x] = 0
 
                 home_expect['fantasy_points'] /= week_length
                 home_expect['goals'] /= week_length
@@ -400,7 +405,6 @@ def match_week(request, week_number):
                     weeks.append({"number": i, "type": "playoff", "display": "League Championships"})
 
         context["weeks"] = weeks
-        logger.info(weeks)
                 
         return render(request, 'match/match.html', context)
 
