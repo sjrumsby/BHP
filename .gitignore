@@ -1,5 +1,7 @@
 *.pyc
 bhp/settings.py
+bhp/uwsgi_params
+bhp/uwsgi.ini
 scripts/legacy
 scripts/bootstrap_data
 scripts/nhl_updates/reports

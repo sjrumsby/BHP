@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
 
 import os, sys
 
-django_path = "/var/www/django/bhp"
+django_path = "/usr/local/apps/bhp"
 
 if django_path not in sys.path:
-        sys.path.append(django_path)
+    sys.path.append(django_path)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bhp.settings")
 
